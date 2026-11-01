@@ -1,0 +1,18 @@
+{
+  "_about": "B2 batch glossary (home, learn/plugins-and-cordis, tours/life-of-a-headless-task). Owner: B2 writer. Search core.json and other batch files before you add a term here.",
+
+  "effect": {
+    "term": "effect",
+    "short": "A reversible registration a plugin makes on a context, made with ctx.effect() or ctx.on(). It unwinds on its own when the plugin unloads or reloads.",
+    "long": "{{cite docs/cordis-primer.md:13}}. A core example: AgentRegistry.setFactory() registers inside ctx.effect() and returns the disposer that clears the slot ({{cite packages/core/agent/src/index.ts:384-392}}).",
+    "aliases": ["reversible effect", "ctx.effect"],
+    "page": "learn/plugins-and-cordis"
+  },
+  "typed-event": {
+    "term": "typed event",
+    "short": "A named extension point a service declares, dispatched as emit, waterfall, parallel, serial or bail, depending on how its listeners must run.",
+    "long": "{{cite docs/cordis-primer.md:12}}, dispatch-mode table at {{cite docs/cordis-primer.md:19-25}}.",
+    "aliases": ["event", "cordis event"],
+    "page": "learn/plugins-and-cordis"
+  }
+}

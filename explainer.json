@@ -16,8 +16,8 @@
   "ste_max_words": 25,
   "comment_language": "",
   "_comment_language": "Language of code comments that <x-tr> translates, for example Chinese. Empty = the label says only 'Translated comments'.",
-  "prism_components": ["prism-core", "prism-clike", "prism-javascript", "prism-typescript", "prism-jsx", "prism-tsx", "prism-yaml", "prism-bash", "prism-json"],
+  "prism_components": ["prism-core", "prism-clike", "prism-javascript", "prism-typescript", "prism-yaml", "prism-bash", "prism-json"],
   "_prism_components": "Prism language files to load from cdnjs. Add for example prism-rust, prism-go, prism-java, prism-typescript.",
-  "lang_by_ext": {".ts": "typescript", ".tsx": "tsx", ".mts": "typescript", ".cts": "typescript"},
+  "lang_by_ext": {".ts": "typescript", ".tsx": "typescript", ".mts": "typescript", ".cts": "typescript"},
   "_lang_by_ext": "Extra file-extension to Prism-language mappings, for example {\".rs\": \"rust\", \".go\": \"go\"}."
 }

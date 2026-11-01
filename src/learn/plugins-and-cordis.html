@@ -1,0 +1,60 @@
+---
+title: Everything is a plugin: Cordis
+nav_title: Plugins and Cordis
+level: Beginner
+prerequisites: none
+related: concepts/agent-loop-and-session, concepts/tools-and-mcp
+summary: DeepSeek Harness is built on Cordis, a plugin framework. A plugin claims services from a shared context, and plugins cooperate only through typed events and reversible effects.
+---
+<x-sentence>DeepSeek Harness has no privileged core: every part of it, including the agent loop itself, is a {{term plugin}} mounted on {{term cordis}}.</x-sentence>
+
+<h2>The idea</h2>
+<p>DeepSeek Harness (<code>dsh</code>) is an open-source agent harness ({{cite README.md:5}}). It is built on an "everything-is-a-plugin" architecture and powered by Cordis ({{cite README.md:7}}). A {{term plugin}} is an object that claims one or more {{term service | services}} from a shared {{term context}}, instead of importing other code directly ({{cite docs/cordis-primer.md:9-10}}).</p>
+<p><strong>An everyday comparison.</strong> Think of a context as a shared toolbox on a workbench. A plugin does not keep its own private copy of a tool. It reaches into the toolbox and asks for the tool by name, for example <code>ctx.tools</code> or <code>ctx.llm</code> ({{cite docs/cordis-primer.md:10}}). The comparison stops here: a toolbox does not notify anyone when a tool is put back. A Cordis context does: plugins can also tell each other about things that happened, through events.</p>
+
+<h2>The picture</h2>
+<x-diagram name="b2_plugins_cordis" alt="Two panels. Panel 1: a headless-runner plugin box, an arrow labelled apply(ctx), a Context box listing ctx.sessions, ctx.tools, ctx.agents and ctx.llm, an arrow labelled ctx.effect() or ctx.on(), and a Reversible effect box. Panel 2: a ctx.tools service box, two chips named tools/pre-execute and waterfall, and a Listener plugin box registered with ctx.on()." caption="Figure: a plugin joins dsh by claiming a context (panel 1); two plugins cooperate only through a named, typed event (panel 2)." />
+<p>Read panel 1 left to right: a plugin's <code>apply(ctx)</code> function runs once, and it registers its reversible effects on the context it receives. Panel 2 shows one such effect in use: a service dispatches a named event, and a listener plugin, registered earlier, reacts to it. The colours mark one role each; the legend under the diagram names them.</p>
+
+<h2>In DeepSeek Harness</h2>
+<p>The one-shot headless runner is an ordinary plugin. It exports a <code>name</code>, an <code>inject</code> list of the services it needs, and an <code>apply(ctx, config)</code> function ({{cite packages/bundle/headless/src/index.ts:42}}, {{cite packages/bundle/headless/src/index.ts:45}}, {{cite packages/bundle/headless/src/index.ts:456}}). <code>AgentRegistry.setFactory()</code> shows a typical {{term effect | reversible effect}}. It registers inside <code>ctx.effect()</code> and returns the exact disposer that clears the registration again ({{cite packages/core/agent/src/index.ts:384-392}}). The tool pipeline shows a typical {{term typed-event | typed event}}. Before a tool runs, <code>ctx.tools</code> dispatches <code>tools/pre-execute</code> as a <code>waterfall</code> event ({{cite packages/core/tools/src/pipeline.ts:199-201}}). A listener can inspect or change the decision before the next listener runs. The next page, {{link learn/profiles-and-bundles}}, shows how many such plugins stack into one running tree. {{link concepts/agent-loop-and-session}} and {{link concepts/tools-and-mcp}} each read one of these services in detail.</p>
+
+<h2>More detail</h2>
+<p>A plugin that needs another service names it in <code>inject</code>. Cordis waits until every named service exists before the plugin's <code>apply()</code> runs. Load order comes from service dependencies, not from a manual boot sequence ({{cite docs/cordis-primer.md:11}}). By convention, one domain owns one service key. A tool-pipeline event belongs to <code>ctx.tools</code>. Model streaming belongs to <code>ctx.llm</code>, and live agent coordination belongs to <code>ctx.agents</code> ({{cite docs/cordis-primer.md:43}}).</p>
+<p>A typed event is not one thing. Cordis has five dispatch modes: <code>emit</code>, <code>waterfall</code>, <code>parallel</code>, <code>serial</code>, and <code>bail</code>. Each event picks one mode as part of its contract ({{cite docs/cordis-primer.md:19-25}}). A <code>waterfall</code> listener, such as a <code>tools/pre-execute</code> handler, must call <code>next()</code> to pass its result on. Returning without it stops the chain there ({{cite docs/cordis-primer.md:29-30}}). One config knob changes what a running tree contains: a patch file can turn a whole row off with <code>disabled: true</code>. The headless bundle's own patch does this to four rows it does not need for a one-shot run ({{cite packages/bundle/headless/cordis.patch.yml:35-46}}).</p>
+<p>For the generated service and event reference, see the repository's own {{cite docs/subsystems/core.md}} and the {{cite docs/cordis-primer.md}} primer this page is based on.</p>
+
+<x-deepdive title="The five dispatch modes, compared">
+<p>Every typed event picks one mode. The mode decides whether Cordis waits for listeners, what order they run in, and whether a listener can return a value ({{cite docs/cordis-primer.md:19-25}}).</p>
+<table>
+  <thead><tr><th>Mode</th><th>Awaited?</th><th>Order</th><th>Return value?</th></tr></thead>
+  <tbody>
+    <tr><td><code>emit</code></td><td>No</td><td>registration order</td><td>No</td></tr>
+    <tr><td><code>waterfall</code></td><td>No</td><td>registration order</td><td>Yes</td></tr>
+    <tr><td><code>parallel</code></td><td>Yes</td><td>all at once</td><td>No</td></tr>
+    <tr><td><code>serial</code></td><td>Yes</td><td>registration order</td><td>Yes</td></tr>
+    <tr><td><code>bail</code></td><td>No</td><td>registration order, until one bails</td><td>Yes</td></tr>
+  </tbody>
+</table>
+<p><code>tools/pre-execute</code> is a <code>waterfall</code> event. Listeners run in registration order, not all at once. The result is the decision the tool pipeline uses ({{cite packages/core/tools/src/pipeline.ts:199-201}}).</p>
+</x-deepdive>
+
+<h2>What can go wrong</h2>
+<x-warning title="A missing service means a silent wait, not an error"><p>Check the bundle's patch file for a <code>disabled: true</code> row with the same id before you assume a plugin is broken. A plugin runs its <code>apply()</code> only when every service it injects exists ({{cite docs/cordis-primer.md:11}}). If a bundle disables a service a plugin needs, that plugin's <code>apply()</code> never runs.</p></x-warning>
+<x-simplified><p>This page leaves out isolation (a plugin's own sub-context), hot-module reload, and the exact mounting algorithm. Cordis itself ({{cite vendor/cordis/}}) is vendored by source copy ({{cite vendor/README.md:1-5}}). This site explains it only as the interface DeepSeek Harness plugins build on.</p></x-simplified>
+<p><strong>Why it matters.</strong> When a feature seems to do nothing, check which services its plugin injects, and whether the profile's bundle stack still provides all of them.</p>
+
+<x-quiz>
+  <x-q level="easy">What does a plugin claim from a context, instead of importing another plugin's code directly?
+    <x-a><p>A service, found by a stable key such as <code>ctx.tools</code> or <code>ctx.llm</code> ({{cite docs/cordis-primer.md:10}}).</p></x-a>
+  </x-q>
+  <x-q level="medium">How does a plugin make sure another plugin's service is ready before it runs?
+    <x-a><p>It names the service in its <code>inject</code> list. Cordis waits until every named service exists before the plugin's <code>apply()</code> runs ({{cite docs/cordis-primer.md:11}}).</p></x-a>
+  </x-q>
+  <x-q level="medium">What must a waterfall listener call to pass its result on to the next listener?
+    <x-a><p><code>next()</code>. Returning without calling it stops the chain at that listener ({{cite docs/cordis-primer.md:29-30}}).</p></x-a>
+  </x-q>
+  <x-q level="hard">Which dispatch mode is awaited and runs every listener at once: <code>parallel</code> or <code>waterfall</code>?
+    <x-a><p><code>parallel</code>. It is awaited and has no return value. <code>waterfall</code> is not awaited, but it does have a return value (the dispatch-mode table above, {{cite docs/cordis-primer.md:19-25}}).</p></x-a>
+  </x-q>
+</x-quiz>

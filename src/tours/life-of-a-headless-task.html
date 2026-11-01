@@ -1,0 +1,103 @@
+---
+title: Life of a headless task
+nav_title: Life of a headless task
+level: Intermediate
+prerequisites: learn/plugins-and-cordis, concepts/agent-loop-and-session
+related: concepts/agent-loop-and-session, concepts/tools-and-mcp, concepts/subagents-and-delegation
+summary: Follow one dsh --profile headless "task" run from the command line to the printed answer, stop by stop.
+---
+<x-sentence>This tour follows <code>dsh --profile headless "task"</code> from the command line to the text {{term agent | the Agent}} prints on stdout.</x-sentence>
+
+<h2>The idea</h2>
+<p>The headless bundle is the simplest surface in DeepSeek Harness: no server, no browser, one task in, one answer out. It still uses the same core pieces as every other surface: a {{term profile}}, a {{term plugin | plugin}} tree, an {{term agent | Agent}}, and the {{term session-log | session log}}. This tour has nine stops, in three stages: starting the run, running the task, and finishing the run.</p>
+
+<h2>The picture</h2>
+<x-diagram name="b2_headless_tour" alt="Three panels of three step cards each. Stage 1, start the run: bin.ts/args.ts, profile-boot.ts, headless bundle. Stage 2, run the task: AgentRegistry.create(), agent.followup(), turn/step loop. Stage 3, finish the run: tools.execute(), whenIdle plus children, flush plus stdout." caption="Figure: the nine stops of one headless run, grouped into three stages." />
+<p>Read each panel left to right; the three panels run top to bottom in call order. The number on each card matches the stop number below.</p>
+
+<x-stop n="1" title="bin.ts and args.ts parse the command line">
+<p>Node starts <code>apps/cli/src/bin.ts</code>. Its <code>runCli()</code> function calls <code>parseDshArgs()</code> with the raw <code>argv</code> ({{cite apps/cli/src/bin.ts:29}}). Commander's parser owns only the launcher's own flags: the first token it does not recognize starts the inner arguments, captured by a variadic <code>[args...]</code> positional ({{cite apps/cli/src/args.ts:11-12}}, {{cite apps/cli/src/args.ts:167}}). For <code>dsh --profile headless "task"</code>, that leftover is <code>["task"]</code>: it becomes part of the resolved <code>ProfileInvocation</code> ({{cite apps/cli/src/args.ts:117}}).</p>
+<x-code file="apps/cli/src/bin.ts" lines="31-42" highlight="35,40" caption="runCli() boots the resolved profile and forwards the invocation's own args." />
+<p>Line 35 starts <code>runProfile()</code>. Line 40 passes <code>invocation.args</code> (the <code>["task"]</code> leftover) straight through.</p>
+</x-stop>
+
+<x-stop n="2" title="profile-boot.ts composes and boots the profile">
+<p><code>composeProfile()</code> loads the named profile and resolves any <code>--patch</code> overlays; a profile's own bundle layers and patch files stack in a fixed order ({{cite apps/cli/src/profile-boot.ts:224-236}}, {{cite docs/architecture.md:25}}). <code>runProfile()</code> then calls the shared <code>boot()</code> helper with that composed patch stack, which mounts the resulting plugin tree into one Cordis context ({{cite apps/cli/src/profile-boot.ts:313}}, {{cite apps/cli/src/profile-boot.ts:323}}, {{cite packages/boot/app-boot/src/index.ts:1228}}).</p>
+<x-code file="apps/cli/src/profile-boot.ts" lines="334-338" caption="The launcher's own args become ctx.cmdlineArgs for every mounted plugin." />
+<p><code>provideCmdline()</code> is what turns the <code>["task"]</code> leftover into a service other plugins can read ({{cite apps/cli/src/profile-boot.ts:334-338}}).</p>
+</x-stop>
+
+<x-stop n="3" title="The headless bundle mounts its two plugins">
+<p>The <code>dsh-headless</code> bundle's patch inserts two rows. <code>headless-startup</code> injects <code>cmdlineArgs</code> and parses the task positional. <code>headless-runner</code> reads that parsed value back through its own <code>inject</code> ({{cite packages/bundle/headless/cordis.patch.yml:14-26}}).</p>
+<x-code file="packages/bundle/headless/cordis.patch.yml" lines="14-26" caption="Two plugins, wired by service, not by import." />
+<p><code>headless-startup</code>'s <code>apply()</code> parses the joined positional words into one <code>task</code> string, then provides it as <code>ctx.headlessStartup</code> ({{cite packages/bundle/headless/src/startup.ts:100}}, {{cite packages/bundle/headless/src/startup.ts:148-155}}).</p>
+</x-stop>
+
+<x-stop n="4" title="AgentRegistry creates the Agent">
+<p><code>headless-runner</code>'s <code>run()</code> reads the core <code>agents</code> service, then, when no <code>--session-id</code> was given, calls <code>agents.create()</code> with a fresh session id ({{cite packages/bundle/headless/src/index.ts:326}}, {{cite packages/bundle/headless/src/index.ts:388-394}}).</p>
+<x-code file="packages/bundle/headless/src/index.ts" lines="388-394" caption="A fresh run creates one Agent through the core registry." />
+<p><code>AgentRegistry.create()</code> looks up the one registered factory and delegates construction to it ({{cite packages/core/agent/src/index.ts:416-426}}); {{link concepts/agent-loop-and-session}} explains what that factory builds.</p>
+</x-stop>
+
+<x-stop n="5" title="The task is submitted with agent.followup()">
+<p>The runner first waits for the new Agent to go idle once, then wraps the task text as a user message and calls <code>agent.followup()</code> ({{cite packages/bundle/headless/src/index.ts:396}}, {{cite packages/bundle/headless/src/index.ts:420-423}}).</p>
+<x-code file="packages/bundle/headless/src/index.ts" lines="420-423" caption="The task text becomes one user message for the Agent's next turn." />
+<p><code>followup()</code> queues the message for the next turn and wakes the Agent's driver ({{cite packages/core/agent-loop/src/agent.ts:179-181}}).</p>
+</x-stop>
+
+<x-stop n="6" title="The turn/step loop drives the model">
+<p>Waking the driver starts <code>kick()</code> ({{cite packages/core/agent-loop/src/agent.ts:250}}). <code>kick()</code> calls the private <code>turn()</code> method in a loop, for as long as a turn reports more admitted work ({{cite packages/core/agent-loop/src/agent.ts:268-270}}). Each <code>turn()</code> call opens one turn and runs one or more steps against the model. This tour does not repeat that loop: {{link concepts/agent-loop-and-session}} covers the turn/step mechanism and the session log in detail.</p>
+</x-stop>
+
+<x-stop n="7" title="Tool calls run through the tool pipeline">
+<p>When a step's model response includes tool calls, the loop hands them to the tool service in one batch ({{cite packages/core/agent-loop/src/agent.ts:590-593}}).</p>
+<x-code file="packages/core/agent-loop/src/agent.ts" lines="586-593" highlight="590-593" caption="One step can ask for several tool calls at once." />
+<p>Each call runs through three dispatches, in order: <code>tools/pre-execute</code>, <code>tools/execute</code>, <code>tools/post-execute</code> ({{cite packages/core/tools/src/pipeline.ts:199-201}}, {{cite packages/core/tools/src/pipeline.ts:299-301}}, {{cite packages/core/tools/src/pipeline.ts:487-489}}). {{link concepts/tools-and-mcp}} is the page for this pipeline.</p>
+</x-stop>
+
+<x-stop n="8" title="The runner waits for idle, and for any subagents">
+<p>After submitting the task, the runner loops: wait for the Agent to go idle, then ask whether any child {{term subagent | subagents}} are still progressing ({{cite packages/bundle/headless/src/index.ts:424-431}}).</p>
+<x-code file="packages/bundle/headless/src/index.ts" lines="424-431" caption="The run only stops once the Agent is idle and no child agent is still working." />
+<p><code>waitForChildren()</code> joins any progressing child work and reports whether it had to wait, so the runner knows to check the parent again ({{cite packages/subagent/subagent/src/manager.ts:252-258}}).</p>
+</x-stop>
+
+<x-stop n="9" title="The session flushes, and the result reaches stdout">
+<p>Once the wait loop settles, the runner flushes the session's buffered events to durable storage ({{cite packages/bundle/headless/src/index.ts:435}}, {{cite packages/core/session/src/index.ts:1342-1346}}).</p>
+<x-code file="packages/bundle/headless/src/index.ts" lines="435-443" highlight="437,438,443" caption="Flush, read the final assistant text back from the log, then exit." />
+<p>Line 437 rereads the log from the task's first sequence number to find the last turn's assistant text ({{cite packages/bundle/headless/src/index.ts:84-111}}). Line 438 writes that text to stdout, and line 443 exits <code>0</code> only when the last turn's reason is <code>completed</code>.</p>
+</x-stop>
+
+<h2>More detail</h2>
+<p>This tour follows the plain-text path: no <code>--json</code>, no <code>--session-id</code>. With <code>--json</code>, the runner projects the run as newline-delimited events instead of final text, through a separate projection object ({{cite packages/bundle/headless/src/index.ts:408-409}}). With <code>--session-id</code>, stop 4 changes: the runner adopts an existing Session instead of creating one ({{cite packages/bundle/headless/src/index.ts:395}}). It rejects an id that is live in this process, carries a preset, or was not recorded for the current working directory ({{cite packages/bundle/headless/src/index.ts:277-287}}, {{cite packages/bundle/headless/src/index.ts:222-242}}).</p>
+<p>Two more flags change the run before the task starts. <code>--permission-mode</code> resolves a configured permission preset, and <code>--approval-policy</code> sets the approval behavior after it; both apply before <code>agent.followup()</code> at stop 5 ({{cite packages/bundle/headless/src/index.ts:339-349}}).</p>
+<p>For the generated sequence diagram of one turn, and the tool pipeline's full event reference, see the repository's own {{cite docs/agent-lifecycle.md}} and {{cite docs/tool-execution-pipeline.md}}.</p>
+
+<x-deepdive title="Exactly when does the wait loop at stop 8 stop?">
+<p>The loop at {{cite packages/bundle/headless/src/index.ts:424-431}} does not stop as soon as the Agent looks idle. It stops only when all three of these hold at once:</p>
+<ol>
+  <li>The Agent's own <code>whenIdle()</code> has resolved for this pass of the loop.</li>
+  <li><code>subagents.waitForChildren(agent)</code> returns <code>false</code>: no progressing child work was joined.</li>
+  <li>The session's sequence number has not grown since <code>whenIdle()</code> resolved (<code>agent.session.seq === idleSeq</code>).</li>
+</ol>
+<p>The third check exists for one race. A child agent can settle and wake the parent before the parent's own wait observes it. Re-checking the sequence number catches any new event that arrived in that gap ({{cite packages/bundle/headless/src/index.ts:428}}). Without it, the runner could flush and print one turn too early.</p>
+</x-deepdive>
+
+<h2>What can go wrong</h2>
+<x-warning title="An agent/error can still be cleared before the run ends"><p>Check the last <code>turn/end</code> event, not just whether an <code>agent/error</code> fired, before you call a run failed. An <code>agent/error</code> is only treated as this run's failure when no later <code>turn/end</code> commits before stop 9 ({{cite packages/bundle/headless/src/index.ts:411-417}}, {{cite packages/bundle/headless/src/index.ts:436}}).</p></x-warning>
+<p>A flush failure at stop 9 aborts the run before any text reaches stdout. <code>Session.flush()</code> rejects with the first durability-listener failure once every listener has settled ({{cite packages/core/session/src/index.ts:1342-1346}}). The launcher then reports the error on stderr and exits with a non-zero code ({{cite packages/bundle/headless/src/index.ts:308-313}}).</p>
+<p><strong>Why it matters.</strong> A script that reads a headless run's exit code must not read one <code>agent/error</code> event as a failed run. It must also treat a flush failure as "no durable answer", not as a timeout.</p>
+
+<x-quiz>
+  <x-q level="easy">Which file turns the leftover command-line words into the one task string the Agent receives?
+    <x-a><p><code>packages/bundle/headless/src/startup.ts</code>. Its <code>apply()</code> joins the positional words and provides them as <code>ctx.headlessStartup</code> ({{cite packages/bundle/headless/src/startup.ts:148-155}}).</p></x-a>
+  </x-q>
+  <x-q level="medium">Which method actually constructs the new Agent: <code>AgentRegistry.create()</code> or the registered factory?
+    <x-a><p>The registered factory. <code>AgentRegistry.create()</code> only looks up that factory and calls its <code>createAgent()</code> ({{cite packages/core/agent/src/index.ts:416-426}}).</p></x-a>
+  </x-q>
+  <x-q level="medium">In what order do the three tool-pipeline events run for one tool call?
+    <x-a><p><code>tools/pre-execute</code>, then <code>tools/execute</code>, then <code>tools/post-execute</code> ({{cite packages/core/tools/src/pipeline.ts:199-201}}, {{cite packages/core/tools/src/pipeline.ts:299-301}}, {{cite packages/core/tools/src/pipeline.ts:487-489}}).</p></x-a>
+  </x-q>
+  <x-q level="hard">The Agent reports idle, but the headless runner does not stop waiting. Name one reason this can happen.
+    <x-a><p>A subagent is still progressing (<code>waitForChildren()</code> returns <code>true</code>), or the session's sequence number grew since the idle check. Either case means a new event arrived in the gap ({{cite packages/bundle/headless/src/index.ts:424-431}}; see the deep dive above).</p></x-a>
+  </x-q>
+</x-quiz>

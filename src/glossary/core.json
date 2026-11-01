@@ -162,7 +162,7 @@
   "job": {
     "term": "job",
     "short": "A long-running background unit tracked by ctx.jobs, with a status of running, stopping, completed, killed or failed.",
-    "long": "{{cite docs/subsystems/jobs.md:9}}",
+    "long": "{{cite docs/subsystems/jobs.md:21}}",
     "aliases": ["background job"],
     "page": "concepts/jobs-workflow-goal-plan"
   }

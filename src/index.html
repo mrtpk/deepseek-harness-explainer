@@ -1,28 +1,27 @@
 ---
-summary: A study guide to this codebase for developers who are new to it. It starts simple and goes down to the exact code.
+summary: DeepSeek Harness (dsh) is an open-source, everything-is-a-plugin agent harness. This site gives an overview of how one task flows through it, at commit ce7073d5.
 ---
-<!-- TEMPLATE: Replace the placeholder text. Keep the section ids: the footer links to #code-version. The page title comes from site_name in explainer.json. -->
-
-<p><strong>{{project name}}</strong> is ... (one paragraph: what the project does, cited from its README, for example {{cite README.md:1}}). This site explains the code at commit <code>{{project short_sha}}</code>. You need to know the main language of the code. You do not need to know the domain.</p>
+<p><strong>{{project name}}</strong> (<code>dsh</code>) is an open-source agent harness developed by DeepSeek AI ({{cite README.md:5}}). It is built on {{term cordis}}, an "everything-is-a-plugin" framework: every part of the product, including the model adapter, the tool registry, and the agent loop itself, is a plugin, replaceable from configuration ({{cite docs/architecture.md:9}}). This site explains the code at commit <code>{{project short_sha}}</code>. You need to know TypeScript and Node.js. You do not need to know Cordis or the agent-harness domain first: {{link learn/plugins-and-cordis}} starts there.</p>
 
 <table>
   <tbody>
-    <tr><th>What it does</th><td>One line, with a citation.</td></tr>
-    <tr><th>Runs on</th><td>Platforms or hardware, with a citation.</td></tr>
-    <tr><th>Code size</th><td>Files and lines per language. See {{link code/index}}.</td></tr>
-    <tr><th>Run it</th><td>The quick-start command from the README, with a citation.</td></tr>
+    <tr><th>What it does</th><td>Runs an AI coding agent: a session, a turn/step loop against a model, a tool pipeline, and optional subagents, jobs and workflows ({{cite README.md:5}}, {{cite docs/architecture.md:9}}).</td></tr>
+    <tr><th>Runs on</th><td>Node.js 24.9 or later, TypeScript, pnpm workspaces ({{cite AGENTS.md:84}}).</td></tr>
+    <tr><th>Code size</th><td>Mostly TypeScript/TSX, split across pnpm workspace packages under <code>packages/</code> and <code>apps/</code>. See {{link code/index}} for exact counts.</td></tr>
+    <tr><th>Run it</th><td><code>npx @deepseek-ai/dsh web</code> starts the Web UI at <code>http://127.0.0.1:3080</code> ({{cite README.md:24}}, {{cite README.md:27}}).</td></tr>
   </tbody>
 </table>
 
 <h2 id="system-map">The system map</h2>
-<p>The map shows the main parts and the order in which a request goes through them. Each title is a link. Grey links are pages that are not written yet.</p>
-<!-- TEMPLATE: Build the clickable map in HTML/CSS (numbered boxes for the request path, a side column for parts that every step uses, a colour stripe for where the code runs, a legend). Put shared styles in assets/site.css. -->
-<ol>
-  <li>{{link concepts/agent-loop-and-session | 1 · The agent loop}} (<code>packages/core/agent-loop</code>)</li>
-  <li>{{link concepts/tools-and-mcp | 2 · Tools and MCP}} (<code>packages/core/tools</code>)</li>
-  <li>{{link code/central-files | 3 · The central files}}</li>
-</ol>
-<x-simplified><p>The map is a simple picture. Say here what it leaves out.</p></x-simplified>
+<p>One run starts at a surface, boots a profile, then reaches the core runtime. The core runtime can delegate background work. Each box below links to its page.</p>
+<x-diagram name="b2_home_system_map" alt="Three panels. Panel 1: CLI, Web and Desktop boxes, the three surfaces that start dsh. Panel 2: Profile, Bundle layers and Mounted tree boxes, showing how a profile boots into one Cordis context. Panel 3: a Core runtime box (agent loop, session log, tools, LLM adapter) and a Delegation box (subagents, jobs, workflow), with an arrow from Core runtime to Delegation." caption="Figure: a CLI, Web or Desktop surface boots a profile; the profile's bundle layers mount into one core runtime, which can delegate background work." />
+<ul>
+  <li><strong>Surfaces.</strong> {{link tours/life-of-a-headless-task | the CLI}} answers one task and exits; the Web UI serves a browser at <code>http://127.0.0.1:3080</code> ({{cite README.md:27}}); Desktop is an Electron window that loads the Web client's own packaged assets ({{cite docs/architecture.md:53}}).</li>
+  <li><strong>Profile and bundle boot.</strong> A {{term profile}} stacks one or more {{term bundle | bundles}} into a plugin tree ({{cite docs/architecture.md:17}}, {{cite docs/architecture.md:19}}). {{link learn/plugins-and-cordis}} explains the plugin mechanism itself.</li>
+  <li><strong>Core runtime.</strong> {{link concepts/agent-loop-and-session | the agent loop and session log}}, {{link concepts/tools-and-mcp | tools and MCP servers}}, and the LLM adapter answer one step at a time.</li>
+  <li><strong>Delegation.</strong> The core runtime can hand work to {{term subagent | subagents}} ({{cite docs/architecture.md:138}}), background {{term job | jobs}} ({{cite docs/architecture.md:154}}), or a {{term workflow}} script ({{cite docs/subsystems/workflow.md:5}}).</li>
+</ul>
+<x-simplified><p>The map leaves out the sandbox and approval layer, MCP servers, skills, and the SDKs and ACP server that let other programs drive a session. The concept pages under "Execution and safety" and "Protocols and clients" cover these.</p></x-simplified>
 
 <h2 id="start-here">Start here</h2>
 <ul>
@@ -34,7 +33,7 @@ summary: A study guide to this codebase for developers who are new to it. It sta
 <h2 id="how-to-use">How to use this site</h2>
 <ul>
   <li><strong>Levels.</strong> Each page has a level: Beginner, Intermediate or Advanced.</li>
-  <li><strong>One depth per page.</strong> A page starts with a plain explanation and a diagram. Then it shows the real code in a compact "More detail" section.</li>
+  <li><strong>One depth per page.</strong> This site is an overview, not a full study guide. A page starts with a plain explanation and a diagram, then a compact "More detail" section with the real code. Reading the code line by line is not the point.</li>
   <li><strong>Check yourself.</strong> Concept pages and the tour end with a few questions. Click "Show answer" to see the answer.</li>
   <li><strong>Search.</strong> Press <kbd>/</kbd>, then type a word, a file name or a setting.</li>
   <li><strong>Glossary.</strong> Words with a dotted line, such as {{term session-log}}, have a short definition. {{link reference/glossary}} lists all terms.</li>
