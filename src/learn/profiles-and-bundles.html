@@ -1,0 +1,62 @@
+---
+title: Profiles and bundles: how a running dsh tree is assembled
+nav_title: Profiles and bundles
+level: Beginner
+prerequisites: learn/plugins-and-cordis
+related: concepts/agent-loop-and-session, learn/session-and-loop-vocabulary
+summary: A dsh profile stacks named bundles, then patch files overlay the result. This page shows the layers, in order, with two named profiles as examples.
+---
+<x-sentence>A {{term profile}} stacks ordered {{term bundle | bundles}}; patch files then overlay the result, in a fixed order, to build one running <code>dsh</code> plugin tree.</x-sentence>
+
+<h2>The idea</h2>
+<p>A running <code>dsh</code> is a plugin tree put together at boot ({{cite docs/architecture.md:15}}). A {{term profile}} is the named composition: it lists the bundles it stacks and keeps the user's own patch file ({{cite docs/architecture.md:17}}). A {{term bundle}} ships Cordis config rows, and the code that mounts them, in a form the layers above it can still change ({{cite docs/architecture.md:19}}). {{link learn/plugins-and-cordis}} already showed that every part of <code>dsh</code>, including a bundle's own code, is a plugin.</p>
+<p><strong>An everyday comparison.</strong> Think of a profile as a packing list, and each bundle as a sealed box on that list. The boxes stack in a fixed order. A patch file is a note taped on top of the stack. It can replace the whole content of one named box, or add a new box. The comparison stops here. A real note cannot reopen a sealed box, but a patch file can replace a row's whole configuration.</p>
+
+<h2>The picture</h2>
+<x-diagram name="b3_profile_layers" alt="Two panels. Panel 1: two boxes, profile web (dsh-base, dsh-web-app) and profile headless (dsh-base, dsh-headless), each with its source line. Panel 2: four stacked boxes, bundle patches, the profile's own cordis.patch.yml, the DSH_HOME cordis.patch.yml, and --patch overlays, with arrows flowing down into a composed entry list box." caption="Figure: a profile names its bundles (panel 1); patch layers then stack on top of them, in this fixed order, into one composed entry list (panel 2)." />
+<p>Read panel 1 as two examples of the same bundle list format. Read panel 2 top to bottom: each layer applies after the one above it. A later layer wins when both touch the same row id. The colours mark one role each; the legend under the diagram names them.</p>
+
+<h2>In DeepSeek Harness</h2>
+<p>The shipped profile templates are plain data. <code>web</code> stacks <code>dsh-base</code> and <code>dsh-web-app</code>; <code>headless</code> stacks <code>dsh-base</code> and <code>dsh-headless</code> ({{cite packages/util/official-bundles/src/bundles.ts:13-18}}). A bundle names its own patch file in its <code>package.json</code>, under a <code>dsh</code> field. The headless bundle points <code>dsh.bundle.patch</code> at <code>./cordis.patch.yml</code> ({{cite packages/bundle/headless/package.json:39-42}}).</p>
+<x-code file="packages/util/official-bundles/src/bundles.ts" lines="13-18" caption="The web and headless profile templates: an ordered bundle list, nothing else." />
+<p>When <code>dsh</code> boots a profile, <code>readProfilePatches()</code> builds the full, ordered patch list. It reads every bundle's own patches first, then the profile's own <code>cordis.patch.yml</code>. Next comes the home-level <code>$DSH_HOME/cordis.patch.yml</code>, then the <code>--patch</code> files from the command line ({{cite packages/boot/app-boot/src/profile-context.ts:75-80}}).</p>
+<x-code file="packages/boot/app-boot/src/profile-context.ts" lines="74-80" highlight="76,77,78,79" caption="readProfilePatches(): bundle patches, then the profile's patch, then the home patch, then --patch overlays, in that order." />
+<p>{{link learn/session-and-loop-vocabulary}} names the turn/step vocabulary that the resulting tree runs. {{link concepts/agent-loop-and-session}} reads one of the services this tree mounts.</p>
+
+<h2>More detail</h2>
+<p><code>composeEntries()</code> applies every layer's patches, in the order above, over an empty entry list ({{cite packages/boot/app-boot/src/profile.ts:755-762}}). A patch names a row by its id: it either replaces that row's whole configuration, or inserts a new row ({{cite docs/architecture.md:25}}). Because later layers apply last, a <code>--patch</code> file can override a setting the home-level patch also touches. The home-level patch can, in turn, override a setting the profile's own <code>cordis.patch.yml</code> sets.</p>
+<p>One config knob changes where the home-level patch file is read from: the <code>DSH_HOME</code> environment variable. <code>resolveDshHome()</code> reads it, and falls back to a default path when it is not set ({{cite packages/util/home-paths/src/index.ts:18}}, {{cite packages/util/home-paths/src/index.ts:135-137}}). The <code>--patch &lt;path&gt;</code> flag is repeatable: each use adds one more overlay file, applied in the order given on the command line ({{cite apps/cli/src/args.ts:170}}).</p>
+<p>To see the exact tree one invocation mounts, run <code>dsh --profile web --dump-config</code>. Any row it prints can be replaced by a patch of your own ({{cite docs/architecture.md:31-37}}). For the full generated API reference, see the repository's own {{cite docs/subsystems/boot.md}}.</p>
+
+<x-deepdive title="The four patch layers, in applied order">
+<p>Lowest first: each later layer can still replace or add a row the one above it set.</p>
+<table>
+  <thead><tr><th>#</th><th>Layer</th><th>Source</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Every bundle's own patch</td><td>{{cite packages/boot/app-boot/src/profile-context.ts:76 | profile-context.ts:76}}</td></tr>
+    <tr><td>2</td><td>The profile's own <code>cordis.patch.yml</code></td><td>{{cite packages/boot/app-boot/src/profile-context.ts:77 | profile-context.ts:77}}</td></tr>
+    <tr><td>3</td><td>The home-level <code>$DSH_HOME/cordis.patch.yml</code></td><td>{{cite packages/boot/app-boot/src/profile-context.ts:78 | profile-context.ts:78}}</td></tr>
+    <tr><td>4</td><td>Command-line <code>--patch</code> overlays</td><td>{{cite packages/boot/app-boot/src/profile-context.ts:79 | profile-context.ts:79}}</td></tr>
+  </tbody>
+</table>
+</x-deepdive>
+
+<h2>What can go wrong</h2>
+<x-warning title="Check all four layers before you assume a setting is wrong"><p>A setting that looks wrong may come from a layer you did not check. The home-level <code>$DSH_HOME/cordis.patch.yml</code> outranks the profile's own patch file, and a <code>--patch</code> overlay outranks both ({{cite packages/boot/app-boot/src/profile-context.ts:75-80}}). Run <code>--dump-config</code> to see the composed result instead of reading each file by hand.</p></x-warning>
+<x-simplified><p>This page leaves out presets, hot-module reload of patch files, and platform-gated bundles. It also leaves out how an unreadable or incompatible bundle is skipped instead of failing the boot. Cordis itself is explained only as the framework these bundles and patches build on ({{cite vendor/cordis/}}).</p></x-simplified>
+<p><strong>Why it matters.</strong> When a plugin seems to be missing, check every patch layer for a <code>disabled: true</code> row with the same id. Do not check only the profile's own patch file.</p>
+
+<x-quiz>
+  <x-q level="easy">What does a profile list, and what does a bundle ship?
+    <x-a><p>A profile lists the bundles it stacks ({{cite docs/architecture.md:17}}). A bundle ships Cordis config rows and the code that mounts them ({{cite docs/architecture.md:19}}).</p></x-a>
+  </x-q>
+  <x-q level="medium">In which order does dsh apply these: the home-level patch, a bundle's own patch, a --patch overlay, and the profile's own patch file?
+    <x-a><p>A bundle's own patch, then the profile's own <code>cordis.patch.yml</code>, then the home-level patch, then a <code>--patch</code> overlay ({{cite packages/boot/app-boot/src/profile-context.ts:75-80}}).</p></x-a>
+  </x-q>
+  <x-q level="medium">Which two bundles does the shipped headless profile stack?
+    <x-a><p><code>dsh-base</code> and <code>dsh-headless</code> ({{cite packages/util/official-bundles/src/bundles.ts:16-17}}).</p></x-a>
+  </x-q>
+  <x-q level="hard">A row id is set by both the home-level patch and a --patch overlay. Which value wins, and why?
+    <x-a><p>The <code>--patch</code> overlay's value. <code>readProfilePatches()</code> appends the <code>--patch</code> overlays after the home-level patch ({{cite packages/boot/app-boot/src/profile-context.ts:75-80}}). <code>composeEntries()</code> then applies every layer's patches over the previous result, in that order ({{cite packages/boot/app-boot/src/profile.ts:755-762}}). The last patch for a row id wins.</p></x-a>
+  </x-q>
+</x-quiz>
