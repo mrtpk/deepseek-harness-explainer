@@ -193,3 +193,32 @@ Waves: all sequential (budget = 1 at a time). Order: B1 → B2 → **stop point 
 ## 14. Deferred pages
 
 (none)
+
+## 15. Future work: adding the skill's full "Deep dive" depth
+
+Not planned now. The user asked for an overview (§2 Depth of detail); this is a note for later, if the
+user wants to go deeper after the overview site is done.
+
+**Feasible, additive, no rebuild needed.** The page template and the `<x-deepdive>` tag the skill normally
+uses for full depth already exist in the starter kit; this project just isn't using them except for one
+tricky nuance per page. Adding full depth later means expanding each page's "More detail" section, not
+rewriting it.
+
+**What a full deep dive adds, per page:**
+- Exact types and shapes: interfaces, config schemas, event payloads (not just that a field exists).
+- Every edge case and condition, traced through every call site (not one flagged nuance).
+- Env vars and CLI flags relevant to that concept, beyond the site-wide reference page.
+- A worked example with real numbers (for example an actual session-log trace or tool-call batch).
+- Line-by-line reading of the key functions, with longer `<x-code>` excerpts.
+
+**What the current overview site's reader misses, as a result:** exact edge cases and full call-order
+guarantees (claims are written conservatively, "only when ...", not exhaustively proven); exact types and
+schema shapes; line-by-line code reading; worked numeric examples; most env vars/flags per individual
+concept (only the main ones are on the site-wide reference page); and the rigor of a dedicated adversarial
+fact-check (this build uses a supervisor spot-check, §2 Fact-check — disclosed in the README).
+
+**Cost if done later:** one batch per 3-4 concept pages (the 9 concept pages + the tour = about 3 batches),
+each a writer pass to expand "More detail" into a full deep dive, then a **full** fact-check of the new
+material (not the light spot-check this build used — deep-dive claims are exactly what needs adversarial
+checking: defaults, edge cases, call order). The code-map and reference pages would not need this; they
+are already reference-style.
