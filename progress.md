@@ -1,8 +1,8 @@
 # DeepSeek Harness Explainer — Progress
 
 Last update: 2026-11-01
-Current phase: **1d Stop point 2** — B1 and B2 done and committed. Waiting for the user to review the
-4 sample pages before B3 (remaining basics) starts the full build.
+Current phase: **2 Full build** — B1-B3 done and committed. All 3 basics pages, home, the tour and one
+concept page are live. Waiting for user approval to start B4 (core runtime + tools, incl. the visual).
 
 This file is the memory of the project. A new session must be able to continue from it alone.
 Update it after every subagent finishes and after every user decision.
@@ -22,6 +22,7 @@ Update it after every subagent finishes and after every user decision.
 |---|---|---|---|
 | B1 Foundation | done | done (supervisor) | 5f08df8 |
 | B2 Samples | done | done (supervisor, 2 defects fixed) | cf46355 |
+| B3 Remaining basics | done | done (supervisor, 0 defects) | (see log) |
 | B3 Remaining basics | – | – | – |
 | B4 Core runtime + tools | – | – | – |
 | B5 Delegation | – | – | – |
@@ -69,8 +70,9 @@ Newest first.
 
 ## Next step
 
-Waiting for the user's feedback on the 4 sample pages (look, depth, STE). On approval: start B3 (remaining
-2 basics pages), then B4-B7 per plan.md §13, one subagent at a time.
+Waiting for user approval to start B4 (core runtime + tools: agent-loop-and-session full rewrite if
+needed, llm-and-system-prompt, tools-and-mcp + the tool-pipeline visual, skills). Per user instruction,
+stop for approval before every remaining batch (B4-F), one at a time.
 
 ## Questions for the user
 
