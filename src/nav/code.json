@@ -1,14 +1,10 @@
 {
-  "_owner": "Code-map writer. code/index is the folder tree; one entry per important module.",
+  "_owner": "Code-map writer. code/index is the folder tree; code/central-files lists the central files.",
   "section": "code",
   "title": "Code map",
   "order": 4,
-  "groups": [
-    {"title": "Overview", "pages": [
-      {"id": "code/index", "title": "Folder tree"}
-    ]},
-    {"title": "Core", "pages": [
-      {"id": "code/engine", "title": "pkg/engine.py"}
-    ]}
+  "pages": [
+    {"id": "code/index", "title": "Folder tree"},
+    {"id": "code/central-files", "title": "The central files"}
   ]
 }

@@ -1,11 +1,24 @@
-# <Project> Explained — Writer's guide
-
-> Template note: replace `<Project>`, `<project>`, the sample page names, the vocabulary table (section 6)
-> and the out-of-scope list (section 7, rule 5) for your project. Keep the rest.
+# DeepSeek Harness Explained — Writer's guide
 
 This guide is for everyone who writes pages, glossary entries or diagrams for the site.
-Read all of it before you write your first page. Then copy the sample page
-`src/concepts/example-concept.html` (replace it with the Phase 1 reference page) — it uses every part of this guide.
+Read all of it before you write your first page. Then read the reference sample page
+`src/concepts/agent-loop-and-session.html` — it uses every part of this guide.
+
+## 0. This is an overview site, not a full study guide
+
+This site is a scaled-down OVERVIEW, not the skill's usual full study guide. Two rules change
+because of this (see `notes/brief-writer.md` for the full reasoning):
+
+- **Single depth, not two depths.** Every learn/concepts/tours page has a short beginner start, one
+  diagram, then ONE compact "More detail" section in prose (how the pieces fit together, what calls
+  what, in what order, which config knobs change the behaviour). This section REPLACES the skill's
+  usual full "Deep dive". Do not write a second, longer "Deep dive" as well. Keep `<x-deepdive>`
+  available for the rare page that needs one extra aside, but do not make it the main content.
+- **Code reading is a low priority for the reader.** Do not paste long excerpts or read code line by
+  line. A short `<x-code>` excerpt (a few lines) is fine when it makes one point. Prefer prose with a
+  `{{cite}}`. End the page with a one-line pointer to the repo's own `docs/subsystems/<name>.md` (most
+  subsystems have a generated "Cordis API" section there) instead of duplicating that detail.
+- Every claim about the code still needs a citation. Open every cited line yourself.
 
 Contents
 
@@ -27,7 +40,7 @@ Contents
 ## 1. Quick start
 
 ```bash
-cd <project>-explainer
+cd deepseek-harness-explainer
 python3 build.py                 # build site/ (runs stale diagram scripts first)
 python3 build.py --strict        # also fail on warnings (use before hand-in)
 python3 build.py --force-diagrams
@@ -45,7 +58,7 @@ Open `site/index.html` with a double-click. The site works from disk (`file://`)
 ## 2. Files, folders and ownership
 
 ```
-<project>-explainer/
+deepseek-harness-explainer/
   explainer.json         project name, target repo path and URL, pinned commit (owner: supervisor)
   build.py               the generator (owner: foundation; do not edit without asking the supervisor)
   STYLE.md               this guide
@@ -100,7 +113,7 @@ nav_title: The request flow
 level: Intermediate
 prerequisites: learn/example-basics
 related: tours/example-tour, code/engine
-summary: One request goes through four parts of <Project>. This page shows each part and the file that implements it.
+summary: One request goes through four parts of DeepSeek Harness. This page shows each part and the file that implements it.
 ---
 <x-sentence>...</x-sentence>
 <h2>The idea</h2>
@@ -109,7 +122,7 @@ summary: One request goes through four parts of <Project>. This page shows each 
 
 | Key | Required | Meaning |
 |---|---|---|
-| `title` | yes | Page title (h1 and browser tab: "Title · <Project> Explained"). |
+| `title` | yes | Page title (h1 and browser tab: "Title · DeepSeek Harness Explained"). |
 | `summary` | yes | One or two sentences. Used by search, related-page cards and `<meta description>`. |
 | `level` | learn, concepts, tours | `Beginner`, `Intermediate` or `Advanced`. Optional elsewhere. |
 | `prerequisites` | template pages | Comma-separated page ids, or `none`. Makes the "Before you read" box. |
@@ -133,6 +146,7 @@ Starter files: `src/_templates/concept.html`, `src/_templates/tour.html`.
 
 ### 4.1 Concept and basics pages (sections `concepts`, `learn`)
 
+**This site uses a single explanatory depth, not the skill's usual two-depth pattern** (see section 0).
 Use these parts in this order. Use the `<h2>` texts exactly as shown, so every page looks the same.
 
 | # | Part | How |
@@ -142,26 +156,20 @@ Use these parts in this order. Use the `<h2>` texts exactly as shown, so every p
 | 3 | In one sentence | `<x-sentence>` — max 25 words |
 | 4 | **The idea** | `<h2>The idea</h2>` — plain explanation, then one everyday comparison (analogy). Say where the analogy stops being true. |
 | 5 | **The picture** | `<h2>The picture</h2>` + `<x-diagram>` + 2-3 sentences on how to read it |
-| 6 | **In the code** | `<h2>In the code</h2>` — `<h3>Step N: ...</h3>` sub-sections, each with real excerpts (`<x-code>`) and citations (`{{cite}}`). Basics pages (`learn/`) use `<h2>In <Project></h2>` instead: a short section at the end with 1–3 cited pointers into the code and links to concept pages. |
-| 7 | **Deep dive** | `<h2>Deep dive</h2>` + one or more `<x-deepdive>` blocks. FULL detail (see below). |
+| 6 | **In the code** | `<h2>In the code</h2>` — `<h3>Step N: ...</h3>` sub-sections, each with a short excerpt (`<x-code>`, a few lines) or none at all, and citations (`{{cite}}`) for every claim. Basics pages (`learn/`) use `<h2>In DeepSeek Harness</h2>` instead: a short section at the end with 1–3 cited pointers into the code and links to concept pages. |
+| 7 | **More detail** | `<h2>More detail</h2>` — ONE compact prose section: how the pieces fit together, what calls what, in what order, and the config knobs that change the behaviour. This REPLACES the skill's full "Deep dive". End it with one line pointing to the repo's own `docs/subsystems/<name>.md` for the reader who wants to study the code itself, instead of repeating that detail here. An `<x-deepdive>` is optional and rare on this site (see below); do not use it as the main content. |
 | 8 | **What can go wrong** | `<h2>What can go wrong</h2>` — failure modes with citations, then **Why it matters.** |
-| 9 | Check yourself | `<x-quiz>` with 3-5 questions: mix easy, medium and hard. The heading is automatic. |
+| 9 | Check yourself | `<x-quiz>` with 3-4 questions: mix easy, medium and hard. The heading is automatic. Required on every concept page and the tour; not required on `learn/` pages. (`build.py` warns outside 3-5; 3-4 leaves room and still matches the short, overview depth of this site.) |
 | 10 | Related pages, next/previous | front matter `related:` (automatic) |
 
-**What goes in a deep dive.** The reader studies with this site. A deep dive must give the full
-technical detail, not a longer summary:
+**What goes in "More detail".** Prose, not a long technical appendix: say how the pieces connect and
+in what order things happen, name the config knob or default that changes the behaviour (cite the line
+that sets it), and point out one real failure mode if there is one. Keep it to a few short paragraphs.
+Do not repeat the excerpt from "In the code"; add new information.
 
-- exact shapes, types and sizes (for example `int32 [num_tokens, 4]`, or a struct layout), with a worked example with real numbers;
-- memory layouts (row-major, packed, padded; who writes which byte);
-- the algorithm step by step, as a numbered list;
-- edge cases and error paths (what raises, what only warns);
-- related environment variables and config fields, with defaults and the line that reads them;
-- design trade-offs (why this way, what the alternative costs), only if the code or docs support it;
-- numbers from `doc/` (cite the line);
-- long code read line by line: show the excerpt, then a numbered list "Line 13. ...".
-
-Split long detail into several `<x-deepdive>` blocks, one topic each, with a clear title. A deep dive
-may contain code, tables, callouts and lists. Do not put a quiz inside a deep dive.
+**When to use `<x-deepdive>` anyway.** Rare on this site. Use it only when one extra fact would clutter
+"More detail" (for example a short settings table, or one line-by-line read of a tricky excerpt). Do not
+put a quiz inside a deep dive, and do not use a deep dive as a substitute for "More detail".
 
 ### 4.2 Tours (section `tours`)
 
@@ -173,12 +181,12 @@ Same front matter and the same first parts (sentence, idea, picture). Then numbe
   <p>Where we are, and why this step exists.</p>
   <x-code file="pkg/api.py" lines="100-120" highlight="110" />
   <p>What the excerpt does.</p>
-  <x-deepdive title="Stop 1 in detail"> ... </x-deepdive>
 </x-stop>
 ```
 
-Each stop is an `<h2>` in the table of contents. End with "What can go wrong" and `<x-quiz>`.
-Stops run in code order. Each stop names the file and function where the reader is.
+Each stop is an `<h2>` in the table of contents. Stops run in code order. Each stop names the file and
+function where the reader is. End with one compact "More detail" section (as in 4.1, not a per-stop deep
+dive), then "What can go wrong" and `<x-quiz>` (2-4 questions; required on the tour).
 
 ### 4.3 Code map pages (section `code`)
 
@@ -425,15 +433,26 @@ technical names stay as they are.
 
 **Technical words.** Technical names and well-known terms of the domain are allowed, but you must
 define each one at its first use on the page, and link it with `{{term}}`. Use the same word for the
-same thing on every page. Fill in this table for your project (the rows are examples from an ML
-inference engine; replace them):
+same thing on every page. This table is the project's fixed vocabulary (definitions from
+`docs/glossary.md` in the target repo; cite the line when a page first defines a term):
 
-| Use | Do not use (for this meaning) |
-|---|---|
-| request (what a user sends) / sequence (the engine object for it) | job, query, prompt (for the object) |
-| step (one main-loop iteration) | iteration, tick, round |
-| rank (one process) / device (one GPU) | worker, node, card (for these meanings) |
-| block (one cache block) | page, chunk (for this meaning) |
+| Use | Meaning | Do not use (for this meaning) |
+|---|---|---|
+| Cordis | The vendored plugin framework under `dsh`: plugins contribute services, typed events and reversible effects to a shared context (`docs/architecture.md:9`, `docs/cordis-primer.md:7-13`). | "the core", "the framework" alone |
+| plugin | An object that implements `Service`: a function with optional `inject`/`apply(ctx)`, or a `Service` subclass Cordis mounts into a context (`docs/cordis-primer.md:9`). | module, extension (for a Cordis plugin) |
+| service | What a plugin claims: a stable `ctx.<key>` such as `ctx.tools` or `ctx.llm`, found by key instead of by import (`docs/cordis-primer.md:10`). | provider (a service has providers; do not conflate them) |
+| context (`ctx`) | A repository of services; a plugin reads other plugins' services through it (`docs/cordis-primer.md:10`). | "the app", "global state" |
+| profile | A named plugin-tree composition stored in the Harness home. It lists the bundles it stacks (`web`, `headless`, `sdk`, `sdk-minimal`, `acp`) and the user's own patch file (`docs/architecture.md:17`). | mode, config (for a profile) |
+| bundle | A distribution format for Cordis config rows and the code they mount, patchable by the layers above it (`docs/architecture.md:19`). | package (a bundle ships as one or more packages; keep the words separate) |
+| turn | One drain of admitted input in a session; opens before its first input is claimed and closes once nothing is owed (`docs/glossary.md:37`, `docs/architecture.md:81`). | request, message (for a turn) |
+| step | One model request plus the tool executions caused by its response; a turn has zero or more steps (`docs/glossary.md:38`, `docs/architecture.md:81`). | iteration, tick, round (for a step) |
+| round | An outer policy iteration containing a turn, such as a goal round (`docs/glossary.md:39`). | step, turn (a round is not either of these) |
+| session log | The append-only `SessionEvent` log that is the source of the context the model sees (`docs/architecture.md:59`, `docs/architecture.md:124`). | history, transcript (for the durable log itself) |
+| subagent | A child agent a parent delegates work to through named providers; local children keep a durable session, others execute once (`packages/subagent/subagent/README.md:12`). | sub-task, worker |
+| MCP | Model Context Protocol: connects the model to tools and resources supplied by external servers (`docs/subsystems/mcp.md:7`). | plugin (an MCP server is not a Cordis plugin) |
+| skill | An optional, loadable instruction set with a provider registry under `ctx.skills`; not a session event (`docs/subsystems/skills.md:5`). | tool (a skill is instructions, not a callable function) |
+| ACP | Agent Client Protocol: the automation-only JSON-RPC-over-stdio protocol the `dsh-acp` server implements (`packages/acp/acp/README.md:2`). | API (for ACP specifically) |
+| sandbox | The process-sandbox seam (`dsh-sandbox`) that wraps a subprocess in a file-effect policy (`read-only`, `workspace-write`, `danger-full-access`) (`docs/subsystems/sandbox.md:5,11`). | jail, container (this project's own word is "sandbox") |
 
 **Word substitutions**
 
@@ -454,7 +473,10 @@ inference engine; replace them):
 | via | through, with |
 | due to | because of |
 | it is possible to | you can |
-| harness, robust, seamless, powerful | (delete; say the fact) |
+| robust, seamless, powerful | (delete; say the fact) |
+
+"Harness" is kept: it is the project's own name ("DeepSeek Harness") and domain term ("agent harness"),
+not marketing language. Do not delete it.
 
 **Before and after**
 
@@ -478,9 +500,18 @@ numbers over an abstract sentence.
    an `__init__.py` dispatches kernels. It was empty. Another file dispatched.)
 3. Cite the **narrowest** line range that proves the claim.
 4. Mark each simplification with `<x-simplified>` and say what the full truth is.
-5. **Out-of-scope code** (list it here: vendored libraries, git submodules that are not checked out,
-   third-party frameworks). Explain only how <Project> calls them (arguments, shapes, which
-   function, when). Do not describe their insides.
+5. **Out-of-scope code.** Mention only as "the framework the plugins build on", or a one-liner on the
+   code-map page. Do not describe the inside of:
+   - `vendor/` — Cordis and its foundation libraries, vendored by source copy (`vendor/README.md:1-5`).
+   - `native/` — the Landlock/flock native launcher, a small set of C files (`native/system/`).
+   - `packages/experimental/*` — one line each on the code-map page.
+   - Swift and C++ files (the experimental macOS helper; not part of the core runtime).
+   - The **Python SDK** (`python/`) gets one short paragraph anywhere it comes up: it only launches the
+     compiled `dsh` binary over JSON-RPC-on-stdio; it has no in-process harness logic
+     (`python/README.md:5-9`). Do not give it a full page or a deep dive.
+
+   For in-scope code that calls an out-of-scope library, explain only how DeepSeek Harness calls it
+   (arguments, shapes, which function, when). Do not describe the library's insides.
 6. Numbers from `doc/` and `README.md` are allowed; cite the line.
 7. **Comments in another language**: translate them when they help. Always say they are translated
    (`<x-tr>` does this automatically).
@@ -636,7 +667,10 @@ The build prints every problem with `file:line` and stops on errors. Common mess
 Warnings (the build still succeeds, `--strict` turns them into errors):
 
 - links or prerequisites that point to pages that are not written yet (expected while writers work in parallel);
-- missing template parts on learn/concepts/tours pages (no sentence, diagram, code, deep dive, or not 3-5 questions);
+- missing template parts on learn/concepts/tours pages (no sentence, diagram, code, no `<x-deepdive>`, or
+  not 3-5 quiz questions). `build.py` always checks for an `<x-deepdive>`; on this single-depth site, add
+  one small, optional deep dive to a page rather than leave this warning (section 4.1). Aim for 3-4 quiz
+  questions, inside both this site's 2-4 guidance and `build.py`'s 3-5 check;
 - `STE: sentence has N words (max 25)` on learn/concepts/tours pages (code, tables and citations are not counted). Split the sentence;
 - a page that is not in a nav file;
 - diagram warnings (content past the canvas edge, width not 1100).

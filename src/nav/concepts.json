@@ -1,12 +1,27 @@
 {
   "_owner": "Concept writers. Page ids are fixed; do not rename them: other pages link to them.",
   "section": "concepts",
-  "title": "MyProject concepts",
+  "title": "DeepSeek Harness concepts",
   "order": 2,
   "groups": [
-    {"title": "Core", "pages": [
-      {"id": "concepts/example-concept", "title": "Example concept page"},
-      {"id": "concepts/planned-concept", "title": "A planned concept page"}
+    {"title": "Core runtime", "pages": [
+      {"id": "concepts/agent-loop-and-session", "title": "The agent loop and the session log"},
+      {"id": "concepts/llm-and-system-prompt", "title": "The LLM seam and the system prompt"}
+    ]},
+    {"title": "Tools and extensibility", "pages": [
+      {"id": "concepts/tools-and-mcp", "title": "Tools and MCP servers"},
+      {"id": "concepts/skills", "title": "Skills"}
+    ]},
+    {"title": "Delegation and background work", "pages": [
+      {"id": "concepts/subagents-and-delegation", "title": "Subagents and delegation"},
+      {"id": "concepts/jobs-workflow-goal-plan", "title": "Jobs, workflows, goals and plan mode"}
+    ]},
+    {"title": "Execution and safety", "pages": [
+      {"id": "concepts/sandbox-and-execution", "title": "Sandbox and execution"},
+      {"id": "concepts/approval-and-interaction", "title": "Approval and human interaction"}
+    ]},
+    {"title": "Protocols and clients", "pages": [
+      {"id": "concepts/acp-sdk-and-clients", "title": "ACP, SDKs and clients"}
     ]}
   ]
 }

@@ -1,19 +1,169 @@
 {
-  "_about": "General terms used on many pages. Owner: supervisor. Other writers: reuse these ids; do not redefine them. Each batch adds its own terms in src/glossary/<batch>.json.",
-  "kv-store": {
-    "term": "KV store",
-    "short": "A store that keeps values under keys. You put a value with a key, and get it back with the same key.",
-    "aliases": ["key-value store"],
-    "page": "learn/example-basics"
+  "_about": "Core glossary. Owner: supervisor/foundation batch. General terms a learner needs across the whole site. Search this file before you add a term in your own batch file.",
+
+  "cordis": {
+    "term": "Cordis",
+    "short": "The vendored plugin framework under dsh. Plugins contribute services, typed events and reversible effects to a shared context.",
+    "long": "Cordis has no privileged core: every part of the product, including the model adapter, the tool registry and the agent loop, is a plugin, so each piece is replaceable from configuration ({{cite docs/architecture.md:9}}, {{cite docs/architecture.md:11}}).",
+    "aliases": ["cordis framework"],
+    "page": "learn/plugins-and-cordis"
   },
-  "commit": {
-    "term": "commit",
-    "short": "One saved version of a git repository. A 40-character id names it. This site explains one pinned commit.",
-    "page": "index"
+  "plugin": {
+    "term": "plugin",
+    "short": "An object that implements Service: a function with inject/apply(ctx), or a Service subclass Cordis mounts into a context.",
+    "long": "{{cite docs/cordis-primer.md:9}}",
+    "page": "learn/plugins-and-cordis"
   },
-  "citation": {
-    "term": "citation",
-    "short": "A link to a file and line in the code. Every claim about the code on this site has one.",
-    "page": "index"
+  "service": {
+    "term": "service",
+    "short": "What a plugin claims from a context: a stable ctx.<key> such as ctx.tools or ctx.llm, found by key instead of by import.",
+    "long": "{{cite docs/cordis-primer.md:10}}",
+    "aliases": ["ctx key"],
+    "page": "learn/plugins-and-cordis"
+  },
+  "context": {
+    "term": "context",
+    "short": "A repository of services. A plugin reads another plugin's service through the context instead of importing it directly.",
+    "long": "{{cite docs/cordis-primer.md:10}}",
+    "aliases": ["ctx"],
+    "page": "learn/plugins-and-cordis"
+  },
+  "profile": {
+    "term": "profile",
+    "short": "A named plugin-tree composition stored in the Harness home. It lists the bundles it stacks and the user's own patch file.",
+    "long": "Shipped profiles are web, headless, sdk, sdk-minimal and acp, selected with dsh --profile &lt;name&gt; ({{cite docs/architecture.md:17}}, {{cite docs/architecture.md:43}}).",
+    "page": "learn/profiles-and-bundles"
+  },
+  "bundle": {
+    "term": "bundle",
+    "short": "A distribution format for Cordis config rows and the code they mount, so whatever it inserts stays patchable by the layers above it.",
+    "long": "{{cite docs/architecture.md:19}}",
+    "page": "learn/profiles-and-bundles"
+  },
+  "turn": {
+    "term": "turn",
+    "short": "One drain of admitted input in a session. It opens before its first input is claimed and closes once nothing is owed.",
+    "long": "A turn contains zero or more steps ({{cite docs/glossary.md:37}}, {{cite docs/architecture.md:81}}).",
+    "page": "learn/session-and-loop-vocabulary"
+  },
+  "step": {
+    "term": "step",
+    "short": "One model request plus the tool executions caused by its response. A turn contains zero or more steps.",
+    "long": "{{cite docs/glossary.md:38}}, {{cite docs/architecture.md:81}}",
+    "page": "learn/session-and-loop-vocabulary"
+  },
+  "round": {
+    "term": "round",
+    "short": "An outer policy iteration containing a turn, such as a goal round. Round counters belong to that policy, not to every turn.",
+    "long": "{{cite docs/glossary.md:39}}",
+    "page": "learn/session-and-loop-vocabulary"
+  },
+  "exchange": {
+    "term": "exchange",
+    "short": "Consecutive turns from a turn whose first step admits human input until the next such turn.",
+    "long": "Turns woken by notices, such as a settled subagent or a goal round, stay in the preceding exchange ({{cite docs/glossary.md:40}}).",
+    "page": "learn/session-and-loop-vocabulary"
+  },
+  "session": {
+    "term": "session",
+    "short": "The durable conversation object: one Session holds one append-only event log and is the identity an agent runs on.",
+    "page": "concepts/agent-loop-and-session"
+  },
+  "session-log": {
+    "term": "session log",
+    "short": "The append-only log of SessionEvent records. It is the source of the context the model sees.",
+    "long": "deriveMessages() projects model history from this log ({{cite docs/architecture.md:59}}, {{cite docs/architecture.md:124}}).",
+    "aliases": ["event log", "SessionEvent log"],
+    "page": "concepts/agent-loop-and-session"
+  },
+  "agent": {
+    "term": "Agent",
+    "short": "The live object that drives one session: it owns the turn/step loop and the inbox of pending input.",
+    "long": "AgentRegistry publishes and tracks live Agents; ReactLoopAgent is the default implementation of the Agent interface ({{cite packages/core/agent-loop/src/agent.ts:112}}).",
+    "page": "concepts/agent-loop-and-session"
+  },
+  "agent-loop": {
+    "term": "agent loop",
+    "short": "The turn/step cycle that claims input, calls the model, runs the tools it asks for, and repeats.",
+    "page": "concepts/agent-loop-and-session"
+  },
+  "tool-call": {
+    "term": "tool call",
+    "short": "One request from the model to run a tool, carried through the tools/pre-execute, tools/execute and tools/post-execute pipeline.",
+    "long": "{{cite docs/architecture.md:99}}",
+    "aliases": ["tool execution"],
+    "page": "concepts/tools-and-mcp"
+  },
+  "subagent": {
+    "term": "subagent",
+    "short": "A child agent a parent delegates work to through a named provider. A local child keeps a durable session; others execute once.",
+    "long": "{{cite packages/subagent/subagent/README.md:12}}",
+    "aliases": ["child agent"],
+    "page": "concepts/subagents-and-delegation"
+  },
+  "mcp": {
+    "term": "MCP",
+    "short": "Model Context Protocol. It connects the model to tools and resources supplied by external servers.",
+    "long": "{{cite docs/subsystems/mcp.md:7}}",
+    "aliases": ["Model Context Protocol"],
+    "page": "concepts/tools-and-mcp"
+  },
+  "skill": {
+    "term": "skill",
+    "short": "An optional, loadable instruction set, discovered through a provider registry under ctx.skills. Not a session event.",
+    "long": "{{cite docs/subsystems/skills.md:5}}",
+    "page": "concepts/skills"
+  },
+  "sandbox": {
+    "term": "sandbox",
+    "short": "The process-sandbox seam. It wraps a subprocess in a file-effect policy: read-only, workspace-write, or danger-full-access.",
+    "long": "{{cite docs/subsystems/sandbox.md:5}}, {{cite docs/subsystems/sandbox.md:11}}",
+    "page": "concepts/sandbox-and-execution"
+  },
+  "acp": {
+    "term": "ACP",
+    "short": "Agent Client Protocol. The automation-only JSON-RPC-over-stdio protocol the dsh-acp server implements.",
+    "long": "{{cite packages/acp/acp/README.md:2}}",
+    "aliases": ["Agent Client Protocol"],
+    "page": "concepts/acp-sdk-and-clients"
+  },
+  "capability-seam": {
+    "term": "capability seam",
+    "short": "A swappable capability with three roles: a Service Definition, one or more Service Providers, and one or more Consumers.",
+    "long": "{{cite docs/architecture.md:136}}. The seam is the complete capability; name a single role by its own name instead ({{cite docs/glossary.md:9}}).",
+    "aliases": ["seam"],
+    "page": "concepts/sandbox-and-execution"
+  },
+  "approval-policy": {
+    "term": "approval policy",
+    "short": "The human-in-the-loop decision for one action: may this specific action proceed?",
+    "long": "{{cite docs/subsystems/approval.md:5}}",
+    "aliases": ["approval"],
+    "page": "concepts/approval-and-interaction"
+  },
+  "workflow": {
+    "term": "workflow",
+    "short": "An optional capability that lets an agent run a model-written script that starts subagents. It is not part of the agent loop.",
+    "long": "{{cite docs/subsystems/workflow.md:5}}",
+    "page": "concepts/jobs-workflow-goal-plan"
+  },
+  "goal": {
+    "term": "goal",
+    "short": "One durable completion objective attached to a session, with an active/paused/blocked/complete phase and a goal-round cap.",
+    "long": "{{cite docs/glossary.md:25}}",
+    "page": "concepts/jobs-workflow-goal-plan"
+  },
+  "plan-mode": {
+    "term": "plan mode",
+    "short": "Logged per-agent collaboration state that adds a guidance section to each model request while active. It is soft guidance only.",
+    "long": "Sandbox mode and approval policy enforce restrictions independently of plan mode ({{cite docs/subsystems/plan.md:5}}).",
+    "page": "concepts/jobs-workflow-goal-plan"
+  },
+  "job": {
+    "term": "job",
+    "short": "A long-running background unit tracked by ctx.jobs, with a status of running, stopping, completed, killed or failed.",
+    "long": "{{cite docs/subsystems/jobs.md:9}}",
+    "aliases": ["background job"],
+    "page": "concepts/jobs-workflow-goal-plan"
   }
 }
