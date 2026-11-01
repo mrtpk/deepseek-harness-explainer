@@ -1,7 +1,8 @@
 # DeepSeek Harness Explainer — Progress
 
 Last update: 2026-11-01
-Current phase: **1b Samples** — B1 done and committed; starting B2 (home, one basics page, the tour) next.
+Current phase: **1d Stop point 2** — B1 and B2 done and committed. Waiting for the user to review the
+4 sample pages before B3 (remaining basics) starts the full build.
 
 This file is the memory of the project. A new session must be able to continue from it alone.
 Update it after every subagent finishes and after every user decision.
@@ -20,7 +21,7 @@ Update it after every subagent finishes and after every user decision.
 | Batch | Writer | Spot-check | Committed |
 |---|---|---|---|
 | B1 Foundation | done | done (supervisor) | 5f08df8 |
-| B2 Samples | in progress | – | – |
+| B2 Samples | done | done (supervisor, 2 defects fixed) | cf46355 |
 | B3 Remaining basics | – | – | – |
 | B4 Core runtime + tools | – | – | – |
 | B5 Delegation | – | – | – |
@@ -43,6 +44,13 @@ Update it after every subagent finishes and after every user decision.
 
 Newest first.
 
+- 2026-11-01: B2 samples committed (cf46355): home, learn/plugins-and-cordis, tours/life-of-a-headless-task.
+  Supervisor spot-checked a sample of citations directly against the target repo; found and fixed 2
+  defects: (1) core.json "job" term cited the wrong line in docs/subsystems/jobs.md (9 -> 21); (2)
+  explainer.json's prism_components listed prism-jsx/prism-tsx without prism-markup, which threw an
+  uncaught TypeError on every page — removed (unused anyway; all cited excerpts are .ts). Ran a Playwright
+  site check at 1280/390px on all 4 written pages after the fix: 0 overflow, 0 JS errors.
+  STOP POINT 2 reached: waiting for user review before B3 starts.
 - 2026-11-01: B1 foundation committed (5f08df8). Supervisor spot-checked every citation on
   concepts/agent-loop-and-session.html against the target repo directly; all correct. `build.py`: 0 errors,
   6 expected "coming soon" warnings. Playwright is not installed — no screenshot check done yet.
@@ -56,9 +64,8 @@ Newest first.
 
 ## Next step
 
-Start B2 (Phase 1b samples): home page + system map, one basics page (`learn/plugins-and-cordis`), and the
-tour (`tours/life-of-a-headless-task`). After B2, supervisor spot-check, then **stop point 2**: show the
-user the sample pages before the rest of the site is written.
+Waiting for the user's feedback on the 4 sample pages (look, depth, STE). On approval: start B3 (remaining
+2 basics pages), then B4-B7 per plan.md §13, one subagent at a time.
 
 ## Questions for the user
 
