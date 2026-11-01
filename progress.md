@@ -1,7 +1,7 @@
 # DeepSeek Harness Explainer — Progress
 
 Last update: 2026-11-01
-Current phase: **1a Foundation** — starting the foundation subagent next.
+Current phase: **1b Samples** — B1 done and committed; starting B2 (home, one basics page, the tour) next.
 
 This file is the memory of the project. A new session must be able to continue from it alone.
 Update it after every subagent finishes and after every user decision.
@@ -19,8 +19,8 @@ Update it after every subagent finishes and after every user decision.
 
 | Batch | Writer | Spot-check | Committed |
 |---|---|---|---|
-| B1 Foundation | – | – | – |
-| B2 Samples | – | – | – |
+| B1 Foundation | done | done (supervisor) | 5f08df8 |
+| B2 Samples | in progress | – | – |
 | B3 Remaining basics | – | – | – |
 | B4 Core runtime + tools | – | – | – |
 | B5 Delegation | – | – | – |
@@ -43,6 +43,9 @@ Update it after every subagent finishes and after every user decision.
 
 Newest first.
 
+- 2026-11-01: B1 foundation committed (5f08df8). Supervisor spot-checked every citation on
+  concepts/agent-loop-and-session.html against the target repo directly; all correct. `build.py`: 0 errors,
+  6 expected "coming soon" warnings. Playwright is not installed — no screenshot check done yet.
 - 2026-11-01: DECISION: explainer.json filled (project, repo path/url/sha, TypeScript Prism components).
   Starter kit copied from the skill templates. Git initialized, author set repo-local
   (Thomas Paul <contact@thomaspaul.dev>).
@@ -53,10 +56,9 @@ Newest first.
 
 ## Next step
 
-Fill in `notes/brief-writer.md` and `notes/brief-factcheck.md` (adapt the fact-check brief into a light
-spot-check brief), then start the Phase 1a foundation subagent (template B, adapted: single-depth pages,
-nav files with all 16 planned pages from plan.md §4, core glossary from docs/glossary.md, one full sample
-page `concepts/agent-loop-and-session.html`).
+Start B2 (Phase 1b samples): home page + system map, one basics page (`learn/plugins-and-cordis`), and the
+tour (`tours/life-of-a-headless-task`). After B2, supervisor spot-check, then **stop point 2**: show the
+user the sample pages before the rest of the site is written.
 
 ## Questions for the user
 
