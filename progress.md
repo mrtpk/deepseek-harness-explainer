@@ -35,6 +35,11 @@ Update it after every subagent finishes and after every user decision.
 - 2026-11-01: Fact-check mode: light (supervisor spot-check only), not a full fact-checker subagent.
 - 2026-11-01: Structure: approved 16-page overview, but add quizzes and one interactive visual.
 - 2026-11-01: Budget: 1 subagent at a time.
+- 2026-11-01: "Now usage is at 54%, I plan to use only 10% for this work... do B by B. You dont have to
+  worry about token usage, but get my approval before you start the new batch." → a usage ceiling (about
+  10% of the user's weekly allowance for the rest of this build) applies, but the supervisor does not
+  self-monitor against it — the user does. Stop and get explicit user approval before starting each
+  remaining batch (B3 through F), one at a time. Do not chain batches automatically anymore.
 
 ## RESUME NOTES
 
