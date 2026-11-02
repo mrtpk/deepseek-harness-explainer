@@ -1,8 +1,8 @@
 # DeepSeek Harness Explainer — Progress
 
 Last update: 2026-11-02
-Current phase: **2 Full build** — B1-B6 done and committed. All 9 concept pages are now live. User said
-"build everything": running B7 and F straight through, one subagent at a time, no per-batch approval.
+Current phase: **2 Full build done** — B1-B7 committed. All 18 planned pages exist, 0 "coming soon"
+placeholders. Starting the final consistency pass (F) now, per "build everything".
 
 This file is the memory of the project. A new session must be able to continue from it alone.
 Update it after every subagent finishes and after every user decision.
@@ -12,9 +12,9 @@ Update it after every subagent finishes and after every user decision.
 | Phase | Status | Notes |
 |---|---|---|
 | 0 Plan approval | done (scaled-down scope) | plan.md §2, §11 |
-| 1 Foundation + samples | in progress | B1 (foundation) not started |
-| Full build (plan §13) | not started | |
-| F Final pass | not started | |
+| 1 Foundation + samples | done | B1-B2 |
+| Full build (plan §13) | done | B1-B7, all 18 pages |
+| F Final pass | in progress | |
 
 ## Full build — batch status
 
@@ -26,7 +26,7 @@ Update it after every subagent finishes and after every user decision.
 | B4 Core runtime + tools | done | done (supervisor, 0 defects) | ae83de5 |
 | B5 Delegation | done | done (supervisor, 0 defects) | f7f3fab |
 | B6 Execution & protocols | done | done (supervisor, 0 defects) | dbe8299 |
-| B7 Code map + reference | – | – | – |
+| B7 Code map + reference | done | done (supervisor, 0 defects) | c3db451 |
 
 ## USER INSTRUCTIONS
 
@@ -51,6 +51,13 @@ Update it after every subagent finishes and after every user decision.
 
 Newest first.
 
+- 2026-11-02: plan.md corrected: the original survey's "shells out to the real Claude Code binary" claim
+  was wrong (B5 traced the code). plan.md §3 now carries the correction inline.
+- 2026-11-02: B7 code map + reference committed (c3db451): code/central-files (18 files, verified line
+  counts), reference/config-and-env (env vars, CLI flags, links to learn/profiles-and-bundles for
+  layering). All 18 planned pages now exist. Supervisor spot-checked 2 line counts (wc -l) and 6 env/CLI
+  claims directly against the target repo: all correct, 0 defects. build.py --strict: 0 errors, 0
+  warnings, 0 "coming soon" placeholders. Playwright 1280/390px: 0 overflow, 0 JS errors.
 - 2026-11-02: B6 execution & protocols committed (dbe8299): concepts/sandbox-and-execution,
   concepts/approval-and-interaction, concepts/acp-sdk-and-clients. Both sandbox/approval pages link to the
   already-written subagents-and-delegation page instead of re-explaining the delegated-child override.
@@ -98,8 +105,10 @@ Newest first.
 
 ## Next step
 
-Running B7 now (code map: folder tree + central-files page; reference: env/config/CLI-flags page), then F
-(final pass). Per "build everything" (2026-11-02), no stop for approval between these.
+Running the final consistency pass (F): sweep all 18 pages for cross-page consistency, check the
+FINAL-PASS TODO list (currently empty — no open items were deferred by any batch writer), run
+build.py --strict, full Playwright site check (links, anchors, both diagrams' and the one visual's
+rendering, light/dark mode), then write the README (disclosing the light-fact-check scope per plan.md §9).
 
 ## Questions for the user
 
