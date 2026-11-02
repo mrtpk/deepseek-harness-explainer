@@ -1,8 +1,8 @@
 # DeepSeek Harness Explainer — Progress
 
 Last update: 2026-11-02
-Current phase: **2 Full build done** — B1-B7 committed. All 18 planned pages exist, 0 "coming soon"
-placeholders. Starting the final consistency pass (F) now, per "build everything".
+Current phase: **DONE.** B1-B7 and the final pass (F) are all committed. 18/18 planned pages, 0 build
+errors/warnings, 0 site-check defects, README written. See "Done" below for the full log.
 
 This file is the memory of the project. A new session must be able to continue from it alone.
 Update it after every subagent finishes and after every user decision.
@@ -14,7 +14,7 @@ Update it after every subagent finishes and after every user decision.
 | 0 Plan approval | done (scaled-down scope) | plan.md §2, §11 |
 | 1 Foundation + samples | done | B1-B2 |
 | Full build (plan §13) | done | B1-B7, all 18 pages |
-| F Final pass | in progress | |
+| F Final pass | done | site check 0 defects, README written |
 
 ## Full build — batch status
 
@@ -51,6 +51,15 @@ Update it after every subagent finishes and after every user decision.
 
 Newest first.
 
+- 2026-11-02: README.md written (bf40286): states the overview scope (single-depth pages, not the skill's
+  full two-depth pattern) and the light, supervisor-only spot-check fact-check scope plainly, per plan.md
+  §9 Definition of done. Points to plan.md §15 for what a deeper pass would add later.
+- 2026-11-02: Final site check (Phase F) done, 0 defects, no files changed: 18/18 pages at 1280/390px, 0
+  overflow, 0 JS errors; 1025 internal links + 92 glossary-term links spidered, 0 broken; the
+  tool-pipeline-stepper visual passed mouse and keyboard interaction; all 13 quiz blocks interactive; dark
+  mode checked on 5 sampled pages (home, a basics page, a concept page, the tour, a reference page) with an
+  automated WCAG contrast scan plus manual screenshot review, no readability or layout problems (diagram
+  SVGs intentionally stay light-styled in both themes, as designed).
 - 2026-11-02: plan.md corrected: the original survey's "shells out to the real Claude Code binary" claim
   was wrong (B5 traced the code). plan.md §3 now carries the correction inline.
 - 2026-11-02: B7 code map + reference committed (c3db451): code/central-files (18 files, verified line
@@ -105,10 +114,9 @@ Newest first.
 
 ## Next step
 
-Running the final consistency pass (F): sweep all 18 pages for cross-page consistency, check the
-FINAL-PASS TODO list (currently empty — no open items were deferred by any batch writer), run
-build.py --strict, full Playwright site check (links, anchors, both diagrams' and the one visual's
-rendering, light/dark mode), then write the README (disclosing the light-fact-check scope per plan.md §9).
+None. The project is done: all 18 planned pages exist, cited, spot-checked, and committed; the final site
+check found 0 defects; the README is written. If the user wants to go further, see plan.md §15 (the full
+"Deep dive" depth is additive, not a rebuild).
 
 ## Questions for the user
 
