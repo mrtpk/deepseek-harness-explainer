@@ -1,8 +1,8 @@
 # DeepSeek Harness Explainer — Progress
 
 Last update: 2026-11-02
-Current phase: **2 Full build** — B1-B5 done and committed. User said "build everything": running B6, B7
-and F straight through, one subagent at a time, without stopping for per-batch approval.
+Current phase: **2 Full build** — B1-B6 done and committed. All 9 concept pages are now live. User said
+"build everything": running B7 and F straight through, one subagent at a time, no per-batch approval.
 
 This file is the memory of the project. A new session must be able to continue from it alone.
 Update it after every subagent finishes and after every user decision.
@@ -25,7 +25,7 @@ Update it after every subagent finishes and after every user decision.
 | B3 Remaining basics | done | done (supervisor, 0 defects) | (see log) |
 | B4 Core runtime + tools | done | done (supervisor, 0 defects) | ae83de5 |
 | B5 Delegation | done | done (supervisor, 0 defects) | f7f3fab |
-| B6 Execution & protocols | – | – | – |
+| B6 Execution & protocols | done | done (supervisor, 0 defects) | dbe8299 |
 | B7 Code map + reference | – | – | – |
 
 ## USER INSTRUCTIONS
@@ -51,6 +51,13 @@ Update it after every subagent finishes and after every user decision.
 
 Newest first.
 
+- 2026-11-02: B6 execution & protocols committed (dbe8299): concepts/sandbox-and-execution,
+  concepts/approval-and-interaction, concepts/acp-sdk-and-clients. Both sandbox/approval pages link to the
+  already-written subagents-and-delegation page instead of re-explaining the delegated-child override.
+  Supervisor spot-checked 4 claims (sandbox mode-resolution precedence/default, fs-sandbox's
+  trusted-code-not-kernel-boundary nature, approval request()'s turn-enclosure throw and 'never'
+  short-circuit, the ACP/Python-SDK protocol descriptions): all correct, 0 defects. build.py --strict:
+  0 errors, 0 warnings. Playwright 1280/390px: 0 overflow, 0 JS errors.
 - 2026-11-02: B5 delegation committed (f7f3fab): concepts/subagents-and-delegation,
   concepts/jobs-workflow-goal-plan. Writer correction: the Claude Code subagent provider does not shell out
   to the host's installed `claude` binary — it calls the official Claude Agent SDK, which spawns its own
@@ -91,9 +98,8 @@ Newest first.
 
 ## Next step
 
-Running B6 now (execution & protocols: sandbox-and-execution, approval-and-interaction,
-acp-sdk-and-clients), then B7, then F. Per "build everything" (2026-11-02), no stop for approval between
-these.
+Running B7 now (code map: folder tree + central-files page; reference: env/config/CLI-flags page), then F
+(final pass). Per "build everything" (2026-11-02), no stop for approval between these.
 
 ## Questions for the user
 
