@@ -1,0 +1,17 @@
+{
+  "_about": "B4 batch glossary (concepts/llm-and-system-prompt, concepts/tools-and-mcp, concepts/skills). Owner: B4 writer. Search core.json and other batch files before you add a term here.",
+
+  "provider-adapter": {
+    "term": "provider adapter",
+    "short": "A plugin that streams model calls for one or more provider names, registered with ctx.llm.registerAdapter().",
+    "long": "Only stream() is required; every other LlmAdapter method has a default ({{cite packages/llm/llm/src/index.ts:208}}, {{cite packages/llm/llm/src/index.ts:302}}).",
+    "aliases": ["LLM adapter", "adapter"],
+    "page": "concepts/llm-and-system-prompt"
+  },
+  "system-prompt": {
+    "term": "system prompt",
+    "short": "The assembled instruction text for one step, built by joining every registered prompt section in order.",
+    "long": "The loop renders the assembly, then commits it to the session as a system/message event instead of a hidden request field ({{cite packages/core/agent-loop/src/agent.ts:442}}, {{cite docs/architecture.md:112}}).",
+    "page": "concepts/llm-and-system-prompt"
+  }
+}

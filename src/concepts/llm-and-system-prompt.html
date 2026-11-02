@@ -1,0 +1,64 @@
+---
+title: The LLM seam and the system prompt
+nav_title: LLM seam & system prompt
+level: Intermediate
+prerequisites: learn/plugins-and-cordis, concepts/agent-loop-and-session
+related: concepts/agent-loop-and-session, concepts/tools-and-mcp
+summary: ctx.llm streams one model call through the provider adapter registered for its provider name. Before that call, the agent assembles a system prompt from ordered sections and logs it as session history.
+---
+<x-sentence>ctx.llm streams one model call through a registered {{term provider-adapter | provider adapter}}, after the agent assembles a {{term system-prompt | system prompt}} from ordered sections.</x-sentence>
+
+<h2>The idea</h2>
+<p>Every model call in {{project name}} goes through one service: <code>ctx.llm</code>. <code>ctx.llm</code> does not talk to a provider itself. A plugin called a {{term provider-adapter | provider adapter}} does that work. <code>ctx.llm</code> only picks the adapter registered for the request's provider name ({{cite packages/llm/llm/src/index.ts:401}}).</p>
+<p>Before the loop calls <code>ctx.llm</code>, it builds that request's {{term system-prompt | system prompt}}. Plugins register ordered sections with <code>ctx.systemPrompt</code>. One assembly call joins them into text for the current step ({{cite packages/core/agent-loop/src/agent.ts:294}}).</p>
+<p><strong>An everyday comparison.</strong> Think of <code>ctx.llm</code> as a phone switchboard. You dial a provider's name, and the switchboard connects you to the one line registered for it. The system prompt is a briefing note read onto the call first. The comparison stops here. A real briefing note never changes between calls; the system prompt can, because a section's text can depend on the current step.</p>
+
+<h2>The picture</h2>
+<x-diagram name="b4_llm_adapter_seam" alt="Two panels. Panel 1: AgentLoop.step(), LlmRuntime (ctx.llm) and DeepSeekAdapter boxes left to right, joined by arrows labelled stream(request) and registered route. Panel 2: three step cards, Assemble, Render and commit, Build and stream, joined by arrows, showing how one step builds the frozen request." caption="Figure: ctx.llm routes stream() to the adapter registered for a provider name (panel 1); one step assembles, renders and commits the system prompt before it builds and streams the request (panel 2)." />
+<p>Read panel 1 left to right: the loop never talks to a provider directly, only to the registered adapter. Read panel 2 left to right, in order: these three sub-steps run once per step, before any bytes reach the provider. The colours mark one role each; the legend under the diagram names them.</p>
+
+<h2>In the code</h2>
+
+<h3>Step 1: ctx.llm routes stream() to the adapter registered for one provider name</h3>
+<p>A provider adapter extends the abstract <code>LlmAdapter</code> class and registers itself with <code>ctx.llm.registerAdapter(providers, adapter)</code> ({{cite packages/llm/llm/src/index.ts:401}}). <code>DeepSeekAdapter</code> is one such adapter; it registers like this ({{cite packages/llm/llm-deepseek/src/host.ts:81}}, {{cite packages/llm/llm-deepseek/src/adapter.ts:22}}).</p>
+<x-code file="packages/llm/llm/src/index.ts" lines="297-302" caption="LlmAdapter's only required method: stream one call as raw chunks." />
+
+<h3>Step 2: the agent assembles the system prompt before it builds the request</h3>
+<p>Each step's <code>preStep()</code> calls <code>ctx.systemPrompt.assemble()</code> with the step's model selection and the tools admitted for that step ({{cite packages/core/agent-loop/src/agent.ts:294}}). <code>renderPrompt()</code> then turns that assembly into plain text ({{cite packages/core/agent-loop/src/agent.ts:442}}).</p>
+<x-code file="packages/core/agent-loop/src/agent.ts" lines="292-294" highlight="294" caption="preStep() assembles sections, admitted tools and dynamic contexts for the step about to run." />
+
+<h3>Step 3: the rendered prompt is committed to the session, not sent as a hidden field</h3>
+<p><code>systemPrompt.project(renderedPrompt, ...)</code> works out what changed since the last step. The loop appends every commit as a <code>system/message</code> session event ({{cite packages/core/agent-loop/src/agent.ts:453-461}}). The system prompt reaches the model as logged history, not as a field only the request carries ({{cite docs/architecture.md:112}}).</p>
+
+<h3>Step 4: buildRequest() derives the history and streams the frozen request</h3>
+<p><code>buildRequest()</code> logs a <code>request/header</code> only on the agent's first step, or when the config or tool list changed since the last one ({{cite packages/core/agent-loop/src/agent.ts:675-688}}). It then derives the model-visible message list from the session log with <code>session.deriveMessages()</code> ({{cite packages/core/agent-loop/src/agent.ts:728}}). The step then streams the frozen request through <code>ctx.llm.stream()</code> ({{cite packages/core/agent-loop/src/agent.ts:490}}).</p>
+
+<h2>More detail</h2>
+<p><code>registerAdapter()</code> takes every provider name an adapter owns and registers them together, all at once. If any one of those names is already taken, the whole call fails with <code>DUPLICATE_ADAPTER</code> and nothing registers ({{cite packages/llm/llm/src/index.ts:395}}, {{cite packages/llm/llm/src/index.ts:443}}). <code>ctx.llm.stream()</code> itself runs inside an <code>llm/stream</code> waterfall. A plugin can wrap every call for retry or logging before it reaches the resolved adapter ({{cite packages/llm/llm/src/index.ts:1170-1183}}).</p>
+<p>A prompt section's <code>order</code> decides where its text lands; sections join in ascending order, and a duplicate section name in one scope throws ({{cite packages/core/system-prompt/src/index.ts:485-492}}). A section can also declare itself <code>complete</code>: assembly still runs its full waterfall, but then restores that one section as the whole prompt ({{cite packages/core/system-prompt/src/index.ts:75}}).</p>
+<p>For the full generated service and type reference, see the repository's own {{cite docs/subsystems/llm-streaming.md}} and {{cite docs/subsystems/system-prompt.md}}.</p>
+
+<x-deepdive title="Why the system prompt is a session event, not a request field">
+<p>Most APIs send a system prompt as one field on every request. {{project name}} instead treats it as part of the durable session history. A reader who only reads the session log still sees exactly what the model was told.</p>
+<p>By default, a changed prompt replaces the existing <code>system/message</code> event in place, as if it had always said the new text. Only when an adapter's resolved model info sets <code>systemPromptUpdate: 'in-history'</code> does the loop instead append a fresh <code>system/message</code> for each change. That route reads whichever system message is most recent ({{cite packages/core/agent-loop/src/agent.ts:453-454}}, {{cite docs/architecture.md:112}}).</p>
+</x-deepdive>
+
+<h2>What can go wrong</h2>
+<x-warning title="A step cannot change its provider or model through agent/request"><p>Only <code>agent.model.select()</code>, called before step preparation, may change the provider, model or reasoning effort. The deprecated <code>agent/request</code> hook throws if its decision disagrees with the selection step preparation already fixed ({{cite packages/core/agent-loop/src/agent.ts:635-640}}).</p></x-warning>
+<x-simplified><p>This page leaves out <code>dsh-llm-retry</code>'s retry policy, image-attachment pricing and resizing, and reasoning-effort validation. It also leaves out what happens when no adapter is registered for a request's provider name.</p></x-simplified>
+<p><strong>Why it matters.</strong> Code that reads the session log to reconstruct a model call must read the <code>system/message</code> event, not assume a fixed, separate system field.</p>
+
+<x-quiz>
+  <x-q level="easy">Which method must every provider adapter implement?
+    <x-a><p><code>stream()</code>. Every other <code>LlmAdapter</code> method has a usable default ({{cite packages/llm/llm/src/index.ts:302}}).</p></x-a>
+  </x-q>
+  <x-q level="medium">Does the system prompt reach the model as a hidden request field?
+    <x-a><p>No. The loop commits it as a <code>system/message</code> session event, so it is logged history, not a field the request alone carries ({{cite packages/core/agent-loop/src/agent.ts:453-461}}, {{cite docs/architecture.md:112}}).</p></x-a>
+  </x-q>
+  <x-q level="medium">What happens when two provider adapters try to register the same provider name?
+    <x-a><p>The second registration fails with <code>DUPLICATE_ADAPTER</code>. Registration is all-or-nothing across the adapter's whole provider list ({{cite packages/llm/llm/src/index.ts:395}}, {{cite packages/llm/llm/src/index.ts:443}}).</p></x-a>
+  </x-q>
+  <x-q level="hard">Can the deprecated agent/request hook change which provider or model a step calls?
+    <x-a><p>No, only when step preparation has not already fixed a selection. <code>agent/request</code> throws if its proposed config disagrees with the provider, model or effort <code>preStep()</code> already selected ({{cite packages/core/agent-loop/src/agent.ts:635-640}}).</p></x-a>
+  </x-q>
+</x-quiz>

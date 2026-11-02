@@ -1,0 +1,84 @@
+---
+title: Tools and MCP servers
+nav_title: Tools and MCP servers
+level: Intermediate
+prerequisites: concepts/agent-loop-and-session
+related: concepts/llm-and-system-prompt, concepts/skills
+summary: A first-party plugin and an MCP client both register tools into ctx.tools. Every call then runs the same three-stage pipeline, bracketed by durable tool/call and tool/result session events.
+scripts: viz/tool-pipeline-stepper.js
+---
+<x-sentence>{{term tool-call | Tool calls}} from any source run through the same registry and the same three-stage pipeline: tools/pre-execute, tools/execute, tools/post-execute.</x-sentence>
+
+<h2>The idea</h2>
+<p><code>ctx.tools</code> is the tool registry. A first-party plugin registers a tool directly ({{cite packages/core/tools/src/index.ts:128}}). An {{term mcp | MCP}} server's tools arrive the same way. One client plugin per configured server lists the server's tools, then registers each one into the same registry. Each registered name carries the server's own name ({{cite packages/mcp/mcp-client/src/tools.ts:150}}, {{cite packages/mcp/mcp-client/src/tools.ts:82}}). Whatever the source, every {{term tool-call | tool call}} then runs through the same fixed pipeline: <code>tools/pre-execute</code>, then <code>tools/execute</code>, then <code>tools/post-execute</code> ({{cite docs/architecture.md:99}}).</p>
+<p><strong>An everyday comparison.</strong> Think of airport customs. Pre-execute is the passport check: allow, deny, or send the traveller to a human officer. Execute is the actual crossing. Post-execute is the declaration review on the other side: accept the bag's contents, or send some of it back. The comparison stops here. A pre-execute guard's denial cannot be reversed by a later listener, just like a customs officer's decision. Post-execute's accept or block, though, looks at the dispatched result, not at a person.</p>
+
+<h2>The picture</h2>
+<x-diagram name="b4_tool_pipeline" alt="Two panels. Panel 1: a first-party tool plugin and an MCP client both register into ctx.tools (ToolsService). Panel 2: five chips in sequence, tool/call, tools/pre-execute, tools/execute, tools/post-execute, tool/result, with the three middle chips coloured by stage." caption="Figure: two registration sources feed one registry (panel 1); every call runs the same five-part sequence, with the three middle stages as live waterfalls (panel 2)." />
+<p>Read panel 1 left to right: both sources call the same <code>register()</code> method. Read panel 2 left to right: the outer two chips are durable log entries; the three inner chips are live extension points plugins can join. The colours mark one role each; the legend under the diagram names them.</p>
+
+<h2>In the code</h2>
+
+<h3>Step 1: registration, from a first-party plugin or an MCP client</h3>
+<p><code>ctx.tools.register(definition)</code> is the one entry point. A scoped registration shadows a global tool with the same name. The reserved <code>run_code</code> name cannot be taken ({{cite packages/core/tools/src/index.ts:128-153}}). An MCP client calls the same method once per discovered tool, after it builds a public name of the form <code>mcp__&lt;serverName&gt;__&lt;rawName&gt;</code> ({{cite packages/mcp/mcp-client/src/tools.ts:81-82}}, {{cite packages/mcp/mcp-client/src/tools.ts:150}}).</p>
+<x-code file="packages/mcp/mcp-client/src/tools.ts" lines="81-83" caption="A public MCP tool name always carries its server's configured name." />
+
+<h3>Step 2: the fixed pipeline order, confirmed at every call site</h3>
+<p>One call's scheduler runs these five actions in order ({{cite docs/architecture.md:99}}):</p>
+<ol>
+  <li>It logs <code>tool/call</code> ({{cite packages/core/tools/src/batch.ts:157}}).</li>
+  <li><code>prepare()</code> runs the <code>tools/pre-execute</code> waterfall ({{cite packages/core/tools/src/batch.ts:159}}).</li>
+  <li><code>dispatch()</code> runs the <code>tools/execute</code> waterfall ({{cite packages/core/tools/src/batch.ts:163}}).</li>
+  <li><code>complete()</code> runs the <code>tools/post-execute</code> waterfall ({{cite packages/core/tools/src/batch.ts:144}}).</li>
+  <li>It logs <code>tool/result</code> ({{cite packages/core/tools/src/batch.ts:146}}).</li>
+</ol>
+<x-code file="packages/core/tools/src/batch.ts" lines="157-163" highlight="157,159" caption="One call's scheduler, in order: log tool/call, then prepare() (pre-execute), then dispatch() (execute)." />
+
+<h3>Step 3: pre-execute decides allow, deny, cancel, or ask</h3>
+<p>The <code>tools/pre-execute</code> waterfall returns one of four decisions ({{cite packages/core/tools/src/contracts.ts:357-361}}). Right after, every registered guard gets one more look at the call. A guard can only add a denial reason; it can never clear one a listener already returned ({{cite packages/core/tools/src/pipeline.ts:213}}, {{cite packages/core/tools/src/contracts.ts:391}}).</p>
+
+<h3>Step 4: post-execute can accept, replace, or block the result</h3>
+<p>The <code>tools/post-execute</code> waterfall returns <code>accept</code> (optionally replacing content or the success value) or <code>block</code> (turning the result into an error) ({{cite packages/core/tools/src/contracts.ts:367-370}}). A listener may replace content or a value, never both in the same decision ({{cite packages/core/tools/src/pipeline.ts:501-502}}).</p>
+
+<h3>Step 5: try it yourself</h3>
+<p>The visual below steps through one example call, <code>bash({ command: "npm test" })</code>, naming the real plugin that uses each stage in this codebase.</p>
+<x-viz id="tool-pipeline-stepper" title="Step through the tool-call pipeline" caption="Click a station, or use <strong>Next</strong> / <strong>Previous</strong>. Every station is keyboard-operable.">
+  <p>This interactive visual needs JavaScript. The pipeline order is: <code>tool/call</code>, <code>tools/pre-execute</code>, <code>tools/execute</code>, <code>tools/post-execute</code>, <code>tool/result</code> ({{cite docs/architecture.md:99}}).</p>
+</x-viz>
+
+<h2>More detail</h2>
+<p>The names split on purpose. <code>tool/call</code> and <code>tool/result</code> (singular) are durable <code>SessionEvent</code>s, appended once each, before and after the pipeline runs ({{cite packages/core/tools/src/batch.ts:247}}, {{cite packages/core/tools/src/batch.ts:256}}). <code>tools/pre-execute</code>, <code>tools/execute</code> and <code>tools/post-execute</code> (plural) are live Cordis waterfalls on the scoped <code>ToolsService</code>. Any plugin can join one. An agent-scoped listener only sees that agent's calls ({{cite docs/architecture.md:99}}).</p>
+<p>{{term mcp | MCP}} resource access is a separate, read-only path. A connected server's resources are listed and read through <code>ctx.mcpResources</code>, not through the tool pipeline above. A server's nonblank instructions, though, still join the system prompt as their own section ({{cite docs/subsystems/mcp.md:67}}).</p>
+<p>For the full generated service and type reference, see the repository's own {{cite docs/subsystems/tools.md}} and {{cite docs/subsystems/mcp.md}}.</p>
+
+<x-deepdive title="The four pre-execute decisions, on the wire">
+<table>
+  <thead><tr><th>Decision</th><th>Shape</th><th>Effect</th></tr></thead>
+  <tbody>
+    <tr><td><code>allow</code></td><td><code>{ kind: 'allow' }</code></td><td>Dispatch proceeds normally ({{cite packages/core/tools/src/contracts.ts:358}}).</td></tr>
+    <tr><td><code>deny</code></td><td><code>{ kind: 'deny', reason, info? }</code></td><td>Materializes an error result with that reason; the tool body never runs ({{cite packages/core/tools/src/contracts.ts:359}}).</td></tr>
+    <tr><td><code>cancel</code></td><td><code>{ kind: 'cancel' }</code></td><td>Selects the canonical cancellation result, with no policy-denial text ({{cite packages/core/tools/src/contracts.ts:360}}).</td></tr>
+    <tr><td><code>ask</code></td><td><code>{ kind: 'ask', reason?, displayReason? }</code></td><td>Runs only after an approval service returns <code>allowed-once</code>; anything else becomes a denial ({{cite packages/core/tools/src/contracts.ts:361}}).</td></tr>
+  </tbody>
+</table>
+</x-deepdive>
+
+<h2>What can go wrong</h2>
+<x-warning title="An unknown or throwing tool still reaches post-execute"><p>A call to a name the registry cannot resolve throws <code>ToolNotFoundError</code>, exactly like a throwing tool body. The same surrounding catch turns either one into a structured error result. Both therefore still reach <code>tools/post-execute</code>, instead of skipping it ({{cite packages/core/tools/src/pipeline.ts:272-281}}).</p></x-warning>
+<x-simplified><p>This page leaves out approval ("ask") prompts, exclusive-versus-parallel call scheduling, and MCP's own protocol negotiation and reconnection behaviour.</p></x-simplified>
+<p><strong>Why it matters.</strong> A plugin that must veto a call should use a guard or <code>tools/pre-execute</code>. It should not rely on the tool itself throwing. A thrown error still produces a model-visible result, not a skipped call.</p>
+
+<x-quiz>
+  <x-q level="easy">In which order does one tool call run through the pipeline?
+    <x-a><p><code>tool/call</code> is logged, then <code>tools/pre-execute</code>, then <code>tools/execute</code>, then <code>tools/post-execute</code>, then <code>tool/result</code> is logged ({{cite docs/architecture.md:99}}, {{cite packages/core/tools/src/batch.ts:157-163}}).</p></x-a>
+  </x-q>
+  <x-q level="medium">How does an MCP server's tool get a unique name in the registry?
+    <x-a><p>Its public name is built as <code>mcp__&lt;serverName&gt;__&lt;rawName&gt;</code>, so the same tool name from two servers stays distinct ({{cite packages/mcp/mcp-client/src/tools.ts:81-82}}).</p></x-a>
+  </x-q>
+  <x-q level="medium">What is the difference between tool/call and tools/pre-execute?
+    <x-a><p><code>tool/call</code> (singular) is a durable session event logged once. <code>tools/pre-execute</code> (plural) is a live waterfall plugins can join to allow, deny, cancel, or ask about the call ({{cite packages/core/tools/src/batch.ts:247}}, {{cite packages/core/tools/src/pipeline.ts:200}}).</p></x-a>
+  </x-q>
+  <x-q level="hard">A tools/pre-execute listener allows a call, but a registered guard then denies it. Can a later listener undo that denial?
+    <x-a><p>No. Guards run after every <code>tools/pre-execute</code> listener and can only add a denial reason. They have no "allow" return. Listener order therefore cannot turn a guard's denial back into permission ({{cite packages/core/tools/src/pipeline.ts:213}}, {{cite packages/core/tools/src/contracts.ts:391}}).</p></x-a>
+  </x-q>
+</x-quiz>
