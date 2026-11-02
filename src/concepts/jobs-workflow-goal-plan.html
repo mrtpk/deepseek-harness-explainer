@@ -1,0 +1,71 @@
+---
+title: Jobs, workflows, goals and plan mode
+nav_title: Jobs, workflows, goals and plan mode
+level: Intermediate
+prerequisites: concepts/agent-loop-and-session, concepts/subagents-and-delegation
+related: concepts/tools-and-mcp, concepts/sandbox-and-execution, concepts/approval-and-interaction
+summary: Four optional capabilities beside the turn/step loop: background jobs, a workflow script that starts subagents, a durable goal, and plan mode's soft guidance.
+---
+<x-sentence>{{term job | Background jobs}}, {{term workflow | workflows}}, {{term goal | goals}} and {{term plan-mode | plan mode}} are four optional capabilities a deployment composes beside the agent loop.</x-sentence>
+
+<h2>The idea</h2>
+<p>None of these four pieces is part of the turn/step loop itself. A deployment composes each one separately, and the loop runs the same way without it. A background job ({{term job}}) lets a tool keep long work alive while the agent continues. A {{term workflow}} runs a model-written script that starts {{term subagent | subagents}} on the agent's behalf. A {{term goal}} is a durable objective that can trigger its own next round automatically. {{term plan-mode | Plan mode}} only adds guidance text to the model's prompt; it enforces nothing by itself ({{cite docs/subsystems/workflow.md:5}}, {{cite docs/subsystems/plan.md:5}}).</p>
+<p><strong>An everyday comparison.</strong> Think of a project manager's extra tools beside their own to-do list. One is a tracker board for farmed-out background tasks. Another is a flowchart someone wrote once to run a multi-step project. A third is a standing checklist that queues its own next item until done. The last is a sticky note reminding everyone that the team is only planning for now. The comparison stops here: the note carries no authority, and the manager's own access rules still decide what can happen.</p>
+
+<h2>The picture</h2>
+<x-diagram name="b5_jobs_and_workflow" alt="Two panels. Panel 1: five status chips, running, stopping, completed, killed, failed, with arrows from running to stopping and onward to the three terminal states. Panel 2: a Model-written script box, an arrow to a sandboxed Node process box, an arrow to a ctx.subagents box, captioned delivery caller, showing that one agent call in the script becomes one subagent start." caption="Figure: a job's five states (panel 1); a workflow script's agent() calls reach the same subagent seam as direct delegation (panel 2)." />
+<p>Read panel 1 as a state machine: only <code>running</code> can become <code>stopping</code>, and all three right-hand states are final. Read panel 2 left to right: the script never talks to <code>ctx.subagents</code> directly, only through the sandboxed process that runs it.</p>
+
+<h2>In the code</h2>
+
+<h3>Step 1: ctx.jobs tracks one producer-owned execution per id</h3>
+<p><code>JobRegistry</code> is an abstract seam; a composition loads an implementation such as the in-process <code>dsh-jobs-local</code> ({{cite packages/jobs/jobs/src/index.ts:88-100}}). A job's <code>status</code> is one of <code>running</code>, <code>stopping</code>, <code>completed</code>, <code>killed</code> or <code>failed</code> ({{cite packages/jobs/jobs/src/view.ts:19}}). A job started with an <code>owner</code> session can be read, listed or killed only by that session. Omitting the owner makes the job open to any caller ({{cite packages/jobs/jobs/src/types.ts:179-212}}).</p>
+
+<h3>Step 2: a workflow script's agent() calls reach the same subagent seam</h3>
+<p><code>ctx.workflowEngine</code> is also an abstract seam, with one engine mounted per context ({{cite packages/workflow/workflow/src/index.ts:157-168}}). The shipped PTC engine parses the script up front, then runs it in a sandboxed Node process under the calling session's file policy ({{cite packages/workflow/workflow-ptc/src/index.ts:103-122}}). Each <code>agent()</code> call the script makes becomes one call to <code>subagents.startActivation()</code>, with <code>delivery: 'caller'</code> so the script can await the result directly ({{cite packages/workflow/workflow-ptc/src/host.ts:200-220}}).</p>
+<x-code file="packages/workflow/workflow-ptc/src/host.ts" lines="200-207" caption="One script-side agent() call becomes one subagents.startActivation() call, the same seam the delegation page describes." />
+
+<h3>Step 3: a goal drives its own next round, only while armed</h3>
+<p><code>GoalService</code> stores one event-sourced goal per session, with phase <code>active</code>, <code>paused</code>, <code>blocked</code> or <code>complete</code> ({{cite docs/subsystems/goal.md:25-30}}). A separate round driver appends the next continuation message, but only when the goal's durable phase is <code>active</code> and its process-local activation is <code>armed</code> ({{cite packages/goal/goal-round-driver/src/index.ts:105-108}}). It also waits until the agent has actually gone idle with no competing message already queued ({{cite packages/goal/goal-round-driver/src/index.ts:111-117}}).</p>
+
+<h3>Step 4: plan mode adds a prompt section; it enforces nothing</h3>
+<p><code>ctx.planMode</code> logs one replace-whole-value event, <code>plan/mode</code>, and renders a deployment-owned guidance section only while that logged state is active ({{cite docs/subsystems/plan.md:11}}, {{cite docs/subsystems/plan.md:29}}). {{term sandbox | Sandbox mode}} and {{term approval-policy | approval policy}} enforce their own restrictions independently and never read plan state ({{cite docs/subsystems/plan.md:5}}).</p>
+
+<h2>More detail</h2>
+<p>A goal's round cap defaults to 256 and is resolved once, at creation, from the deployment's configured default ({{cite packages/goal/goal/src/index.ts:240}}). Resuming a goal that already reached its cap is rejected outright, with a message naming the exhausted limit, rather than silently resuming it ({{cite packages/goal/goal/src/index.ts:377-381}}). The in-process job provider adds its own defaults on top of the abstract seam. At most 10 concurrent <code>running</code> plus <code>stopping</code> jobs run per owner. It retains 256 KiB of live output per job, and 16 KiB after a job settles ({{cite packages/jobs/jobs-local/src/index.ts:33-40}}).</p>
+<p>The workflow engine applies its own ceilings per run: up to 1,000 total <code>agent()</code> calls. Its concurrency limit defaults to <code>min(16, max(1, cores - 2))</code> when left at 0 ({{cite packages/workflow/workflow-ptc/src/index.ts:106-112}}, {{cite packages/workflow/workflow-ptc/src/index.ts:141-144}}). A script cannot pick its own children's subagent provider. Only a specialized host-side caller may override the engine's configured provider for a run; the script itself never sees that choice ({{cite docs/subsystems/workflow.md:13}}).</p>
+<p>A user's plan-mode selection is not committed the instant it is made. It waits as a pending value until the next accepted in-turn pre-step appends it. A selection made after a turn's last such step stays pending until a later turn runs one ({{cite docs/subsystems/plan.md:15}}).</p>
+<p>For the full generated references, see the repository's own {{cite docs/subsystems/jobs.md}}, {{cite docs/subsystems/workflow.md}}, {{cite docs/subsystems/goal.md}} and {{cite docs/subsystems/plan.md}}.</p>
+
+<x-deepdive title="The in-process job registry's own default limits">
+<table>
+  <thead><tr><th>Limit</th><th>Default</th><th>Set at</th></tr></thead>
+  <tbody>
+    <tr><td>Concurrent jobs per owner</td><td>10</td><td>{{cite packages/jobs/jobs-local/src/index.ts:33-34}}</td></tr>
+    <tr><td>Live ring retention</td><td>256 KiB</td><td>{{cite packages/jobs/jobs-local/src/index.ts:36-37}}</td></tr>
+    <tr><td>Retention after settlement</td><td>16 KiB</td><td>{{cite packages/jobs/jobs-local/src/index.ts:39-40}}</td></tr>
+    <tr><td>Pull-source poll interval</td><td>150 ms</td><td>{{cite packages/jobs/jobs-local/src/index.ts:42-43}}</td></tr>
+  </tbody>
+</table>
+<p>These are the in-process provider's own choices, not part of the abstract <code>ctx.jobs</code> seam; a different implementation could set other values.</p>
+</x-deepdive>
+
+<h2>What can go wrong</h2>
+<x-warning title="An active goal does not continue on its own just because it is active"><p>Check <code>activation</code>, not only <code>phase</code>, before expecting an automatic round. A goal stays <code>active</code> in its durable phase even after its process-local activation is disarmed, for example before a driver unloads ({{cite packages/goal/goal/src/index.ts:284-296}}, {{cite packages/goal/goal-round-driver/src/index.ts:105-108}}).</p></x-warning>
+<x-simplified><p>This page leaves out the job output ring's pull-versus-push sources. It also leaves out the workflow engine's <code>parallel()</code>/<code>pipeline()</code> combinators and the browser-facing projections for all four capabilities.</p></x-simplified>
+<p><strong>Why it matters.</strong> Code that waits for "the goal to keep going" must check the live <code>activation</code> field, not only the durable <code>phase</code>. Otherwise it can wait forever on a goal that is active but disarmed.</p>
+
+<x-quiz>
+  <x-q level="easy">Which service lets a tool keep a long-running command active while the agent moves on to other work?
+    <x-a><p><code>ctx.jobs</code>. It is a seam specifically for long-running producer work tracked outside the turn/step loop ({{cite packages/jobs/jobs/src/index.ts:88-100}}).</p></x-a>
+  </x-q>
+  <x-q level="medium">Can a workflow script itself choose which subagent provider its <code>agent()</code> calls use?
+    <x-a><p>No. The engine resolves the provider from its own configuration (or a specialized caller's override); the script "cannot observe or replace either policy" ({{cite docs/subsystems/workflow.md:13}}).</p></x-a>
+  </x-q>
+  <x-q level="medium">A goal's <code>phase</code> is <code>active</code>. Does the round driver always queue the next round the moment the agent is idle?
+    <x-a><p>No. It also requires the goal's process-local <code>activation</code> to be <code>armed</code>, and no competing message already queued ({{cite packages/goal/goal-round-driver/src/index.ts:105-108}}, {{cite packages/goal/goal-round-driver/src/index.ts:111-117}}).</p></x-a>
+  </x-q>
+  <x-q level="hard">What are the in-process job provider's default per-owner concurrency cap and live output retention?
+    <x-a><p>10 concurrent <code>running</code>/<code>stopping</code> jobs per owner, and 256 KiB of live ring output per job ({{cite packages/jobs/jobs-local/src/index.ts:33-37}}). These are the provider's own defaults, not the abstract seam's.</p></x-a>
+  </x-q>
+</x-quiz>
