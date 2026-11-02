@@ -1,8 +1,9 @@
 # DeepSeek Harness Explainer — Progress
 
-Last update: 2026-11-01
-Current phase: **2 Full build** — B1-B3 done and committed. All 3 basics pages, home, the tour and one
-concept page are live. Waiting for user approval to start B4 (core runtime + tools, incl. the visual).
+Last update: 2026-11-02
+Current phase: **2 Full build** — B1-B4 done and committed. All 3 basics pages, home, the tour, and 4
+concept pages (core runtime + tools) are live, with one interactive visual. Waiting for user approval to
+start B5 (delegation: subagents, jobs/workflow/goal/plan).
 
 This file is the memory of the project. A new session must be able to continue from it alone.
 Update it after every subagent finishes and after every user decision.
@@ -23,8 +24,7 @@ Update it after every subagent finishes and after every user decision.
 | B1 Foundation | done | done (supervisor) | 5f08df8 |
 | B2 Samples | done | done (supervisor, 2 defects fixed) | cf46355 |
 | B3 Remaining basics | done | done (supervisor, 0 defects) | (see log) |
-| B3 Remaining basics | – | – | – |
-| B4 Core runtime + tools | – | – | – |
+| B4 Core runtime + tools | done | done (supervisor, 0 defects) | ae83de5 |
 | B5 Delegation | – | – | – |
 | B6 Execution & protocols | – | – | – |
 | B7 Code map + reference | – | – | – |
@@ -50,6 +50,18 @@ Update it after every subagent finishes and after every user decision.
 
 Newest first.
 
+- 2026-11-02: B4 core runtime + tools committed (ae83de5): concepts/llm-and-system-prompt,
+  concepts/tools-and-mcp (+ tool-pipeline-stepper interactive visual), concepts/skills, and a
+  consistency/linking-only pass on concepts/agent-loop-and-session (no content defect in the Phase-1
+  sample). Supervisor spot-checked 10 claims directly against the target repo: system-prompt assembly and
+  commit order (agent.ts), agent/request provider/model immutability throw, PromptSection.complete
+  restoration (system-prompt/index.ts), the full tool/call -> tools/pre-execute -> tools/execute ->
+  tools/post-execute -> tool/result order and guard timing (batch.ts + pipeline.ts), MCP public tool name
+  format (mcp-client/tools.ts), catalogDescriptionMaxLength default (tool-skill/index.ts), skill discovery
+  ranks incl. bundled=600 (skill-filesystem/index.ts, skill/index.ts), LlmAdapter.stream as the only
+  required method (llm/index.ts). All correct — 0 defects. build.py --strict: 0 errors, 0 warnings.
+  Playwright 1280/390px on all 4 touched pages: 0 overflow, 0 JS errors; stepper visual click-through
+  confirmed working (DOM updates on click, no console errors).
 - 2026-11-01: B2 samples committed (cf46355): home, learn/plugins-and-cordis, tours/life-of-a-headless-task.
   Supervisor spot-checked a sample of citations directly against the target repo; found and fixed 2
   defects: (1) core.json "job" term cited the wrong line in docs/subsystems/jobs.md (9 -> 21); (2)
@@ -70,9 +82,8 @@ Newest first.
 
 ## Next step
 
-Waiting for user approval to start B4 (core runtime + tools: agent-loop-and-session full rewrite if
-needed, llm-and-system-prompt, tools-and-mcp + the tool-pipeline visual, skills). Per user instruction,
-stop for approval before every remaining batch (B4-F), one at a time.
+Waiting for user approval to start B5 (delegation: subagents-and-delegation, jobs-workflow-goal-plan). Per
+user instruction, stop for approval before every remaining batch (B5-F), one at a time.
 
 ## Questions for the user
 
