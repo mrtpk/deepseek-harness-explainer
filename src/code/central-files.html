@@ -1,0 +1,75 @@
+---
+title: Code map: the central files
+nav_title: The central files
+related: code/index, concepts/agent-loop-and-session, concepts/tools-and-mcp, tours/life-of-a-headless-task
+summary: The repository has about 20,000 tracked files. This page lists the small set of files that do most of the work, each with its line count and a link to the page that explains it.
+---
+<h2>Purpose</h2>
+<p>{{link code/index | The folder tree}} shows every folder of the repository. Most of that code is generated output, tests, docs, or a vendored library. This page lists the files that this site's {{term plugin | plugins}} and concept pages actually read and quote. Each row names the file, its line count, its main {{term service}} or class, and the page that explains it.</p>
+<p>The list is not exhaustive. It is the set of files the writers of this site opened and cited while explaining each capability family. The final section below says how the list was made. See the repository's own {{cite docs/module-graph.md}} for the full, generated package dependency graph.</p>
+
+<h2>The central files</h2>
+
+<h3>Boot and the headless tour</h3>
+<p>{{link tours/life-of-a-headless-task}} walks a <code>dsh --profile headless "task"</code> run through these two files, after the thin <code>apps/cli/src/bin.ts</code> entry point hands off to them.</p>
+<table>
+<thead><tr><th>File</th><th>Lines</th><th>Main thing</th><th>Role</th><th>Explained in</th></tr></thead>
+<tbody>
+<tr><td>{{cite apps/cli/src/profile-boot.ts}}</td><td>353</td><td><code>runProfile()</code></td><td>Builds the patch-overlay list, installs the proxy policy, then composes and mounts the profile's plugin tree ({{cite apps/cli/src/profile-boot.ts:271}}).</td><td>{{link tours/life-of-a-headless-task}}</td></tr>
+<tr><td>{{cite packages/bundle/headless/src/index.ts}}</td><td>465</td><td><code>apply()</code></td><td>The <code>headless-runner</code> plugin: mounts the one-shot driver that runs one task and exits ({{cite packages/bundle/headless/src/index.ts:456}}).</td><td>{{link tours/life-of-a-headless-task}}</td></tr>
+</tbody>
+</table>
+
+<h3>Core runtime</h3>
+<table>
+<thead><tr><th>File</th><th>Lines</th><th>Main thing</th><th>Role</th><th>Explained in</th></tr></thead>
+<tbody>
+<tr><td>{{cite packages/core/agent-loop/src/agent.ts}}</td><td>745</td><td><code>ReactLoopAgent</code></td><td>Drives one {{term session}} through its {{term turn}} and {{term step}} boundaries ({{cite packages/core/agent-loop/src/agent.ts:112}}).</td><td>{{link concepts/agent-loop-and-session}}</td></tr>
+<tr><td>{{cite packages/core/agent/src/index.ts}}</td><td>714</td><td><code>AgentRegistry</code></td><td>The service that creates and resumes {{term agent | agents}} ({{cite packages/core/agent/src/index.ts:252}}).</td><td>{{link concepts/agent-loop-and-session}}</td></tr>
+<tr><td>{{cite packages/core/session/src/index.ts}}</td><td>1,475</td><td><code>Session</code>, <code>SessionStore</code></td><td>The event-sourced, append-only {{term session-log}} every turn reads and writes ({{cite packages/core/session/src/index.ts:525}}).</td><td>{{link concepts/agent-loop-and-session}}</td></tr>
+<tr><td>{{cite packages/llm/llm/src/index.ts}}</td><td>1,222</td><td><code>LlmRuntime</code></td><td>The abstract <code>ctx.llm</code> service: an adapter registry plus the streaming model-call API ({{cite packages/llm/llm/src/index.ts:354}}).</td><td>{{link concepts/llm-and-system-prompt}}</td></tr>
+</tbody>
+</table>
+
+<h3>Tools and extensibility</h3>
+<table>
+<thead><tr><th>File</th><th>Lines</th><th>Main thing</th><th>Role</th><th>Explained in</th></tr></thead>
+<tbody>
+<tr><td>{{cite packages/core/tools/src/pipeline.ts}}</td><td>771</td><td><code>ToolExecutionPipeline</code></td><td>The shared prepare, dispatch, and complete stages behind every tool call ({{cite packages/core/tools/src/pipeline.ts:62}}).</td><td>{{link concepts/tools-and-mcp}}</td></tr>
+<tr><td>{{cite packages/core/tools/src/batch.ts}}</td><td>285</td><td><code>executeToolBatch()</code></td><td>Runs one turn's ordered tool calls and collects the model-ordered results ({{cite packages/core/tools/src/batch.ts:50}}).</td><td>{{link concepts/tools-and-mcp}}</td></tr>
+<tr><td>{{cite packages/mcp/mcp-client/src/tools.ts}}</td><td>511</td><td><code>syncTools()</code></td><td>Registers one {{term mcp}} server's tools into the tool registry, and unregisters the previous generation ({{cite packages/mcp/mcp-client/src/tools.ts:113}}).</td><td>{{link concepts/tools-and-mcp}}</td></tr>
+<tr><td>{{cite packages/skill/tool-skill/src/index.ts}}</td><td>451</td><td><code>apply()</code></td><td>The <code>tool-skill</code> plugin: exposes loaded {{term skill | skills}} to the agent as callable tools ({{cite packages/skill/tool-skill/src/index.ts:25}}).</td><td>{{link concepts/skills}}</td></tr>
+<tr><td>{{cite packages/skill/skill-filesystem/src/index.ts}}</td><td>1,063</td><td><code>FileSystemSkillProvider</code></td><td>Loads skills from the project and user skill roots into <code>ctx.skills</code> ({{cite packages/skill/skill-filesystem/src/index.ts:149}}).</td><td>{{link concepts/skills}}</td></tr>
+</tbody>
+</table>
+
+<h3>Delegation and background work</h3>
+<table>
+<thead><tr><th>File</th><th>Lines</th><th>Main thing</th><th>Role</th><th>Explained in</th></tr></thead>
+<tbody>
+<tr><td>{{cite packages/subagent/subagent/src/index.ts}}</td><td>657</td><td><code>SubagentRuntime</code></td><td>The named-provider registry that starts, tracks, and messages {{term subagent | subagents}} ({{cite packages/subagent/subagent/src/index.ts:194}}).</td><td>{{link concepts/subagents-and-delegation}}</td></tr>
+<tr><td>{{cite packages/subagent/subagent-claude-code/src/index.ts}}</td><td>147</td><td><code>apply()</code></td><td>The <code>subagent-claude-code</code> plugin: a subagent provider backed by the Claude Agent SDK ({{cite packages/subagent/subagent-claude-code/src/index.ts:30}}).</td><td>{{link concepts/subagents-and-delegation}}</td></tr>
+<tr><td>{{cite packages/goal/goal-round-driver/src/index.ts}}</td><td>477</td><td><code>apply()</code></td><td>The <code>goal-round-driver</code> plugin: turns a {{term goal}} update into one agent round ({{cite packages/goal/goal-round-driver/src/index.ts:19}}).</td><td>{{link concepts/jobs-workflow-goal-plan}}</td></tr>
+<tr><td>{{cite packages/workflow/workflow-ptc/src/host.ts}}</td><td>324</td><td><code>PtcWorkflowRun</code></td><td>One running {{term workflow}} program, with its child subagent handles ({{cite packages/workflow/workflow-ptc/src/host.ts:113}}).</td><td>{{link concepts/jobs-workflow-goal-plan}}</td></tr>
+</tbody>
+</table>
+
+<h3>Execution and safety</h3>
+<table>
+<thead><tr><th>File</th><th>Lines</th><th>Main thing</th><th>Role</th><th>Explained in</th></tr></thead>
+<tbody>
+<tr><td>{{cite packages/sandbox/sandbox-policy/src/index.ts}}</td><td>217</td><td><code>SandboxPolicyService</code></td><td>Holds the deployment's default {{term sandbox}} mode and resolves the active policy for each tool execution ({{cite packages/sandbox/sandbox-policy/src/index.ts:134}}).</td><td>{{link concepts/sandbox-and-execution}}</td></tr>
+<tr><td>{{cite packages/interaction/user-approval/src/index.ts}}</td><td>336</td><td><code>ApprovalService</code></td><td>Applies the session's {{term approval-policy}} and logs every ask/outcome pair to the session ({{cite packages/interaction/user-approval/src/index.ts:167}}).</td><td>{{link concepts/approval-and-interaction}}</td></tr>
+</tbody>
+</table>
+
+<h3>Protocols and clients</h3>
+<table>
+<thead><tr><th>File</th><th>Lines</th><th>Main thing</th><th>Role</th><th>Explained in</th></tr></thead>
+<tbody>
+<tr><td>{{cite packages/acp/acp/src/index.ts}}</td><td>529</td><td><code>apply()</code></td><td>The <code>acp</code> plugin: mounts the {{term acp}} server, the automation-only JSON-RPC-over-stdio protocol, over a session ({{cite packages/acp/acp/src/index.ts:96}}).</td><td>{{link concepts/acp-sdk-and-clients}}</td></tr>
+</tbody>
+</table>
+
+<h2>How this list was made</h2>
+<p>Every file above is one this site's writers opened, read, and quoted with an <code>&lt;x-code&gt;</code> excerpt on a concept page or the tour. Line counts come from <code>wc -l</code> against the pinned commit, counted again while writing this page. This page leaves out the parts of the repository this site treats as out of scope. That includes <code>vendor/</code> (Cordis and its foundation libraries), <code>native/</code> (the Landlock/flock launcher), <code>packages/experimental/*</code>, and the Swift/C++ experimental macOS helper. The Python SDK (<code>python/</code>) only launches the compiled <code>dsh</code> binary over JSON-RPC-on-stdio, and has no in-process harness logic ({{cite python/README.md:5-9}}).</p>

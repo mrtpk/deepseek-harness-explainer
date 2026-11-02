@@ -1,0 +1,58 @@
+---
+title: "Reference: config and environment variables"
+nav_title: Config and environment
+related: learn/profiles-and-bundles, code/central-files
+summary: The environment variables a reader meets most often, how config files layer, and the main dsh command-line flags, with pointers to the repository's own generated catalogs.
+---
+<h2>Purpose</h2>
+<p>This page is a short lookup, not a full catalog. It lists the environment variables, config layers, and command-line flags a reader meets first. For the complete, generated tables, see the repository's own {{cite docs/config-catalog.md}} and {{cite docs/tool-catalog.md}}.</p>
+
+<h2>Main environment variables</h2>
+<table>
+<thead><tr><th>Variable</th><th>Default when unset</th><th>What it controls</th></tr></thead>
+<tbody>
+<tr>
+<td><code>DSH_HOME</code></td>
+<td><code>~/.dsh</code> ({{cite packages/util/home-paths/src/index.ts:12-18}})</td>
+<td>The home {{link learn/profiles-and-bundles | profiles, profile patch files, and user data}} live under. Read by <code>resolveDshHome()</code> ({{cite packages/util/home-paths/src/index.ts:135-137}}).</td>
+</tr>
+<tr>
+<td><code>DSH_AGENTS_HOME</code></td>
+<td><code>~/.agents</code> ({{cite packages/util/home-paths/src/index.ts:21-27}})</td>
+<td>The shared agent configuration root. The filesystem {{term skill}} provider falls back to it for its default skill root ({{cite packages/skill/skill-filesystem/src/index.ts:55}}).</td>
+</tr>
+<tr>
+<td><code>DEEPSEEK_API_KEY</code></td>
+<td>(none; the request fails without a key)</td>
+<td>The default name of the credential the DeepSeek LLM adapter reads its API key from ({{cite packages/llm/llm-deepseek-api-key/src/config.ts:25}}). A {{term plugin}} config can name a different credential instead.</td>
+</tr>
+<tr>
+<td><code>DEEPSEEK_BASE_URL</code></td>
+<td><code>https://api.deepseek.com/anthropic</code> ({{cite packages/llm/llm-deepseek/src/config.ts:115}})</td>
+<td>Overrides the DeepSeek endpoint. It applies only when a plugin config does not set <code>baseURL</code> itself. The value must come from a trusted environment layer, not a raw <code>process.env</code> read ({{cite packages/llm/llm-deepseek/src/config.ts:118-119}}, read at {{cite packages/llm/llm-deepseek/src/config.ts:311}}).</td>
+</tr>
+<tr>
+<td><code>HTTP_PROXY</code> / <code>HTTPS_PROXY</code> / <code>NO_PROXY</code> (and the lower-case and <code>ALL_PROXY</code> forms)</td>
+<td>unset (direct connections)</td>
+<td>The launcher resolves and installs one proxy policy from these, before the first plugin mounts ({{cite packages/util/http-proxy/src/policy.ts:39-54}}, installed at {{cite apps/cli/src/profile-boot.ts:271-275}}). Node's own <code>fetch</code> does not read the proxy environment on its own.</td>
+</tr>
+</tbody>
+</table>
+
+<h2>Config-file layering</h2>
+<p>A running <code>dsh</code> tree is a {{term profile}} that stacks named {{term bundle | bundles}}. Patch files then overlay the result: a <code>cordis.patch.yml</code> file at each layer, plus any <code>--patch</code> overlays ({{cite apps/cli/src/profile-boot.ts:88}}). {{link learn/profiles-and-bundles}} explains the full, fixed layer order, with a diagram and a worked example. This page does not repeat it.</p>
+
+<h2>Main CLI flags</h2>
+<p>These flags belong to the <code>dsh</code> launcher itself, parsed in {{cite apps/cli/src/args.ts}}. The launcher stops reading at the first token it does not recognize, and hands everything after that to the booted profile's own app, verbatim ({{cite apps/cli/src/args.ts:5-9}}).</p>
+<table>
+<thead><tr><th>Flag</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>--profile &lt;name&gt;</code></td><td>The profile under <code>$DSH_HOME/profiles</code> to boot ({{cite apps/cli/src/args.ts:168}}). <code>dsh &lt;name&gt;</code> is a shorthand for <code>dsh --profile &lt;name&gt;</code> when the first argument is not a flag and not <code>plugin</code> ({{cite apps/cli/src/args.ts:205-207}}).</td></tr>
+<tr><td><code>--from-default-profile &lt;name&gt;</code></td><td>Replaces a custom profile with a fresh copy of a shipped profile template before boot ({{cite apps/cli/src/args.ts:169}}).</td></tr>
+<tr><td><code>--patch &lt;path&gt;</code></td><td>Adds one extra patch-overlay file, applied after the profile's own layer. Repeatable; each use adds one more file, in argv order ({{cite apps/cli/src/args.ts:170}}).</td></tr>
+<tr><td><code>--dump-config</code> / <code>--dump-default-config</code> / <code>--dump-config-schema</code></td><td>Print the composed profile tree, the tree without the user layer and <code>--patch</code> overlays, or its JSON Schema, and exit without booting ({{cite apps/cli/src/args.ts:171-173}}).</td></tr>
+<tr><td><code>plugin --profile &lt;name&gt; &lt;pnpm-args...&gt;</code></td><td>Forwards pnpm arguments into one profile's own plugin dependencies, to add, remove, or query a plugin ({{cite apps/cli/src/args.ts:187-199}}).</td></tr>
+</tbody>
+</table>
+
+<p>For the full, generated catalog of every plugin's config fields, see {{cite docs/config-catalog.md}}. For the full, generated catalog of every model-facing tool schema, see {{cite docs/tool-catalog.md}}.</p>
