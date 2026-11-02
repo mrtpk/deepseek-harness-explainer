@@ -1,9 +1,8 @@
 # DeepSeek Harness Explainer — Progress
 
 Last update: 2026-11-02
-Current phase: **2 Full build** — B1-B4 done and committed. All 3 basics pages, home, the tour, and 4
-concept pages (core runtime + tools) are live, with one interactive visual. Waiting for user approval to
-start B5 (delegation: subagents, jobs/workflow/goal/plan).
+Current phase: **2 Full build** — B1-B5 done and committed. User said "build everything": running B6, B7
+and F straight through, one subagent at a time, without stopping for per-batch approval.
 
 This file is the memory of the project. A new session must be able to continue from it alone.
 Update it after every subagent finishes and after every user decision.
@@ -25,7 +24,7 @@ Update it after every subagent finishes and after every user decision.
 | B2 Samples | done | done (supervisor, 2 defects fixed) | cf46355 |
 | B3 Remaining basics | done | done (supervisor, 0 defects) | (see log) |
 | B4 Core runtime + tools | done | done (supervisor, 0 defects) | ae83de5 |
-| B5 Delegation | – | – | – |
+| B5 Delegation | done | done (supervisor, 0 defects) | f7f3fab |
 | B6 Execution & protocols | – | – | – |
 | B7 Code map + reference | – | – | – |
 
@@ -36,6 +35,8 @@ Update it after every subagent finishes and after every user decision.
 - 2026-11-01: Fact-check mode: light (supervisor spot-check only), not a full fact-checker subagent.
 - 2026-11-01: Structure: approved 16-page overview, but add quizzes and one interactive visual.
 - 2026-11-01: Budget: 1 subagent at a time.
+- 2026-11-02: "build everything" → supersedes the per-batch approval gate below for the remaining batches
+  (B6, B7, F). Run them straight through, 1 subagent at a time, spot-check and commit each, no stopping.
 - 2026-11-01: "Now usage is at 54%, I plan to use only 10% for this work... do B by B. You dont have to
   worry about token usage, but get my approval before you start the new batch." → a usage ceiling (about
   10% of the user's weekly allowance for the rest of this build) applies, but the supervisor does not
@@ -50,6 +51,14 @@ Update it after every subagent finishes and after every user decision.
 
 Newest first.
 
+- 2026-11-02: B5 delegation committed (f7f3fab): concepts/subagents-and-delegation,
+  concepts/jobs-workflow-goal-plan. Writer correction: the Claude Code subagent provider does not shell out
+  to the host's installed `claude` binary — it calls the official Claude Agent SDK, which spawns its own
+  platform-pinned CLI process (subagent-claude-code/README.md:12). Supervisor spot-checked 6 claims
+  (maxDepth/maxActiveSubagents defaults, the Claude Code provider correction, jobs-local registry
+  defaults, goal maxGoalRounds=256 and resume-throws, workflow-ptc concurrency formula, the toolFilter
+  legacy-migration error): all correct, 0 defects. build.py --strict: 0 errors, 0 warnings. Playwright
+  1280/390px: 0 overflow, 0 JS errors.
 - 2026-11-02: B4 core runtime + tools committed (ae83de5): concepts/llm-and-system-prompt,
   concepts/tools-and-mcp (+ tool-pipeline-stepper interactive visual), concepts/skills, and a
   consistency/linking-only pass on concepts/agent-loop-and-session (no content defect in the Phase-1
@@ -82,8 +91,9 @@ Newest first.
 
 ## Next step
 
-Waiting for user approval to start B5 (delegation: subagents-and-delegation, jobs-workflow-goal-plan). Per
-user instruction, stop for approval before every remaining batch (B5-F), one at a time.
+Running B6 now (execution & protocols: sandbox-and-execution, approval-and-interaction,
+acp-sdk-and-clients), then B7, then F. Per "build everything" (2026-11-02), no stop for approval between
+these.
 
 ## Questions for the user
 
