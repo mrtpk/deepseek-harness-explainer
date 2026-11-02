@@ -48,9 +48,13 @@ Add the date when a decision changes: "**Changed <date>:** ...".
 - It is an AI coding-agent harness/runtime shaped like Claude Code: sessions, turn/step loop, tool
   pipeline, subagents, MCP, skills, sandboxed shell/fs, approval policy, headless/CLI + Web/Desktop GUI.
   Built on an "everything-is-a-plugin" framework called Cordis (README.md:5-9, docs/architecture.md:9-11).
-  It even ships a subagent provider that shells out to the real Claude Code binary
-  (packages/subagent/subagent-claude-code/README.md:9-11) and an experimental Claude Code "mods"
-  compatibility bridge (docs/subsystems/claude-code-mods.md).
+  It even ships a subagent provider for the Claude Code product: it calls the official Claude Agent SDK
+  (not the host's installed `claude` binary — the package README says it "never falls back to the host
+  `claude` executable", packages/subagent/subagent-claude-code/README.md:12) and an experimental Claude
+  Code "mods" compatibility bridge (docs/subsystems/claude-code-mods.md). **Correction, 2026-11-02:** the
+  original survey (below, unchanged for the record) said this provider "shells out to the real Claude Code
+  binary" — the B5 writer traced the code and found that wrong; see concepts/subagents-and-delegation.html
+  and progress.md's B5 log entry.
 - History: 24,922 commits in under 5 months (HEAD 2026-10-30, first commit 2026-06-10). No submodules;
   Cordis and its foundation libs are vendored by source copy under `vendor/` (vendor/README.md:1-5).
 - Good docs in the repo: `docs/architecture.md`, `AGENTS.md` (package one-liners), `packages/README.md`
