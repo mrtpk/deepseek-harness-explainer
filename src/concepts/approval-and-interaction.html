@@ -1,0 +1,69 @@
+---
+title: Approval and human interaction
+nav_title: Approval and interaction
+level: Intermediate
+prerequisites: concepts/sandbox-and-execution
+related: concepts/tools-and-mcp, concepts/acp-sdk-and-clients
+summary: ctx.approval decides one yes-or-no question per action, logs the ask and the outcome, and fails closed when nobody answers.
+---
+<x-sentence>ctx.approval decides one yes-or-no question per action and fails closed when nobody answers.</x-sentence>
+
+<h2>The idea</h2>
+<p>{{term approval-policy | Approval}} answers one question at the moment a tool wants to act: may this specific action proceed ({{cite docs/subsystems/approval.md:5}})? This differs from {{link concepts/sandbox-and-execution | sandbox mode}}, which fixes a whole mode's file effects ahead of time for every call under it. Approval decides one call, once, by asking composed answerers for a decision. <code>ctx.approval</code> owns the whole exchange: it logs the ask, asks the answerers, logs the outcome, and returns it to the caller ({{cite packages/interaction/user-approval/src/index.ts:242-261}}).</p>
+<p><strong>An everyday comparison.</strong> Think of a doorman who approves one visitor's entry right now, instead of a building policy fixed for everyone in advance. The comparison stops here: the doorman's question never even describes what the visitor carries. It only names the already-presented tool call, so an answerer's decision attaches to arguments that cannot drift from what the model actually asked for ({{cite packages/interaction/user-approval/src/index.ts:124-128}}).</p>
+
+<h2>The picture</h2>
+<x-diagram name="b6_approval_decision" alt="Two panels. Panel 1: three step cards in sequence. A tool's pre-execute decision of kind ask calls ctx.approval.request(), which appends an approval/asked audit event, decides an outcome, and appends an approval/decided event; the outcome then maps straight back to an allow or a deny for the tool call. Panel 2: two lanes. The left lane, policy never, always resolves rejected with no answerer ever running. The right lane, policy ask, runs a waterfall of composed answerers, such as the browser UI, the ACP bridge, and the SDK bridge, and the first one to return an outcome decides it." caption="Figure: one request() call makes the audit pair (panel 1); the session's policy decides whether anyone is even asked (panel 2)." />
+<p>Read panel 1 left to right: the tool's own kind-<code>ask</code> decision is the only trigger; everything else happens inside <code>ctx.approval</code>. Read panel 2 as two policies: "never" decides before any answerer runs, while "ask" lets composed answerers compete in registration order.</p>
+
+<h2>In the code</h2>
+
+<h3>Step 1: a tool's kind-ask decision reaches ctx.approval.request()</h3>
+<p>A tool's pre-execute check can return <code>{ kind: 'ask' }</code> instead of an outright allow or deny ({{cite packages/core/tools/src/contracts.ts:357-361}}). The tool pipeline then calls <code>ctx.approval.request()</code> and maps its outcome straight back. Only <code>allowed-once</code> proceeds; the other three outcomes each deny with their own reason ({{cite packages/core/tools/src/pipeline.ts:449-471}}).</p>
+<x-code file="packages/core/tools/src/pipeline.ts" lines="449-471" highlight="458" caption="allowed-once proceeds; rejected, cancelled and unavailable all deny, each with a distinct reason." />
+
+<h3>Step 2: the session's policy decides before any answerer runs</h3>
+<p>Inside <code>request()</code>, <code>decide()</code> checks the session's effective policy first. A <code>'never'</code> policy returns <code>rejected</code> deterministically, before the answerer waterfall ever dispatches ({{cite packages/interaction/user-approval/src/index.ts:293-318}}). This check runs inside the service itself, so an answerer composed later with <code>prepend</code> still cannot bypass it.</p>
+<x-code file="packages/interaction/user-approval/src/index.ts" lines="293-318" highlight="301,317" caption="'never' short-circuits before dispatch; a throwing or rogue answerer still normalizes to 'unavailable'." />
+
+<h3>Step 3: one answerer claims the request, or passes it on</h3>
+<p>An <code>'ask'</code> policy runs a {{term typed-event | waterfall}} of composed answerers for the agent, in registration order ({{cite docs/cordis-primer.md:22}}). The ACP automation bridge is one example: it turns the request into a <code>session/request_permission</code> call to its connected client ({{cite packages/acp/acp/src/index.ts:158-176}}).</p>
+<x-code file="packages/acp/acp/src/index.ts" lines="158-176" highlight="172-174" caption="One answerer among several: ACP maps its client's choice back to allowed-once or rejected." />
+
+<h2>More detail</h2>
+<p>The default policy is <code>'ask'</code>; a deployment can configure <code>'never'</code> instead for an unattended or CI stance ({{cite packages/interaction/user-approval/src/index.ts:170-172}}). A session can override this at runtime. <code>setPolicy()</code> appends the new <code>approval/policy</code> event, then injects a user-visible message so the model learns of the switch ({{cite packages/interaction/user-approval/src/index.ts:211-222}}). Nothing is pre-approved across calls; a grant from one <code>allowed-once</code> outcome never covers a later, different action.</p>
+<p>The same seam decides a {{term sandbox-escalation | sandbox escalation}}, the retry described on {{link concepts/sandbox-and-execution | the sandbox page}}. A call denied under one mode can route one strictly-wider retry through this exact <code>ctx.approval.request()</code> path. This page covers the general approval decision; the sandbox page covers what "strictly wider" means.</p>
+<p>For the full generated service and event reference, see the repository's own {{cite docs/subsystems/approval.md}}.</p>
+
+<x-deepdive title="What each closed outcome means to the caller">
+<p>A tool call never sees a raw answerer return value, only one of four normalized outcomes ({{cite packages/interaction/user-approval/src/types.ts:28-32}}):</p>
+<table>
+<thead><tr><th>Outcome</th><th>Where it comes from</th><th>What the tool pipeline does</th></tr></thead>
+<tbody>
+<tr><td><code>allowed-once</code></td><td>an answerer grants this one action</td><td>proceeds ({{cite packages/core/tools/src/pipeline.ts:458}})</td></tr>
+<tr><td><code>rejected</code></td><td>an answerer declines, or policy is <code>'never'</code></td><td>denies, "the user rejected ..." ({{cite packages/core/tools/src/pipeline.ts:459-462}})</td></tr>
+<tr><td><code>cancelled</code></td><td>the request's own signal aborts mid-ask</td><td>denies, marked cancelled ({{cite packages/core/tools/src/pipeline.ts:463-466}})</td></tr>
+<tr><td><code>unavailable</code></td><td>no answerer, or one throws, or a rogue return value</td><td>denies, "no approval channel is available" ({{cite packages/core/tools/src/pipeline.ts:467-470}})</td></tr>
+</tbody>
+</table>
+</x-deepdive>
+
+<h2>What can go wrong</h2>
+<x-warning title="approval.request() throws outside an open turn"><p>Calling <code>ctx.approval.request()</code> with no open turn on the requesting session throws an <code>Error</code> at once; it does not return a decision. The audit pair must stay inside the durable log's turn boundary ({{cite packages/interaction/user-approval/src/index.ts:242-250}}).</p></x-warning>
+<x-simplified><p>This page leaves out cancellation races against a live signal, scope-filtered dispatch to the right agent, and the SDK's own opt-in <code>approval/request</code> bridge.</p></x-simplified>
+<p><strong>Why it matters.</strong> A missing or throwing answerer never silently grants an action; it normalizes to <code>unavailable</code>, which every caller treats as a deny ({{cite packages/interaction/user-approval/src/index.ts:306-318}}). The seam is fail-closed by construction, not by each caller remembering to check.</p>
+
+<x-quiz>
+  <x-q level="easy">What are the four closed outcomes ctx.approval.request() can return?
+    <x-a><p><code>allowed-once</code>, <code>rejected</code>, <code>cancelled</code>, and <code>unavailable</code> ({{cite packages/interaction/user-approval/src/types.ts:28-32}}). Only <code>allowed-once</code> is a grant.</p></x-a>
+  </x-q>
+  <x-q level="medium">A session's approval policy is 'never'. Does any composed answerer see the request?
+    <x-a><p>No. <code>decide()</code> returns <code>rejected</code> deterministically before the answerer waterfall dispatches, so no answerer is ever asked ({{cite packages/interaction/user-approval/src/index.ts:301}}).</p></x-a>
+  </x-q>
+  <x-q level="medium">How does approval differ from sandbox mode?
+    <x-a><p>Sandbox mode fixes a whole mode's file effects ahead of time for every call under it ({{link concepts/sandbox-and-execution}}). Approval decides one specific action, once, at the moment it is asked ({{cite docs/subsystems/approval.md:5}}).</p></x-a>
+  </x-q>
+  <x-q level="hard">A composed answerer throws an exception while deciding. What outcome does request() return, and what does the tool pipeline do with it?
+    <x-a><p><code>unavailable</code>: a throwing answerer is normalized to the fail-closed outcome ({{cite packages/interaction/user-approval/src/index.ts:317}}). The tool pipeline then denies the call with "no approval channel is available" ({{cite packages/core/tools/src/pipeline.ts:467-470}}).</p></x-a>
+  </x-q>
+</x-quiz>

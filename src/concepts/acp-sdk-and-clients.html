@@ -1,0 +1,67 @@
+---
+title: ACP, SDKs and clients
+nav_title: ACP, SDKs and clients
+level: Intermediate
+prerequisites: concepts/agent-loop-and-session
+related: concepts/approval-and-interaction, concepts/subagents-and-delegation
+summary: A client reaches dsh through the ACP server, the SDK wire protocol, or the Web and Desktop connection layer, never more than one at a time.
+---
+<x-sentence>A client reaches dsh through the ACP server, the SDK wire protocol, or the Web and Desktop connection layer.</x-sentence>
+
+<h2>The idea</h2>
+<p>dsh exposes three separate protocol seams for three kinds of client. The {{term acp | ACP}} server is a generic, automation-only JSON-RPC-over-stdio protocol; it deliberately leaves out DSH-specific presentation data so any ACP-speaking client can drive it ({{cite packages/acp/acp/README.md:11}}). The {{term sdk-wire-protocol | SDK wire protocol}} is dsh's own newline-delimited JSON-RPC, served over stdio by <code>dsh-sdk-jsonrpc-server</code> and spoken by the TypeScript and Python SDKs ({{cite packages/sdk/protocol/README.md:12}}). Web and Desktop instead speak Remote RPC: JSON over HTTP POST for one-off calls, plus one WebSocket event stream ({{cite packages/client/connection/README.md:12}}, {{cite packages/client/connection/README.md:34}}).</p>
+<p><strong>An everyday comparison.</strong> Think of a building with three doors: a loading dock for scripted deliveries, a maintenance door for certified automation, and the main lobby for people. The comparison stops here. A single dsh deployment normally opens only one of these doors at a time, chosen by its {{term profile}}.</p>
+
+<h2>The picture</h2>
+<x-diagram name="b6_acp_sdk_clients" alt="Panel 1: three boxes, the ACP server, the SDK jsonrpc-server, and the Web and Desktop connection, each with an arrow down into one shared dsh agent and session runtime box. Panel 2: a Python SDK process box with an arrow into a box labelled bundled dsh --profile sdk binary, noting it has no in-process harness logic." caption="Figure: three separate protocol seams reach the same runtime (panel 1); the Python SDK is a launcher for one of them, not a fourth seam (panel 2)." />
+<p>Read panel 1 as three independent doors, each its own plugin, into the same session and agent-loop core covered on earlier pages. Read panel 2 as a special case of the SDK seam: the Python SDK adds no protocol of its own.</p>
+
+<h2>In the code</h2>
+
+<h3>Step 1: the ACP server exposes a fixed set of session methods</h3>
+<p><code>initialize()</code> reports one protocol version plus the session methods this server adds beyond the ACP v1 baseline, such as <code>session/list</code> and <code>session/resume</code> ({{cite packages/acp/acp/src/index.ts:179-193}}). One connection can run several independent sessions at once.</p>
+<x-code file="packages/acp/acp/src/index.ts" lines="179-193" caption="The ACP handshake: one protocol version, and the session capabilities this server adds." />
+
+<h3>Step 2: the SDK wire protocol is one JSON-RPC message per line</h3>
+<p>Both wire ends of the SDK protocol agree on one rule: one JSON-RPC 2.0 message per newline-terminated line over a byte stream ({{cite packages/sdk/protocol/README.md:34}}). The TypeScript client resolves the matching <code>@deepseek-ai/dsh</code> executable unless the caller names one explicitly. It then owns that subprocess for the life of the client ({{cite packages/sdk/client/README.md:12}}).</p>
+
+<h3>Step 3: the Python SDK launches the same binary; it has no protocol of its own</h3>
+<p>The Python SDK drives DeepSeek Harness as a subprocess, over the same newline-delimited JSON-RPC on stdio, with no in-process harness logic of its own ({{cite python/README.md:5}}). It has no separate application entrypoint: it launches the bundled <code>dsh</code> CLI with <code>--profile sdk</code>, and that profile owns the JSON-RPC server, agent composition, and persistence ({{cite python/sdk/README.md:31}}).</p>
+
+<h3>Step 4: Web and Desktop share one connection carrier</h3>
+<p>The browser issues Remote RPC calls over HTTP POST; a Gateway-owned WebSocket carries the matching event stream ({{cite packages/client/connection/README.md:34}}). Desktop reuses the exact same carrier. It supplies its own HTTP origin as <code>streamBaseUrl</code> for a locally hosted runtime, instead of a browser's page origin ({{cite packages/client/connection/README.md:30}}, {{cite apps/desktop/src/main.ts:790}}).</p>
+
+<h2>More detail</h2>
+<p>Each seam is mounted by a different profile. The shipped <code>acp</code> profile mounts <code>dsh-acp</code>; the <code>sdk</code> and <code>sdk-minimal</code> profiles mount <code>dsh-sdk-jsonrpc-server</code>; the <code>web</code> profile mounts the connection and UI plugins. {{link learn/profiles-and-bundles | The profiles page}} covers how a profile assembles its plugin tree; this page only names which plugin backs each surface. Both ACP and the SDK server also register their own opt-in approval answerer, on the same waterfall described on {{link concepts/approval-and-interaction | the approval page}}.</p>
+<p>The two automation protocols configure the model route differently. ACP's <code>provider</code> and <code>model</code> are plugin config, so they apply to every session the server creates ({{cite packages/acp/acp/README.md:47-48}}). The SDK sets its route per connection, inside the <code>initialize</code> handshake, together with an optional <code>reasoningEffort</code> and <code>maxTokens</code> ({{cite packages/sdk/client/README.md:79}}).</p>
+<p>No single generated subsystems page covers all three seams; the package READMEs cited above are the deeper reference. The repository's own {{cite docs/subsystems/web-client.md}} covers the Web Client's own architecture.</p>
+
+<x-deepdive title="Where the model route is configured, ACP vs. SDK">
+<table>
+<thead><tr><th>Seam</th><th>Where provider/model are set</th><th>Scope</th></tr></thead>
+<tbody>
+<tr><td>ACP</td><td>plugin config (<code>provider</code>, <code>model</code>)</td><td>every session the server creates ({{cite packages/acp/acp/README.md:47-48}})</td></tr>
+<tr><td>SDK</td><td><code>initialize</code> handshake</td><td>that one client connection ({{cite packages/sdk/client/README.md:79}})</td></tr>
+</tbody>
+</table>
+</x-deepdive>
+
+<h2>What can go wrong</h2>
+<x-warning title="A dsh executable mismatch fails the SDK handshake, not a later call"><p>The TypeScript client resolves the same-version <code>@deepseek-ai/dsh</code> executable unless <code>dshBin</code> names one explicitly. A mismatched or missing binary surfaces as a bounded <code>initialize</code> handshake failure, not as a protocol error later in the run ({{cite packages/sdk/client/README.md:12}}, {{cite packages/sdk/client/README.md:79}}).</p></x-warning>
+<x-simplified><p>This page leaves out MCP server mounting, session persistence and resume, image-prompt support, and the exact Remote RPC attachment format.</p></x-simplified>
+<p><strong>Why it matters.</strong> A caller might assume the Node and Python SDKs share one process model. They do not: the Python SDK spawns and owns its own <code>dsh</code> subprocess. Two Python SDK instances mean two separate runtimes, each with its own Harness home.</p>
+
+<x-quiz>
+  <x-q level="easy">Which of the three protocol seams is automation-only and intentionally leaves out DSH-specific presentation data?
+    <x-a><p>The ACP server: it exposes only the standard ACP v1 surface plus a small set of session extensions ({{cite packages/acp/acp/README.md:11}}).</p></x-a>
+  </x-q>
+  <x-q level="medium">Does the Python SDK define its own wire protocol?
+    <x-a><p>No. It launches the bundled <code>dsh --profile sdk</code> binary and speaks the same newline-delimited JSON-RPC-on-stdio protocol the SDK server already serves, with no in-process harness logic ({{cite python/README.md:5}}, {{cite python/sdk/README.md:31}}).</p></x-a>
+  </x-q>
+  <x-q level="medium">How does the Desktop app's browser view reach its own locally hosted runtime, rather than a remote Web deployment?
+    <x-a><p>It supplies its own HTTP origin as <code>streamBaseUrl</code> to the same browser connection carrier. The Gateway then uses that origin for its WebSocket; HTTP transport is selected independently ({{cite packages/client/connection/README.md:30}}, {{cite apps/desktop/src/main.ts:790}}).</p></x-a>
+  </x-q>
+  <x-q level="hard">A deployment wants every session to use the same fixed model, with no per-connection override. Should it choose the ACP server or the SDK server?
+    <x-a><p>The ACP server: its <code>provider</code> and <code>model</code> are plugin config applied to every session it creates. The SDK server instead takes the route per connection, inside each client's own <code>initialize</code> handshake ({{cite packages/acp/acp/README.md:47-48}}, {{cite packages/sdk/client/README.md:79}}).</p></x-a>
+  </x-q>
+</x-quiz>
