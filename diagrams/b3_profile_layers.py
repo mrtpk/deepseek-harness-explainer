@@ -3,7 +3,7 @@ patch layers stack into one running dsh plugin tree.
 
 Used by: src/learn/profiles-and-bundles.html (<x-diagram name="b3_profile_layers" ... />)
 Sources (at the pinned commit in explainer.json):
-  packages/util/official-bundles/src/bundles.ts:13-18   PROFILE_TEMPLATES: web and headless bundle lists
+  packages/util/official-bundles/src/bundles.ts:14-19   PROFILE_TEMPLATES: web and headless bundle lists
   packages/bundle/headless/package.json:39-42           dsh.bundle.patch -> ./cordis.patch.yml
   packages/boot/app-boot/src/profile-context.ts:75-80   readProfilePatches(): layer order
   apps/cli/src/profile-boot.ts:73-75                    homePatchPath(): $DSH_HOME/cordis.patch.yml
@@ -32,12 +32,12 @@ d.panel(y0, P1_H, 1, "Which bundles does a profile stack?",
 bx_y, bw, bh = y0 + 70, 460, 80
 d.box(60, bx_y, bw, bh, "profile: web", [
     "dsh-base, dsh-web-app",
-    "bundles.ts:14-15",
+    "bundles.ts:14-16",
 ], col=BLUE)
 d.box(580, bx_y, bw, bh, "profile: headless", [
     "dsh-base, dsh-headless",
-    "bundles.ts:16-17",
-], col=EMERALD)
+    "bundles.ts:17-19",
+], col=BLUE)
 d.aside(60, bx_y + bh + 18, [
     "Each bundle names its own patch file in package.json's dsh.bundle.patch (headless/package.json:39-42).",
 ])
@@ -73,14 +73,14 @@ d.aside(lx, result_y + 4 + 54 + 16, [
 
 legend_y = y1 + P2_H + 24
 d.legend(30, legend_y, [
-    (BLUE, "bundle layer"),
+    (BLUE, "profile bundle list / bundle layer"),
     (VIOLET, "profile's own patch"),
     (AMBER, "home patch / result"),
     (EMERALD, "--patch overlay"),
 ])
 y = legend_y + 40
 y = d.footnotes(30, y, [
-    "Simplified: presets, HMR reload, and skipped-bundle handling are left out.",
+    "Simplified: presets, HMR reload, skipped-bundle handling, and the optional telemetry-off patch are left out.",
     "Every box cites its exact file:line in the diagram script's docstring.",
 ])
 d.save(height=y + 14)

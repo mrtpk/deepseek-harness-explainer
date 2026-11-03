@@ -4,13 +4,13 @@
   "cordis": {
     "term": "Cordis",
     "short": "The vendored plugin framework under dsh. Plugins contribute services, typed events and reversible effects to a shared context.",
-    "long": "Cordis has no privileged core: every part of the product, including the model adapter, the tool registry and the agent loop, is a plugin, so each piece is replaceable from configuration ({{cite docs/architecture.md:9}}, {{cite docs/architecture.md:11}}).",
+    "long": "dsh has no privileged core: every part of the product, including the model adapter, the tool registry and the agent loop, is a plugin, so each piece is replaceable from configuration ({{cite docs/architecture.md:9}}, {{cite docs/architecture.md:11}}).",
     "aliases": ["cordis framework"],
     "page": "learn/plugins-and-cordis"
   },
   "plugin": {
     "term": "plugin",
-    "short": "An object that implements Service: a function with inject/apply(ctx), or a Service subclass Cordis mounts into a context.",
+    "short": "An object that implements Service: a function with optional inject and apply(ctx) fields, or a Service subclass Cordis mounts into a context.",
     "long": "{{cite docs/cordis-primer.md:9}}",
     "page": "learn/plugins-and-cordis"
   },
@@ -67,6 +67,7 @@
   "session": {
     "term": "session",
     "short": "The durable conversation object: one Session holds one append-only event log and is the identity an agent runs on.",
+    "long": "Session is an event-sourced, append-only log of SessionEvents ({{cite packages/core/session/src/index.ts:517-525}}). A live agent's id must equal its session id ({{cite packages/core/agent/src/index.ts:486-488}}).",
     "page": "concepts/agent-loop-and-session"
   },
   "session-log": {
@@ -79,12 +80,13 @@
   "agent": {
     "term": "Agent",
     "short": "The live object that drives one session: it owns the turn/step loop and the inbox of pending input.",
-    "long": "AgentRegistry publishes and tracks live Agents; ReactLoopAgent is the default implementation of the Agent interface ({{cite packages/core/agent-loop/src/agent.ts:112}}).",
+    "long": "AgentRegistry publishes and tracks live Agents by session id ({{cite packages/core/agent/src/index.ts:484-492}}); ReactLoopAgent is the default implementation of the Agent interface ({{cite packages/core/agent-loop/src/agent.ts:112}}).",
     "page": "concepts/agent-loop-and-session"
   },
   "agent-loop": {
     "term": "agent loop",
     "short": "The turn/step cycle that claims input, calls the model, runs the tools it asks for, and repeats.",
+    "long": "ReactLoopAgent.turn() runs the steps of one turn ({{cite packages/core/agent-loop/src/agent.ts:327}}); each step calls the model, then runs its tool calls ({{cite packages/core/agent-loop/src/agent.ts:586-593}}).",
     "page": "concepts/agent-loop-and-session"
   },
   "tool-call": {

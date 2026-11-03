@@ -3,10 +3,11 @@ lifecycle, and how a workflow script's agent() calls reach the same subagent sea
 
 Used by: src/concepts/jobs-workflow-goal-plan.html (<x-diagram name="b5_jobs_and_workflow" ... />)
 Sources (at the pinned commit in explainer.json):
-  packages/jobs/jobs/src/view.ts:19            JobStatus union
+  packages/jobs/jobs/src/view.ts:15-19         JobStatus union; running, optional stopping, one terminal state
+  packages/jobs/jobs-local/src/index.ts:484-493,694-707   stopping on kill() or teardown
   packages/jobs/jobs/src/index.ts:88-100,113   JobRegistry (ctx.jobs), abstract start()
   packages/workflow/workflow/src/index.ts:157,168   WorkflowEngine (ctx.workflowEngine), abstract start()
-  packages/workflow/workflow-ptc/src/index.ts:103-122   PtcWorkflowEngine runs the script in a sandboxed Node process
+  packages/workflow/workflow-ptc/src/index.ts:3,167     the script process gets the calling session's file policy
   packages/workflow/workflow-ptc/src/host.ts:200-220    each agent() call becomes subagents.startActivation()
 """
 
@@ -43,10 +44,9 @@ for i, (label, col, terminal) in enumerate(states):
     d.chip(cx, cy, cw, label, col, h=34)
     if i == 0:
         d.arrow(cx + cw + 2, cy + 17, cx + cw + gap - 2, cy + 17, BLUE)
-    elif i == 1:
-        d.arrow(cx + cw + 2, cy + 17, cx + cw + gap - 2, cy + 17, AMBER)
-d.aside(46, cy + 54, [
-    "running -> stopping only after a kill() request; all three terminal states end the output ring.",
+d.aside(46, cy + 52, [
+    "running -> stopping after a kill() request or a teardown (jobs-local/src/index.ts:484-493, 694-707).",
+    "running or stopping -> exactly one terminal state: completed, killed or failed (view.ts:15-19).",
 ])
 
 # ---- Panel 2: workflow script starts subagents -------------------------------
@@ -59,17 +59,17 @@ d.box(46, y1 + 60, 260, 76, "Model-written script", [
 ], col=BLUE, mono_size=10.5)
 d.arrow(306, y1 + 98, 404, y1 + 98, BLUE)
 d.box(406, y1 + 60, 300, 76, "sandboxed Node process", [
-    "workflow-ptc/index.ts:103-122", "one agent() call = 1 child",
+    "workflow-ptc/index.ts:3,167", "one agent() call = 1 child",
 ], col=AMBER, mono_size=10.5)
 d.arrow(706, y1 + 98, 804, y1 + 98, AMBER)
 d.box(806, y1 + 60, 220, 76, "ctx.subagents", [
     "host.ts:200-220", 'delivery: "caller"',
 ], col=EMERALD, mono_size=10.5)
-d.text(46, y1 + P2_H - 14, "Same seam as the parent/child delegation page — the script is just another caller.",
+d.text(46, y1 + P2_H - 14, "The delegation tool uses the same seam. The script is one more caller.",
        11.5, "#6b7280")
 
 y = y1 + P2_H + 24
-y = d.legend(30, y, [
+d.legend(30, y, [
     (BLUE, "running / caller-written"),
     (AMBER, "in-flight / sandbox boundary"),
     (EMERALD, "terminal (completed) / subagent seam"),

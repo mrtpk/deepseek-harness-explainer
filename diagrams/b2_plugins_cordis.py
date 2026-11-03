@@ -7,6 +7,7 @@ Sources (at the pinned commit in explainer.json):
   packages/bundle/headless/src/index.ts:45   export const inject = ['agentDefaultModel', 'agents', 'sessions']
   packages/bundle/headless/src/index.ts:456  export function apply(ctx: Context, config: Config)
   docs/architecture.md:57-65                 core package table: ctx.sessions, ctx.tools, ctx.agents, ctx.llm
+  docs/cordis-primer.md:10                   other plugins find a service by key instead of by import
   docs/cordis-primer.md:13                   registrations are reversible effects (ctx.effect() / ctx.on())
   packages/core/agent/src/index.ts:384       this.ctx.effect(() => {...}) inside setFactory()
   packages/core/tools/src/pipeline.ts:199-201  this.ctx.waterfall(carrier, 'tools/pre-execute', exec, ...)
@@ -22,7 +23,7 @@ from svglib import AMBER, BLUE, VIOLET, Diagram  # noqa: E402
 d = Diagram(width=1100)
 d.header(
     "How does one plugin join dsh, and talk to another?",
-    "A plugin claims a context, then cooperates through a typed event",
+    "Cordis gives a plugin a context; plugins then cooperate through a typed event",
     params="1 context  ·  1 event  ·  canvas 1100",
 )
 
@@ -49,7 +50,7 @@ d.box(754, bx_y, bw, bh, "Reversible effect", [
     "cordis-primer.md:13",
 ], col=VIOLET)
 d.aside(46, bx_y + bh + 20, [
-    "A plugin never imports another plugin directly; it only claims services by key, through ctx.",
+    "A plugin finds another plugin's service by its key on ctx, not by import (cordis-primer.md:10).",
 ])
 
 # ---- Panel 2: two plugins cooperate through a typed event -------------------

@@ -7,19 +7,110 @@ Only the supervisor (or a fact checker, on the supervisor's order) edits this fi
 Status tags: [W] = from a writer report, not yet fact-checked; [FC] = confirmed by a fact checker; [S] = checked by the supervisor.
 
 ## Version
-- <Project> commit <full sha> (<date>). History: <N> commits.
-- Submodules: <list>; <checked out or not>. Out of scope: <list>.
+- DeepSeek Harness commit ce7073d51254c26cd63b22a60835b8f948deb447. [S]
+- Out of scope: see plan.md §2 and §11 (scaled-down overview scope).
 
-## <Topic>
-- <fact> (<path>:~<line>).
-- Mark values that are not in the repo as INFERRED, and say where they come from.
-- Mark comments or docs that disagree with the code: "the comment at <path> ~<line> says X; the code does Y".
+## Agent loop and session (fact check 2026-11-03)
+- A turn has zero or more steps, not one or more. It ends with no step when input is blocked
+  (packages/core/agent-loop/src/agent.ts:348-350) or when the first claim has an empty message list
+  (agent.ts:356-358). [FC] [S]
+- A turn has four kinds of exit: blocked, completed with no step, normal end with the step's reason
+  (agent.ts:373, 395-399, 353), and error or aborted (agent.ts:402-418). One `finally` block appends
+  `turn/end` (agent.ts:419-422). [FC]
+- Another step runs when `step()` returns null (the tools ran and the batch did not conclude the turn,
+  agent.ts:597) or when the next-step inbox has input (agent.ts:395). [FC]
+- The loop's events go through `Session.append()` (session/src/index.ts:806, 829, 901). Plugin records go
+  through `#appendRecord` (session/src/index.ts:849). Not every append goes through `append()`. [FC]
+- `SessionStore.flush()` (the `ctx.sessions` service) waits for all listeners, then throws the first
+  failure (session/src/index.ts:1058-1064, 1342-1357). [FC]
+- `AgentRegistry` does not create agents. It hands creation to the factory and checks one agent per
+  session id (agent/src/index.ts:486-492). [FC]
+- `maxParallelToolCalls` defaults to 10 and limits only parallel-safe calls (constants.ts:6,
+  agent-loop/src/index.ts:296). No bundle overrides it. [FC]
+- The loop streams through `ctx.llm.prepareCall()` and the prepared call's `stream()`. It uses
+  `ctx.llm.stream()` only on `NO_ADAPTER` (agent.ts:644-650, 490). Both paths run the `llm/stream`
+  waterfall (llm/src/index.ts:1010, 1178). [FC]
+- `request/header` is logged on the first step, on a header change, and at the start of a new request
+  series (agent.ts:675-691). [FC]
+- NOT CONFIRMED as a defect: after a step returns `max-tokens`, the turn keeps that reason (agent.ts:373).
+  A later step that ran tool calls returns null, but the turn still ends when the inbox is empty
+  (agent.ts:395-399, 597). session/src/types.ts:219 suggests that this is intended. Pages describe it in
+  neutral words.
+
+## Plugins, profiles and boot (fact check 2026-11-03)
+- Plugins cooperate through typed events AND service method calls (cordis-primer.md:43). [FC]
+- Profile layers: after the four patch layers, boot can add a telemetry-off patch when
+  `DSH_TELEMETRY_DISABLED` is not empty (profile-context.ts:81-83, 52-54). [FC]
+- The profile-boot.ts:1-5 module comment leaves out the home layer `$DSH_HOME/cordis.patch.yml`. The
+  `composeProfile` comment (profile-boot.ts:211-217) and docs/architecture.md:25 include it. [FC]
+- `runProfile()` installs the proxy first, then composes, then boots (profile-boot.ts:276-294, 323). [FC]
+- `provideCmdline()` runs in the `prepare` callback of `boot()`, before the first config-tree entry mounts
+  (app-boot/src/index.ts:1226-1228; cmdline/src/index.ts:84-88). [FC]
+- "The CLI answers one task and exits" is true only with the headless profile (args.ts:168). [FC]
+- `DSH_HOME` falls back to `~/.dsh` (home-paths/src/index.ts:70-72, 127-137). An empty value counts as
+  unset (home-paths/src/index.ts:107-108). [FC]
+
+## Headless runner (fact check 2026-11-03)
+- The headless bundle disables `credentials`, `authorization`, `hmr` and `deepseek-account`
+  (packages/bundle/headless/cordis.patch.yml:35-46). [FC]
+- The wait loop has 4 conditions, including `agent.status === 'idle'` (headless/src/index.ts:428-430). [FC]
+- `summarize()` keeps the last non-empty assistant text of the whole interval. Only `reason` is reset at
+  `turn/start` (headless/src/index.ts:84-111). [FC]
+- The runner exits 0 only when the last turn's `reason.kind === 'completed'`
+  (headless/src/index.ts:443). [FC]
+- A flush error is caught by the runner's `apply()`. `fail()` writes stderr and requests exit 1
+  (headless/src/index.ts:464, 308-313). [FC]
+
+## Tools, MCP and skills (fact check 2026-11-03)
+- Guards run only when the pre-execute decision is `allow` (tools/src/pipeline.ts:213). [FC]
+- Denied and cancelled calls skip execute but still go through post-execute as `post-result`. Only a
+  `final-result` skips post-execute (pipeline.ts:210-225, 337-341). [FC]
+- `tool/call` and `tool/result` are logged only when the batch has `log`, that is, a model step
+  (batch.ts:243-244, executor.ts:39-43). [FC]
+- `batch.ts` schedules the calls of one step, not one turn (batch.ts:1-5). [FC]
+- `mcp-resources` registers three tools in `ctx.tools`: `list_mcp_resources`,
+  `list_mcp_resource_templates` and `read_mcp_resource` (mcp-resources/src/tools.ts:31-60). MCP resources
+  go through the tool pipeline. [FC]
+- An MCP public name is cut and gets a 12-character hash when it has invalid characters or is longer
+  than 64 characters (mcp-client/src/tools.ts:81-87). [FC]
+- Agent-scoped listeners also get the calls of descendant scopes (scope/src/index.ts:159-181).
+  docs/subsystems/tools.md:771 says "only that agent's calls". The code is right. [FC]
+- Skill frontmatter keys are `disable-model-invocation` and `user-invocable`. The camelCase keys are
+  rejected and the provider ignores that skill file with a warning
+  (skill-filesystem/src/index.ts:1014-1024, 838-843). [FC] [S]
+- Skill precedence: the nearest registry layer wins across layers (skill/src/index.ts:345-352). The
+  bundled rank 600 is at skill/src/index.ts:28. [FC]
+- The `skill` tool gives one loader tool and a session catalog. It looks names up in
+  `ctx.skills.list()` (tool-skill/src/index.ts:138). The catalog is built only when the agent can see the
+  `skill` tool (tool-skill/src/index.ts:224-227). [FC]
+
+## Delegation, jobs, approval, sandbox and clients (fact check 2026-11-03)
+- Sandbox mode: the schema default is `read-only` (sandbox-policy/src/index.ts:137). The base bundle sets
+  `DSH_PERMISSION_MODE ?? 'workspace-write'` (bundle/base/cordis.patch.yml:246). `sdk-minimal` sets
+  `danger-full-access` (bundle/sdk-minimal/cordis.patch.yml:70-74). The headless bundle also uses
+  `workspace-write` (bundle/headless/cordis.patch.yml:31). [FC] [S]
+- Child depth is `max(header, runtime option) + 1` (depth.ts:28-36). [FC]
+- A child's approval policy is pinned to `'never'` only when the approval service is present
+  (child-agent.ts:253). Only the `auto` and `danger-full-access` presets are copied to the child
+  (child-agent.ts:251). [FC]
+- `maxActiveSubagents` limits local children for each parent pool only (manager.ts:743-744). [FC]
+- `defaultMaxGoalRounds` is 256 (goal/src/index.ts:240, 251). A create request can set the cap
+  (goal/src/index.ts:211-214), and an edit can change it (goal/src/index.ts:342). [FC]
+- Settled job retention is 16 KiB plus the bytes that the model did not read yet
+  (jobs-local/src/index.ts:54-58). [FC]
+- `sdk-app` mounts both `dsh-sdk-jsonrpc-server` and `dsh-client-connection`
+  (sdk-app/cordis.patch.yml:17-18, 46-49). One profile can open more than one protocol seam. [FC]
+- Only the SDK approval answerer is opt-in (sdk/server/src/server.ts:131, 258). The ACP answerer is always
+  on for its own agents (acp/src/index.ts:158-160). [FC]
+- An ACP client can change one session's model with `session/set_config_option`
+  (acp/README.md:70, model-control.ts:30-34). [FC]
+- No sandbox backend blocks the network (sandbox-local/src/profiles.ts:54,
+  sandbox-windows-acl/src/index.ts:26-28). bwrap hides other processes with `--unshare-pid`
+  (profiles.ts:17). Not confirmed: the native Landlock launcher. [FC]
+- A missing approval service, or a call with no agent, gives a deny (pipeline.ts:436-448). [FC]
 
 ## Conflicts and resolutions
-- <date>: <source A> says X; <source B> says Y. Resolution: <which one the pages use, and why>.
-
-## Added after B1 (<date>)
-- ...
-
-## Added after the B1 fact check (<date>)
-- ...
+- 2026-11-03: docs/subsystems/tools.md:771 says agent-scoped listeners get only that agent's calls. The
+  code also delivers descendant-scope calls (scope/src/index.ts:159-181). Resolution: pages follow the code.
+- 2026-11-03: the profile-boot.ts:1-5 comment omits the home patch layer. Resolution: pages follow
+  profile-boot.ts:211-217 and docs/architecture.md:25.

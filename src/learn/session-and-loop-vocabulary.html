@@ -4,13 +4,13 @@ nav_title: Turn, step, round
 level: Beginner
 prerequisites: learn/plugins-and-cordis, learn/profiles-and-bundles
 related: concepts/agent-loop-and-session
-summary: A session counts its own work with four words: turn, step, round and exchange. Every turn and step boundary is appended to the session log.
+summary: A session counts its own work with four words: turn, step, round and exchange. The agent loop appends each turn and step boundary to the session log.
 ---
-<x-sentence>A {{term session}} has {{term turn | turns}}, a turn has {{term step | steps}}, and every turn or step boundary is appended to the {{term session-log | session log}}.</x-sentence>
+<x-sentence>A {{term session}} has {{term turn | turns}}, a turn has {{term step | steps}}, and the agent loop appends each turn or step boundary to the {{term session-log | session log}}.</x-sentence>
 
 <h2>The idea</h2>
-<p>A {{term session}} counts its own work with a small, fixed vocabulary ({{cite docs/glossary.md:35-40}}). A {{term turn}} is one drain of admitted input. It opens before the first input is claimed, and it closes once nothing is owed ({{cite docs/glossary.md:37}}). A {{term step}} is one model request plus the tool calls its response causes. One turn has zero or more steps ({{cite docs/glossary.md:38}}, {{cite docs/architecture.md:81}}).</p>
-<p><strong>An everyday comparison.</strong> Think of a turn as one visit to a service counter. It stays open from the moment you are called until the clerk has nothing left to do for you. A step is one question you ask, and the paperwork it causes. The comparison stops here. A real clerk does not keep a permanent, numbered record of every step, but the session does: it appends one for each.</p>
+<p>A {{term session}} counts its own work with a small, fixed vocabulary ({{cite docs/glossary.md:35-40}}). A {{term turn}} is one drain of admitted input ({{cite docs/glossary.md:37}}). It opens before the first input is claimed, and it closes once nothing is owed ({{cite docs/architecture.md:81}}). A {{term step}} is one model request plus the tool calls its response causes. One turn has zero or more steps ({{cite docs/glossary.md:38}}, {{cite docs/architecture.md:81}}).</p>
+<p><strong>An everyday comparison.</strong> Think of a turn as one visit to a service counter. It stays open from the moment you are called until the clerk has nothing left to do for you. A step is one question you ask, and the paperwork it causes. The comparison stops here. A real clerk does not keep a permanent, numbered record of each step. The session does: the loop appends a start event and an end event for each step.</p>
 
 <h2>The picture</h2>
 <x-diagram name="b1_agent_loop_session" alt="Two panels. Panel 1: AgentRegistry, AgentLoop and ReactLoopAgent boxes left to right, connected by arrows labelled delegates to and new ReactLoopAgent(). Panel 2: a ReactLoopAgent.turn() box on the left, four small event chips (turn/start, step/start, step/end, turn/end) in the middle, and a Session log box on the right, connected by an arrow labelled session.append(type, data)." caption="Figure: one turn's boundary events (the four chips) are each appended to the session log; a later page explains how the agent that runs this loop is built (panel 1)." />
@@ -18,16 +18,16 @@ summary: A session counts its own work with four words: turn, step, round and ex
 
 <h2>In DeepSeek Harness</h2>
 <p>The agent loop's <code>turn()</code> method opens a turn by appending a <code>turn/start</code> event before it claims any input ({{cite packages/core/agent-loop/src/agent.ts:334-336}}).</p>
-<x-code file="packages/core/agent-loop/src/agent.ts" lines="334-336" caption="turn() increments the turn number, then appends turn/start before the loop claims its first input." />
-<p>Not every turn spends a step. Only when the turn's first claim rewrites to an empty message list, the loop ends the turn as <code>completed</code> and returns. No <code>step/start</code> event is appended at all ({{cite packages/core/agent-loop/src/agent.ts:356-361}}).</p>
-<x-code file="packages/core/agent-loop/src/agent.ts" lines="356-361" highlight="356-359" caption="A turn can close with zero steps: only when the first claim's messages list is empty." />
-<p>A {{term round}} sits outside a turn: it is an outer policy iteration, such as a goal round, that contains one turn ({{cite docs/glossary.md:39}}). The goal-round driver runs one such round each time it admits automatic continuation work for a session ({{cite packages/goal/goal-round-driver/src/index.ts:2}}). An {{term exchange}} is a run of consecutive turns, from a turn that admits human input until the next such turn ({{cite docs/glossary.md:40}}). The Web chat client groups turns into exchanges the same way, to decide which run of turns stays visible on screen ({{cite packages/client/ui-chat/src/client/contract/group-tree.ts:6-7}}).</p>
-<p>Every append, for every event type, goes through one method: <code>Session.append()</code>. It assigns the event the next sequence number, taken from the log's current length ({{cite packages/core/session/src/index.ts:827-833}}).</p>
+<x-code file="packages/core/agent-loop/src/agent.ts" lines="334-336" caption="turn() computes the next turn number, then appends turn/start before the loop claims its first input." />
+<p>Not every turn spends a step. When the turn's first claim has an empty message list, the loop ends the turn as <code>completed</code> and returns. A listener can make the list empty, for example when it removes the waking message. The loop does not append a <code>step/start</code> event in this case ({{cite packages/core/agent-loop/src/agent.ts:354-361}}).</p>
+<x-code file="packages/core/agent-loop/src/agent.ts" lines="354-361" highlight="356-359" caption="One zero-step exit: the first claim's message list is empty, so the turn closes as completed before step/start." />
+<p>A {{term round}} sits outside a turn: it is an outer policy iteration, such as a goal round, that contains one turn ({{cite docs/glossary.md:39}}). The goal-round driver reserves at most one next round at a time ({{cite packages/goal/goal-round-driver/src/index.ts:145}}). Each round queues one goal prompt as a user message that carries the round number ({{cite packages/goal/goal-round-driver/src/index.ts:190-195}}). An {{term exchange}} is a run of consecutive turns, from a turn whose first step admits human input until the next such turn ({{cite docs/glossary.md:40}}). The chat client (<code>dsh-client-ui-chat</code>) uses the same grouping: an opening turn starts an exchange ({{cite packages/client/ui-chat/src/client/contract/group-tree.ts:6-7}}). The chat keeps the latest exchange expanded ({{cite docs/glossary.md:40}}).</p>
+<p>The loop appends each of these events through one method: <code>Session.append()</code> ({{cite packages/core/session/src/index.ts:806}}). It assigns the event the next sequence number, taken from the log's current length ({{cite packages/core/session/src/index.ts:827-833}}).</p>
 <x-code file="packages/core/session/src/index.ts" lines="827-833" highlight="829" caption="append() freezes the event and assigns its sequence number from the log's current length." />
 <p>{{link concepts/agent-loop-and-session}} reads this same loop and log in more detail, including which object builds the agent that runs it.</p>
 
 <h2>More detail</h2>
-<p>A round's cap is a real config knob, not a fixed number. <code>GoalService</code> declares a <code>defaultMaxGoalRounds</code> setting, with a schema default of 256 ({{cite packages/goal/goal/src/index.ts:239-240}}). A new goal that sets no cap of its own gets this default when it is created ({{cite packages/goal/goal/src/index.ts:211-214}}, {{cite packages/goal/goal/src/index.ts:250-251}}). An exchange has no such knob. It is a read-only grouping the Web client computes from the turns already in the log, not a setting the session stores.</p>
+<p>A round's cap is a real config knob, not a fixed number. <code>GoalService</code> declares a <code>defaultMaxGoalRounds</code> setting, with a schema default of 256 ({{cite packages/goal/goal/src/index.ts:239-240}}). A new goal that sets no cap of its own gets this default when it is created ({{cite packages/goal/goal/src/index.ts:211-214}}, {{cite packages/goal/goal/src/index.ts:250-251}}). When a goal reaches its cap, the driver blocks the goal with the code <code>round-limit</code> ({{cite packages/goal/goal-round-driver/src/index.ts:182-187}}). An exchange has no such knob. The glossary defines it only from turn boundaries, and the chat client groups turns from that rule ({{cite docs/glossary.md:40}}).</p>
 <p>For the full generated service and event reference, see the repository's own {{cite docs/subsystems/core.md}} and {{cite docs/subsystems/session.md}}.</p>
 
 <x-deepdive title="Each word, defined in the docs and confirmed in code">
@@ -37,15 +37,15 @@ summary: A session counts its own work with four words: turn, step, round and ex
   <tbody>
     <tr><td>turn</td><td>{{cite docs/glossary.md:37}}</td><td>{{cite packages/core/agent-loop/src/agent.ts:336 | agent.ts:336}}</td></tr>
     <tr><td>step</td><td>{{cite docs/glossary.md:38}}</td><td>{{cite packages/core/agent-loop/src/agent.ts:361 | agent.ts:361}}</td></tr>
-    <tr><td>round</td><td>{{cite docs/glossary.md:39}}</td><td>{{cite packages/goal/goal-round-driver/src/index.ts:2 | goal-round-driver/index.ts:2}}</td></tr>
+    <tr><td>round</td><td>{{cite docs/glossary.md:39}}</td><td>{{cite packages/goal/goal-round-driver/src/index.ts:190-195 | goal-round-driver/index.ts:190-195}}</td></tr>
     <tr><td>exchange</td><td>{{cite docs/glossary.md:40}}</td><td>{{cite packages/client/ui-chat/src/client/contract/group-tree.ts:6-7 | group-tree.ts:6-7}}</td></tr>
   </tbody>
 </table>
 </x-deepdive>
 
 <h2>What can go wrong</h2>
-<x-warning title="Do not assume a logged turn called the model"><p>Check for a logged <code>step/start</code> event before you assume the model was called. A turn can close as <code>completed</code> with no step at all, only when its first claimed input rewrites to an empty message list ({{cite packages/core/agent-loop/src/agent.ts:356-359}}).</p></x-warning>
-<x-simplified><p>This page only names the words. It leaves out every other reason a turn or step can end, such as a tool error, a cancellation, or a max-tokens limit. {{link concepts/agent-loop-and-session}} covers those.</p></x-simplified>
+<x-warning title="Do not assume a logged turn called the model"><p>Check for a logged <code>step/start</code> event before you assume the model was called. A turn can close as <code>completed</code> with no step at all, only when its first claim has an empty message list ({{cite packages/core/agent-loop/src/agent.ts:356-359}}).</p></x-warning>
+<x-simplified><p>This page only names the words. It leaves out the other reasons a turn can end, such as a blocked input, an error, a cancellation, or a max-tokens limit. {{link concepts/agent-loop-and-session}} covers those.</p></x-simplified>
 <p><strong>Why it matters.</strong> Code that reads the session log to count an agent's work must use the right unit. Do not count turns when the question is about model calls: count steps instead.</p>
 
 <x-quiz>
@@ -56,9 +56,9 @@ summary: A session counts its own work with four words: turn, step, round and ex
     <x-a><p>A step is inside a turn: one model request plus its tool calls. A round is outside a turn: an outer policy iteration, such as a goal round, that contains one turn ({{cite docs/glossary.md:38-39}}).</p></x-a>
   </x-q>
   <x-q level="medium">Which event does turn() append before it claims the turn's first input?
-    <x-a><p><code>turn/start</code>. The loop appends it as soon as the turn number is set, before any input is claimed ({{cite packages/core/agent-loop/src/agent.ts:334-336}}).</p></x-a>
+    <x-a><p><code>turn/start</code>. The loop appends it immediately after it computes the turn number, before it claims any input ({{cite packages/core/agent-loop/src/agent.ts:334-336}}).</p></x-a>
   </x-q>
   <x-q level="hard">A turn's first claim rewrites to an empty message list. Does the loop still log a step/start event?
-    <x-a><p>No. The loop ends that turn as <code>completed</code> and returns, only when this happens on the turn's first claim; no <code>step/start</code> event is appended ({{cite packages/core/agent-loop/src/agent.ts:356-359}}).</p></x-a>
+    <x-a><p>No. On the turn's first claim, the loop ends that turn as <code>completed</code> and returns. It does not append a <code>step/start</code> event ({{cite packages/core/agent-loop/src/agent.ts:356-359}}).</p></x-a>
   </x-q>
 </x-quiz>

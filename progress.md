@@ -51,6 +51,14 @@ Update it after every subagent finishes and after every user decision.
 
 Newest first.
 
+- 2026-11-03: Independent fact check of all 18 pages, glossary, 13 diagrams and the stepper (4 fact-check
+  subagents, sets A/B/C/D). About 180 defects fixed: wrong turn exits and "one or more steps", wrong
+  skill frontmatter keys, MCP resources wrongly placed outside the tool pipeline, wrong sandbox default,
+  wrong headless-runner details, about 60 wrong citations. Fixed a layout defect in 9 diagrams
+  (`y = d.legend(...)` stored an x value as y). Supervisor re-checked key fixes in the code.
+  `build.py --strict --force-diagrams`: 0 errors, 0 warnings. Manual link check of site/: 738 links,
+  0 dead. notes/facts.md filled with the confirmed facts.
+
 - 2026-11-02: README.md written (bf40286): states the overview scope (single-depth pages, not the skill's
   full two-depth pattern) and the light, supervisor-only spot-check fact-check scope plainly, per plan.md
   §9 Definition of done. Points to plan.md §15 for what a deeper pass would add later.
@@ -124,10 +132,17 @@ check found 0 defects; the README is written. If the user wants to go further, s
 
 ## Issues log
 
-(none yet)
+- 2026-11-03: possible code issue, not confirmed: the `max-tokens` reason stays for the rest of a turn
+  (agent.ts:373, 395-399, 597). See notes/facts.md. Pages describe it in neutral words.
+- 2026-11-03: no SVG renderer is installed, so the diagrams had no visual check after the label changes.
+  Labels were measured with svglib's `text_width()`.
 
 ## Subagent log
 
 | Date | Task | Result |
 |---|---|---|
 | 2026-10-30 | Codebase survey (template A) | Reported in plan.md §3. No files changed (read-only). |
+| 2026-11-03 | Fact check set A (home, learn/*, agent-loop-and-session, core/b2 glossary, b1-b3 diagrams) | About 110 claims checked, about 40 defects fixed. |
+| 2026-11-03 | Fact check set B (tools-and-mcp, skills, llm-and-system-prompt, b4 glossary and diagrams, stepper) | About 80 claims checked, about 60 defects fixed. |
+| 2026-11-03 | Fact check set C (subagents, jobs-workflow, approval, sandbox, acp-sdk, b5/b6 glossary and diagrams) | About 115 claims checked, about 50 defects fixed. |
+| 2026-11-03 | Fact check set D (tour, config-and-env, code pages) | About 95 claims checked, about 53 defects fixed. |

@@ -3,11 +3,13 @@ is asked and audited, and who gets to answer it.
 
 Used by: src/concepts/approval-and-interaction.html (<x-diagram name="b6_approval_decision" ... />)
 Sources (at the pinned commit in explainer.json):
-  packages/core/tools/src/contracts.ts:350-357        PreToolDecision 'ask'
-  packages/core/tools/src/pipeline.ts:449-465          serviceAsk() calls approval.request(), maps the outcome back
+  packages/core/tools/src/contracts.ts:357-361        PreToolDecision 'ask' (from a tools/pre-execute listener)
+  packages/core/tools/src/pipeline.ts:449-471          serviceAsk() calls approval.request(), maps the outcome back
   packages/interaction/user-approval/src/index.ts:242-261   request(): audit pair around the decision
   packages/interaction/user-approval/src/index.ts:293-318   decide(): 'never' short-circuits before any answerer runs
   packages/acp/acp/src/index.ts:158-176                one ACP answerer example (session/request_permission)
+  packages/client/ui-approval/src/client/index.ts:107  browser UI answerer
+  packages/sdk/server/src/server.ts:130-148            SDK answerer (only when approvalRequests is on)
 """
 
 import os
@@ -27,12 +29,12 @@ d.header(
 y0 = 112
 P1_H = 170
 d.panel(y0, P1_H, 1, "What happens when a tool call needs a yes?",
-        "pipeline.ts:449-465 calls ctx.approval.request(); the outcome maps straight back to allow/deny.")
+        "pipeline.ts:449-471 calls ctx.approval.request(); the outcome maps back to allow or deny.")
 
 cw, ch, gap = 326, 108, 20
 cx = 46
-d.step_card(cx, y0 + 50, cw, ch, 1, "tool pre-execute: kind 'ask'", BLUE,
-            rows=[("from", "contracts.ts:350-357")])
+d.step_card(cx, y0 + 50, cw, ch, 1, "pre-execute listener: kind 'ask'", BLUE,
+            rows=[("from", "contracts.ts:357-361")])
 cx += cw + gap
 d.step_card(cx, y0 + 50, cw, ch, 2, "approval/asked -> decide() -> approval/decided", AMBER,
             rows=[("audit", "index.ts:242-261")])
@@ -68,13 +70,13 @@ for i, (title, note) in enumerate([
     d.box(bx, lane_y + 78, bw, 70, title, [note], col=EMERALD, mono_size=10)
 
 y = y1 + P2_H + 24
-y = d.legend(30, y, [
+d.legend(30, y, [
     (AMBER, "fail-closed: no answerer ever runs"),
     (EMERALD, "exactly one answerer's outcome wins"),
 ])
 y += 30
 y = d.footnotes(30, y, [
-    "A missing, non-owning or throwing answerer also settles 'unavailable', which every caller treats as a denial (index.ts:311-317).",
+    "No claiming answerer, a throwing answerer or an unknown value gives 'unavailable'. Callers deny it (index.ts:306-318).",
     "Simplified: cancellation races, scope-filtered dispatch, and the sandbox-escalation retry are left out of this picture.",
 ])
 d.save(height=y + 14)

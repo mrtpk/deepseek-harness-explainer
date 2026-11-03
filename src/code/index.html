@@ -2,11 +2,11 @@
 title: Code map: the folder tree
 nav_title: Folder tree
 related: concepts/agent-loop-and-session, tours/life-of-a-headless-task
-summary: Every folder of the repository at the pinned commit, with file and line counts, a short description, and links to the module and concept pages.
+summary: The top two levels of folders of the repository at the pinned commit, with file and line counts.
 ---
 <!-- TEMPLATE: tools/gen_folder_tree.py writes the tree between the markers. Add folder descriptions in its DESCRIPTIONS dict, not here. -->
 <h2>Purpose</h2>
-<p>This page shows every folder of the repository. Click a folder name to open it at the pinned commit. Folders with a module page have a link to it.</p>
+<p>This page shows the top two levels of folders of the repository. Click a folder name to open it at the pinned commit.</p>
 
 <h2>The folder tree</h2>
 <!-- BEGIN GENERATED folder-tree -->
@@ -15,4 +15,4 @@ summary: Every folder of the repository at the pinned commit, with file and line
 <!-- END GENERATED folder-tree -->
 
 <h2>How the numbers were measured</h2>
-<p>The tool lists the tracked files with <code>git ls-tree</code> at the pinned commit. It counts the lines of text files. It does not count binary files.</p>
+<p>The tool lists the tracked files with <code>git ls-tree</code> at the pinned commit. It counts only the paths that are regular files in the checkout. It counts the lines of text files. A binary file counts as a file with zero lines.</p>

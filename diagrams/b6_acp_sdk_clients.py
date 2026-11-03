@@ -4,14 +4,17 @@ subprocess launcher over one of them.
 
 Used by: src/concepts/acp-sdk-and-clients.html (<x-diagram name="b6_acp_sdk_clients" ... />)
 Sources (at the pinned commit in explainer.json):
-  packages/acp/acp/README.md:11                 dsh-acp: automation-only ACP server, JSON-RPC over stdio
+  packages/acp/acp/README.md:2,12               dsh-acp: automation-only ACP server, JSON-RPC over stdio
   packages/sdk/protocol/README.md:12,34         dsh-sdk-protocol: newline-delimited JSON-RPC, 1 message per line
-  packages/sdk/server/README.md:11               dsh-sdk-jsonrpc-server serves that protocol over stdio
+  packages/sdk/server/README.md:12               dsh-sdk-jsonrpc-server serves that protocol over stdio
   packages/client/connection/README.md:12,34     dsh-client-connection: Remote RPC over HTTP POST + a Mux WebSocket
   packages/client/connection/README.md:30        a desktop page supplies its own streamBaseUrl to the same carrier
   apps/desktop/src/main.ts:790                   Desktop actually does this (returns { streamBaseUrl })
   python/README.md:5                              the Python SDK drives dsh as a subprocess, over stdio JSON-RPC
-  python/sdk/README.md (Start a runtime)          "no separate application entrypoint"; launches dsh --profile sdk
+  python/sdk/README.md:31                         "no separate application entrypoint"; launches dsh --profile sdk
+  python/README.md:11                             dist deepseek-harness-sdk, module deepseek_harness
+  packages/bundle/acp-app/cordis.patch.yml:15-16, sdk-app/cordis.patch.yml:17-18,
+  web-app/cordis.patch.yml:230-231               which bundle mounts which seam plugin
 """
 
 import os
@@ -31,13 +34,13 @@ d.header(
 y0 = 112
 P1_H = 230
 d.panel(y0, P1_H, 1, "Which protocol does a client speak?",
-        "Each seam is a different plugin; none of them calls another.")
+        "Each seam is a different plugin, mounted by a different bundle.")
 
 bw, bh, gap = 320, 86, 30
 bx = 46
 cols = [BLUE, AMBER, VIOLET]
 titles = [
-    ("ACP server", ["dsh-acp, generic protocol", "automation only (acp/README.md:11)"]),
+    ("ACP server", ["dsh-acp, generic protocol", "automation only (acp/README.md:12)"]),
     ("SDK jsonrpc-server", ["dsh's own wire protocol", "Node + Python SDK clients"]),
     ("Web/Desktop connection", ["Remote RPC: HTTP POST", "+ one Mux WebSocket"]),
 ]
@@ -56,17 +59,17 @@ d.panel(y1, P2_H, 2, "Where does the Python SDK fit in?",
 
 d.box(66, y1 + 60, 300, 64, "Python SDK process", ["deepseek_harness package"], col=AMBER, mono_size=10.5)
 d.arrow(366, y1 + 92, 470, y1 + 92, AMBER)
-d.box(472, y1 + 60, 420, 64, 'bundled "dsh --profile sdk" binary', ["no in-process harness logic (python/README.md:5)"], col=AMBER, mono_size=10)
+d.box(472, y1 + 60, 420, 64, 'bundled "dsh --profile sdk" binary', ["the profile owns the server (sdk/README.md:31)"], col=AMBER, mono_size=10)
 
 y = y1 + P2_H + 24
-y = d.legend(30, y, [
+d.legend(30, y, [
     (BLUE, "ACP: generic automation protocol"),
     (AMBER, "SDK: dsh's own wire protocol"),
     (VIOLET, "Web/Desktop: Remote RPC"),
 ])
 y += 30
 y = d.footnotes(30, y, [
-    "Desktop supplies its own HTTP origin (streamBaseUrl) to the same browser connection carrier (connection/README.md:30, desktop/src/main.ts:790).",
+    "Desktop gives its own Host origin as streamBaseUrl to the connection package (connection/README.md:30, desktop/src/main.ts:790).",
     "Simplified: MCP server mounting, session persistence, and per-protocol approval bridging are left out of this picture.",
 ])
 d.save(height=y + 14)

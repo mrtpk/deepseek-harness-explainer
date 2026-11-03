@@ -3,14 +3,14 @@
 
   "sandbox-escalation": {
     "term": "sandbox escalation",
-    "short": "A one-shot retry of a denied call at a strictly wider sandbox mode, granted only after the user approves it.",
-    "long": "Repeating the call's current mode needs no approval; a strictly wider target goes through ctx.approval before anything executes ({{cite packages/sandbox/sandbox/src/escalation.ts:172-180}}).",
+    "short": "A one-shot retry of a denied call at a strictly wider sandbox mode. It runs only after an approval answerer allows it.",
+    "long": "A request for the current mode needs no approval. A strictly wider target goes through ctx.approval before the call runs ({{cite packages/sandbox/sandbox/src/escalation.ts:172-206}}).",
     "page": "concepts/sandbox-and-execution"
   },
   "sdk-wire-protocol": {
     "term": "SDK wire protocol",
-    "short": "dsh's own newline-delimited JSON-RPC protocol, one message per line, served over stdio and spoken by the Node and Python SDKs.",
-    "long": "{{cite packages/sdk/protocol/src/index.ts:1}}, framing rules at {{cite packages/sdk/protocol/README.md:34}}.",
+    "short": "The own newline-delimited JSON-RPC protocol of dsh, with one message per line. dsh-sdk-jsonrpc-server serves it over stdio. The TypeScript and Python SDKs speak it.",
+    "long": "The protocol package ({{cite packages/sdk/protocol/src/index.ts:1-9}}). The framing rules are in {{cite packages/sdk/protocol/README.md:34}}.",
     "aliases": ["SDK protocol"],
     "page": "concepts/acp-sdk-and-clients"
   }

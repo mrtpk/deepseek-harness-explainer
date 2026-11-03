@@ -15,7 +15,9 @@ Sources (at the pinned commit in explainer.json):
   packages/core/agent-loop/src/agent.ts:388  this.session.append('step/end', ...)
   packages/core/agent-loop/src/agent.ts:422  this.session.append('turn/end', ...)
   packages/core/session/src/index.ts:526     private log: SessionEvent[] = []
+  packages/core/session/src/index.ts:829     seq: SessionSeq(this.log.length)
   packages/core/session/src/index.ts:901     this.log.push(event) inside commit()
+  packages/core/agent-loop/src/agent.ts:348-358  zero-step exits (blocked, empty first claim)
 """
 
 import os
@@ -54,21 +56,21 @@ d.box(754, bx_y, bw, bh, "ReactLoopAgent", [
     "implements Agent",
 ], col=VIOLET)
 d.aside(46, bx_y + bh + 20, [
-    "AgentLoop mints one ReactLoopAgent per session (agent-loop/src/index.ts:573).",
+    "AgentLoop makes one ReactLoopAgent per session (agent-loop/src/index.ts:573).",
 ])
 
 # ---- Panel 2: the turn/step loop writes the session log --------------------
 y1 = y0 + P1_H + 24
 P2_H = 232
 d.panel(y1, P2_H, 2, "What does the Agent do with one turn?",
-        "Each turn runs its steps, then the loop appends every step to the session log.")
+        "The loop appends each turn and step boundary to the session log as it runs.")
 by = y1 + 72
 d.box(46, by, 330, 96, "ReactLoopAgent.turn()", [
     "agent-loop/src/agent.ts:327",
     "while (true) { step() }",
 ], col=AMBER)
 d.aside(46, by + 110, [
-    "One turn runs one or more steps.",
+    "One turn runs zero or more steps.",
     "Each step is one model call plus its tool calls.",
 ])
 
@@ -96,7 +98,7 @@ d.aside(724, by + 110, [
 ])
 
 y = y1 + P2_H + 24
-y = d.legend(30, y, [
+d.legend(30, y, [
     (BLUE, "AgentRegistry / session events"),
     (AMBER, "AgentLoop / the turn-step loop"),
     (VIOLET, "the Agent interface"),

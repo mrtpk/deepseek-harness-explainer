@@ -5,7 +5,7 @@ summary: DeepSeek Harness (dsh) is an open-source, everything-is-a-plugin agent 
 
 <table>
   <tbody>
-    <tr><th>What it does</th><td>Runs an AI coding agent: a session, a turn/step loop against a model, a tool pipeline, and optional subagents, jobs and workflows ({{cite README.md:5}}, {{cite docs/architecture.md:9}}).</td></tr>
+    <tr><th>What it does</th><td>Runs an AI agent: a session, a turn/step loop against a model, a tool pipeline, and optional subagents, jobs and workflows ({{cite README.md:5}}, {{cite docs/architecture.md:81}}, {{cite docs/architecture.md:99}}, {{cite docs/architecture.md:138}}, {{cite docs/architecture.md:154}}, {{cite docs/subsystems/workflow.md:5}}).</td></tr>
     <tr><th>Runs on</th><td>Node.js 24.9 or later, TypeScript, pnpm workspaces ({{cite AGENTS.md:84}}).</td></tr>
     <tr><th>Code size</th><td>Mostly TypeScript/TSX, split across pnpm workspace packages under <code>packages/</code> and <code>apps/</code>. See {{link code/index}} for exact counts.</td></tr>
     <tr><th>Run it</th><td><code>npx @deepseek-ai/dsh web</code> starts the Web UI at <code>http://127.0.0.1:3080</code> ({{cite README.md:24}}, {{cite README.md:27}}).</td></tr>
@@ -13,13 +13,13 @@ summary: DeepSeek Harness (dsh) is an open-source, everything-is-a-plugin agent 
 </table>
 
 <h2 id="system-map">The system map</h2>
-<p>One run starts at a surface, boots a profile, then reaches the core runtime. The core runtime can delegate background work. Each box below links to its page.</p>
-<x-diagram name="b2_home_system_map" alt="Three panels. Panel 1: CLI, Web and Desktop boxes, the three surfaces that start dsh. Panel 2: Profile, Bundle layers and Mounted tree boxes, showing how a profile boots into one Cordis context. Panel 3: a Core runtime box (agent loop, session log, tools, LLM adapter) and a Delegation box (subagents, jobs, workflow), with an arrow from Core runtime to Delegation." caption="Figure: a CLI, Web or Desktop surface boots a profile; the profile's bundle layers mount into one core runtime, which can delegate background work." />
+<p>One run starts at a surface, boots a profile, then reaches the core runtime. The core runtime can delegate work. The list under the map links each part to its page.</p>
+<x-diagram name="b2_home_system_map" alt="Three panels. Panel 1: CLI, Web and Desktop boxes, the three surfaces that start dsh. Panel 2: Profile, Bundle layers and Mounted tree boxes, showing how a profile boots into one Cordis context. Panel 3: a Core runtime box (agent loop, session log, tools, LLM adapter) and a Delegation box (subagents, jobs, workflow), with an arrow from Core runtime to Delegation." caption="Figure: a CLI, Web or Desktop surface boots a profile; the profile's bundle layers mount into one core runtime, which can delegate work." />
 <ul>
-  <li><strong>Surfaces.</strong> {{link tours/life-of-a-headless-task | the CLI}} answers one task and exits; the Web UI serves a browser at <code>http://127.0.0.1:3080</code> ({{cite README.md:27}}); Desktop is an Electron window that loads the Web client's own packaged assets ({{cite docs/architecture.md:53}}).</li>
+  <li><strong>Surfaces.</strong> The CLI boots a named profile ({{cite apps/cli/src/args.ts:168}}). With the headless profile, {{link tours/life-of-a-headless-task | the CLI}} answers one task and exits ({{cite docs/architecture.md:23}}); <code>dsh web</code> serves the Web UI at <code>http://127.0.0.1:3080</code> ({{cite README.md:27}}); Desktop is an Electron window that loads packaged Web assets ({{cite docs/architecture.md:53}}).</li>
   <li><strong>Profile and bundle boot.</strong> A {{term profile}} stacks one or more {{term bundle | bundles}} into a plugin tree ({{cite docs/architecture.md:17}}, {{cite docs/architecture.md:19}}). {{link learn/plugins-and-cordis}} explains the plugin mechanism itself.</li>
-  <li><strong>Core runtime.</strong> {{link concepts/agent-loop-and-session | the agent loop and session log}}, {{link concepts/tools-and-mcp | tools and MCP servers}}, and the LLM adapter answer one step at a time.</li>
-  <li><strong>Delegation.</strong> The core runtime can hand work to {{term subagent | subagents}} ({{cite docs/architecture.md:138}}), background {{term job | jobs}} ({{cite docs/architecture.md:154}}), or a {{term workflow}} script ({{cite docs/subsystems/workflow.md:5}}).</li>
+  <li><strong>Core runtime.</strong> {{link concepts/agent-loop-and-session | The agent loop and session log}}, {{link concepts/tools-and-mcp | tools and MCP servers}}, and the LLM adapter do the work of each turn. In each step, the loop calls the model, then runs the tool calls in the response ({{cite packages/core/agent-loop/src/agent.ts:586-593}}).</li>
+  <li><strong>Delegation.</strong> An agent can hand work to {{term subagent | subagents}} ({{cite docs/architecture.md:138}}), background {{term job | jobs}} ({{cite docs/architecture.md:154}}), or a {{term workflow}} script ({{cite docs/subsystems/workflow.md:5}}).</li>
 </ul>
 <x-simplified><p>The map leaves out the sandbox and approval layer, MCP servers, skills, and the SDKs and ACP server that let other programs drive a session. The concept pages under "Execution and safety" and "Protocols and clients" cover these.</p></x-simplified>
 

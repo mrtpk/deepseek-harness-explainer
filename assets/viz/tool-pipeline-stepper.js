@@ -14,9 +14,10 @@
  *   packages/core/tools/src/pipeline.ts:488     postExecute() runs the 'tools/post-execute' waterfall
  *   packages/core/tools/src/contracts.ts:367-370  PostToolDecision: accept | block
  *   packages/core/tools/src/batch.ts:146,256    settlement.commit() appends 'tool/result'
- *   packages/jobs/tool-jobs/src/index.ts:286           example pre-execute listener
- *   packages/guard/timeout-policy/src/index.ts:56      example tools/execute wrapper
- *   packages/guard/repeat-tool-reminder/src/index.ts:220  example post-execute listener
+ *   packages/jobs/tool-jobs/src/index.ts:286-290,201-202  example pre-execute listener (acts only on job_output/job_kill)
+ *   packages/guard/timeout-policy/src/index.ts:56-59   example tools/execute wrapper (no timeoutMs -> delegates unchanged)
+ *   packages/shell/tool-bash/src/index.ts:368-534      the bash definition declares no definition-level timeoutMs
+ *   packages/guard/repeat-tool-reminder/src/index.ts:196-209,220  example post-execute listener (threshold-based)
  *
  * Left out: approval ("ask") prompts, parallel-call scheduling, PTC nested calls, cancellation.
  *
@@ -32,36 +33,36 @@
   var STATIONS = [
     {
       kind: "event", title: "tool/call logged", where: "tools/src/batch.ts:157,247",
-      lede: "The model's call is appended to the session log before the pipeline runs.",
-      detail: 'bash({ command: "npm test" }) is logged, durable and replayable, before any policy runs.',
+      lede: "The scheduler appends the model's call to the session log before the pipeline runs.",
+      detail: 'The session log records bash({ command: "npm test" }) before any policy runs. This occurs only for a call in a model step (batch.ts:243-244).',
       part: "event"
     },
     {
       kind: "stage", title: "tools/pre-execute", where: "tools/src/pipeline.ts:200",
-      lede: "Listeners vote allow, deny, cancel, or ask, before the call may run.",
-      detail: "@deepseek-ai/dsh-tool-jobs reads a per-call output-size budget here (tool-jobs/src/index.ts:286). " +
-        "Right after, registered guards get one more look: a guard can only add a denial, never undo one (pipeline.ts:213).",
+      lede: "Listeners return allow, deny, cancel, or ask before the call can run.",
+      detail: "@deepseek-ai/dsh-tool-jobs listens here (tool-jobs/src/index.ts:286). It records an output-size limit only for job_output and job_kill, so this bash call passes unchanged (index.ts:201-202). " +
+        "If the decision is allow, the registered guards run next. A guard can only add a denial (pipeline.ts:213).",
       part: "pre"
     },
     {
       kind: "stage", title: "tools/execute", where: "tools/src/pipeline.ts:300",
-      lede: "An around-dispatch wrapper runs, then the tool's own body runs.",
-      detail: "@deepseek-ai/dsh-tool-call-timeout-policy wraps dispatch with a cooperative timeout " +
-        "(timeout-policy/src/index.ts:56). The wrapped call resolves bash's definition and calls its execute() (pipeline.ts:272-275).",
+      lede: "Around-dispatch wrappers run, then the tool's own body runs.",
+      detail: "@deepseek-ai/dsh-tool-call-timeout-policy adds a timeout only when the tool definition declares timeoutMs. The bash definition declares none, so the wrapper calls next() unchanged " +
+        "(timeout-policy/src/index.ts:56-59). The registry then finds the bash definition and calls its execute() (pipeline.ts:272-275).",
       part: "exec"
     },
     {
       kind: "stage", title: "tools/post-execute", where: "tools/src/pipeline.ts:488",
       lede: "Listeners accept, replace, or block the normalized result.",
-      detail: "@deepseek-ai/dsh-repeat-tool-reminder adds a nudge message if this exact call repeats " +
-        "(repeat-tool-reminder/src/index.ts:220). A listener may replace content or a success value, never both (pipeline.ts:501-502).",
+      detail: "@deepseek-ai/dsh-repeat-tool-reminder adds a reminder when the same call repeats a configured number of times in a row " +
+        "(repeat-tool-reminder/src/index.ts:196-209,220). One decision cannot replace both content and success value (pipeline.ts:501-502).",
       part: "post"
     },
     {
       kind: "event", title: "tool/result logged", where: "tools/src/batch.ts:146,256",
-      lede: "The final, accepted result is appended to the session log.",
-      detail: "The model sees this tool/result on its next step. tool/call and tool/result are singular, durable session events " +
-        "- distinct from the three plural tools/* waterfalls above, which are live extension points, not log entries.",
+      lede: "The scheduler appends the final result to the session log.",
+      detail: "The model sees this tool/result on its next step. tool/call and tool/result are singular, durable session events. " +
+        "The three plural tools/* waterfalls above are live extension points, not log entries.",
       part: "event"
     }
   ];

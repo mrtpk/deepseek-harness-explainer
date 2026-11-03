@@ -10,6 +10,8 @@ Sources (at the pinned commit in explainer.json):
   packages/terminal/terminal-bash/src/index.ts:97-106    spawnArgv(): the PTY shell is confined the same way
   packages/fs/fs-sandbox/src/index.ts:156-178            checkedTarget(): path containment, no ctx.sandbox call
   docs/subsystems/sandbox.md:23                          danger-full-access bypasses ctx.sandbox entirely
+  packages/bundle/base/cordis.patch.yml:243-247          base bundle mode: DSH_PERMISSION_MODE ?? 'workspace-write'
+                                                         (schema default read-only: sandbox-policy/src/index.ts:137)
 """
 
 import os
@@ -36,7 +38,7 @@ bx = 46
 for i, (title, lines, col) in enumerate([
     ("explicit approved mode", ["an approved escalation retry"], AMBER),
     ("session's sandbox/mode event", ["the last logged override"], BLUE),
-    ("deployment default", ['config "mode" (read-only)'], NEUTRAL),
+    ("deployment default", ['config "mode" (base: workspace-write)'], NEUTRAL),
 ]):
     x = bx + i * (bw + gap)
     d.box(x, y0 + 56, bw, bh, title, lines, col=col, mono_size=10.5)
@@ -66,7 +68,7 @@ d.lane(686, lane_y, 374, lane_h, EMERALD, "fs: checks the path itself", [
 d.box(706, lane_y + 78, 334, 56, "canonicalize + containment check", ["no ctx.sandbox call; trusted-code fence"], col=EMERALD, mono_size=10)
 
 y = y1 + P2_H + 24
-y = d.legend(30, y, [
+d.legend(30, y, [
     (BLUE, "wraps a subprocess (kernel boundary)"),
     (EMERALD, "checks a path (trusted-code fence, not a kernel boundary)"),
 ])

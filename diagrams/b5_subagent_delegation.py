@@ -5,6 +5,7 @@ Used by: src/concepts/subagents-and-delegation.html (<x-diagram name="b5_subagen
 Sources (at the pinned commit in explainer.json):
   packages/subagent/subagent/src/index.ts:271-286   SubagentRuntime.startActivation()
   packages/subagent/subagent/src/index.ts:600-607   expectProvider() looks the name up in the registry
+  packages/subagent/tool-subagent/src/index.ts:324  the delegation tool calls startActivation()
   packages/subagent/subagent/src/types.ts:313-356   SubagentProvider: optional start() / prepareContinuable()
   packages/subagent/subagent-spawn-in-process/src/index.ts:50   prepareContinuable() -> local, durable
   packages/subagent/subagent-fork-in-process/src/index.ts:72    prepareContinuable() -> local, durable
@@ -30,7 +31,7 @@ y0 = 112
 P1_H = 150
 d.panel(y0, P1_H, 1, "How does startActivation() pick a backend?",
         "The caller names a provider; the registry looks it up by that name.")
-d.box(46, y0 + 60, 260, 68, "Parent Agent", [
+d.box(46, y0 + 60, 260, 68, "Delegation tool (parent)", [
     'subagents.startActivation(', '{ provider: "spawn" })',
 ], col=BLUE, mono_size=10.5)
 d.arrow(306, y0 + 94, 404, y0 + 94, BLUE)
@@ -67,7 +68,7 @@ d.text(586, lane_y + lane_h - 14, "-> one execution; no follow-up input, no resu
        11.5, VIOLET, mono=False)
 
 y = y1 + P2_H + 24
-y = d.legend(30, y, [
+d.legend(30, y, [
     (EMERALD, "local provider: durable child"),
     (VIOLET, "external provider: one-shot child"),
 ])

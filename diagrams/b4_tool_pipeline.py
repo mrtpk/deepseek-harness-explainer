@@ -5,7 +5,9 @@ Used by: src/concepts/tools-and-mcp.html (<x-diagram name="b4_tool_pipeline" ...
 Sources (at the pinned commit in explainer.json):
   packages/core/tools/src/index.ts:128      ToolsService.register() (first-party plugins)
   packages/mcp/mcp-client/src/tools.ts:150  ctx.tools.register(definition) (one per MCP server)
-  packages/mcp/mcp-client/src/tools.ts:82   publicToolName(): "mcp__<serverName>__<rawName>"
+  packages/mcp/mcp-client/src/tools.ts:82   publicToolName(): "mcp__<serverName>__<rawName>" (clean case; 81-87)
+  packages/core/tools/src/index.ts:99       class ToolsService
+  packages/core/tools/src/pipeline.ts:210-225  a denied or cancelled call skips execute, goes to post-execute
   docs/architecture.md:99                   tool/call* -> tools/pre-execute -> tools/execute
                                              -> tools/post-execute -> tool/result*
   packages/core/tools/src/batch.ts:157      settlement.start() appends 'tool/call'
@@ -24,7 +26,7 @@ from svglib import AMBER, BLUE, EMERALD, NEUTRAL, VIOLET, Diagram  # noqa: E402
 d = Diagram(width=1100)
 d.header(
     "Where do tool definitions come from, and what order do calls run in?",
-    "Two registration sources feed one registry; every call runs the same three-stage pipeline",
+    "Two registration sources feed one registry; each call goes through the same three-stage pipeline",
     params="1 registry  ·  3 live stages  ·  canvas 1100",
 )
 
@@ -56,7 +58,7 @@ d.aside(800, y0 + 78, [
 y1 = y0 + P1_H + 24
 P2_H = 196
 d.panel(y1, P2_H, 2, "What order does one call run in?",
-        "The same fixed order for every call (docs/architecture.md:99).")
+        "The fixed order for one call in a model step (docs/architecture.md:99).")
 chips = [
     ("tool/call", NEUTRAL, "batch.ts:157", True),
     ("tools/pre-execute", BLUE, "pipeline.ts:200", False),
@@ -74,20 +76,20 @@ for i, (label, col, src, _durable) in enumerate(chips):
     if i < len(chips) - 1:
         d.arrow(cx + cw + 2, cy + 18, cx + cw + gap - 2, cy + 18, BLUE)
 d.aside(46, cy + 76, [
-    "tool/call and tool/result (singular) are durable session events logged before and after the pipeline.",
-    "tools/pre-execute, tools/execute and tools/post-execute (plural) are live waterfalls: plugins join any of the three.",
+    "tool/call and tool/result (singular) are durable session events. A model step logs them before and after the pipeline.",
+    "tools/pre-execute, tools/execute and tools/post-execute (plural) are live waterfalls. Plugins can join each of the three.",
 ])
 
 y = y1 + P2_H + 24
-y = d.legend(30, y, [
+d.legend(30, y, [
     (NEUTRAL, "durable session event"),
-    (BLUE, "pre-execute: allow / deny / ask"),
+    (BLUE, "pre-execute: allow / deny / cancel / ask"),
     (AMBER, "execute: run the tool body"),
     (EMERALD, "post-execute: accept / block"),
 ])
 y += 30
 y = d.footnotes(30, y, [
-    "Simplified: approval prompts, guards, and parallel-call scheduling are left out (see the interactive visual below).",
+    "Simplified: approval prompts, guards and parallel-call scheduling are not shown. A denied call skips execute.",
     "Every box, chip and arrow above cites the exact file:line in the diagram script's docstring.",
 ])
 d.save(height=y + 14)

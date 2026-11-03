@@ -73,7 +73,7 @@ d.aside(46, by + bh + 20, [
 # ---- Stage 3: finish the run --------------------------------------------------
 y2 = y1 + P2_H + 24
 d.panel(y2, 176, 3, "How does the run end?",
-        "Tools run, the runner waits for quiet, then flushes the log and prints the result.")
+        "Tools run, the runner waits until the agent is idle, then flushes the log and prints the result.")
 by = y2 + 68
 cards3 = [
     ("tools.execute()", [("at", "agent-loop/agent.ts:590"), ("do", "pre- / execute / post-")]),

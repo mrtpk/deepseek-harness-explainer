@@ -3,15 +3,15 @@
 
   "subagent-provider": {
     "term": "subagent provider",
-    "short": "A named backend registered on ctx.subagents. A parent picks one by name; providers differ in whether the child keeps a session.",
-    "long": "Method presence selects the family: prepareContinuable() gives a local, durable child; a provider with only start() runs once ({{cite packages/subagent/subagent/src/types.ts:313-356}}).",
+    "short": "A named backend registered on ctx.subagents. A caller picks one by name. Providers differ in whether the child keeps a session.",
+    "long": "Method presence selects the family. prepareContinuable() gives a local, durable child. A provider with only start() runs once ({{cite packages/subagent/subagent/src/types.ts:340-355}}).",
     "aliases": ["provider"],
     "page": "concepts/subagents-and-delegation"
   },
   "tool-restriction": {
     "term": "tool restriction",
-    "short": "An allow and/or deny mask on the global tools one scoped agent can see, set with ctx.tools.restrict().",
-    "long": "{{cite packages/core/tools/src/contracts.ts:376-381}}. Restrictions from different scopes intersect; a scope's own registrations stay visible ({{cite packages/core/tools/src/index.ts:162-189}}).",
+    "short": "An allow or deny name list (or both) on the global tools that one scoped agent can see. ctx.tools.restrict() applies it.",
+    "long": "The type is ToolRestriction ({{cite packages/core/tools/src/contracts.ts:372-381}}). Several restrictions intersect. The scoped registrations of an agent stay visible ({{cite packages/core/tools/src/index.ts:158-189}}).",
     "page": "concepts/subagents-and-delegation"
   }
 }
