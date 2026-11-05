@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Approval and human interaction · DeepSeek Harness Explained</title>
+<meta name="description" content="ctx.approval decides one yes-or-no question per action, logs the ask and the outcome, and fails closed when nobody answers.">
+<script>try{var t=localStorage.getItem("explainer-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&amp;display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body data-root="../" data-page="concepts/approval-and-interaction">
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <button type="button" class="menu-btn" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+  <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">DH</span><span class="brand-name">DeepSeek Harness Explained</span></a>
+  <div class="search" role="search">
+    <input type="search" id="search-input" placeholder="Search  ( / )" aria-label="Search the site" autocomplete="off" spellcheck="false">
+    <div class="search-results" id="search-results" role="listbox" hidden></div>
+  </div>
+  <button type="button" class="theme-btn" aria-label="Switch between light and dark mode" title="Light / dark mode">
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
+  </button>
+</header>
+<div class="layout">
+<aside class="sidebar" id="sidebar" aria-label="Site navigation">
+<nav>
+<a class="nav-home" href="../index.html">Home</a>
+<details class="nav-sec"><summary><span class="nav-sec-title">Learn the basics</span><span class="nav-count" title="3 of 3 pages written">3/3</span></summary>
+<ul>
+<li><a href="../learn/plugins-and-cordis.html">Plugins and Cordis</a></li>
+<li><a href="../learn/profiles-and-bundles.html">Profiles and bundles</a></li>
+<li><a href="../learn/session-and-loop-vocabulary.html">Turn, step, round</a></li>
+</ul>
+</details>
+<details class="nav-sec" open><summary><span class="nav-sec-title">DeepSeek Harness concepts</span><span class="nav-count" title="9 of 9 pages written">9/9</span></summary>
+<p class="nav-group">Core runtime</p>
+<ul>
+<li><a href="../concepts/agent-loop-and-session.html">Agent loop and session log</a></li>
+<li><a href="../concepts/llm-and-system-prompt.html">LLM seam &amp; system prompt</a></li>
+</ul>
+<p class="nav-group">Tools and extensibility</p>
+<ul>
+<li><a href="../concepts/tools-and-mcp.html">Tools and MCP servers</a></li>
+<li><a href="../concepts/skills.html">Skills</a></li>
+</ul>
+<p class="nav-group">Delegation and background work</p>
+<ul>
+<li><a href="../concepts/subagents-and-delegation.html">Subagents and delegation</a></li>
+<li><a href="../concepts/jobs-workflow-goal-plan.html">Jobs, workflows, goals and plan mode</a></li>
+</ul>
+<p class="nav-group">Execution and safety</p>
+<ul>
+<li><a href="../concepts/sandbox-and-execution.html">Sandbox and execution</a></li>
+<li><a class="current" aria-current="page" href="../concepts/approval-and-interaction.html">Approval and interaction</a></li>
+</ul>
+<p class="nav-group">Protocols and clients</p>
+<ul>
+<li><a href="../concepts/acp-sdk-and-clients.html">ACP, SDKs and clients</a></li>
+</ul>
+</details>
+<details class="nav-sec"><summary><span class="nav-sec-title">Guided tour</span><span class="nav-count" title="1 of 1 pages written">1/1</span></summary>
+<ul>
+<li><a href="../tours/life-of-a-headless-task.html">Life of a headless task</a></li>
+</ul>
+</details>
+<details class="nav-sec"><summary><span class="nav-sec-title">Code map</span><span class="nav-count" title="2 of 2 pages written">2/2</span></summary>
+<ul>
+<li><a href="../code/index.html">Folder tree</a></li>
+<li><a href="../code/central-files.html">The central files</a></li>
+</ul>
+</details>
+<details class="nav-sec"><summary><span class="nav-sec-title">Reference</span><span class="nav-count" title="2 of 2 pages written">2/2</span></summary>
+<ul>
+<li><a href="../reference/config-and-env.html">Config and environment</a></li>
+<li><a href="../reference/glossary.html">Glossary</a></li>
+</ul>
+</details>
+</nav>
+</aside>
+<div class="scrim" hidden></div>
+<main id="main" class="main">
+<article class="article">
+<nav class="breadcrumbs" aria-label="Breadcrumbs"><a href="../index.html">Home</a><span class="sep">›</span><span>DeepSeek Harness concepts</span><span class="sep">›</span><span>Execution and safety</span><span class="sep">›</span><span aria-current="page">Approval and interaction</span></nav>
+<h1 class="page-title">Approval and human interaction</h1>
+<div class="page-meta"><span class="level level-intermediate" title="Level">Intermediate</span><span class="meta-sec">DeepSeek Harness concepts</span><span class="meta-time">about 6 min read + 1 min deep dives</span><button type="button" class="dd-toggle-all">Open all deep dives</button></div>
+<p class="code-version">Code version: DeepSeek Harness @ <a href="https://github.com/deepseek-ai/deepseek-harness/tree/ce7073d51254c26cd63b22a60835b8f948deb447" target="_blank" rel="noopener" title="ce7073d51254c26cd63b22a60835b8f948deb447"><code>ce7073d</code></a> · 2026-10-30</p>
+<aside class="before-read"><p class="before-read-title">Before you read</p><p>This page uses ideas from these pages:</p><ul><li><a href="../concepts/sandbox-and-execution.html">Sandbox and execution</a> <span class="level level-intermediate level-sm">Intermediate</span></li></ul></aside>
+<div class="one-sentence"><p class="one-sentence-label">In one sentence</p><p class="one-sentence-text">ctx.approval decides one yes-or-no question per action and fails closed when nobody answers.</p></div>
+
+<h2 id="the-idea">The idea<a class="h-anchor" href="#the-idea" aria-label="Link to this section">#</a></h2>
+<p><a class="term" href="../reference/glossary.html#term-approval-policy" data-term="approval policy" data-def="The human-in-the-loop decision for one action: may this specific action proceed?">Approval</a> answers one question at the moment a tool wants to act: may this specific action proceed (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/docs/subsystems/approval.md#L5" target="_blank" rel="noopener" title="docs/subsystems/approval.md:5 at ce7073d"><code>docs/subsystems/approval.md:5</code></a>)? <a href="../concepts/sandbox-and-execution.html">Sandbox mode</a> is different. It sets the file effects of all calls under a mode before the calls run. Approval decides one call, once, and it asks composed answerers for the decision. <code>ctx.approval</code> owns the full exchange. It logs the ask, asks the answerers, logs the outcome, and returns the outcome to the caller (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L242-L261" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:242-261 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:242-261</code></a>).</p>
+<p><strong>An everyday comparison.</strong> Think of a doorman who approves the entry of one visitor now. A building policy, in contrast, applies to all visitors before they arrive. The comparison stops here. The approval question does not copy the tool arguments. It can name the tool call that the user already sees, through an optional <code>callId</code> (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L124-L141" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:124-141 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:124-141</code></a>).</p>
+
+<h2 id="the-picture">The picture<a class="h-anchor" href="#the-picture" aria-label="Link to this section">#</a></h2>
+<figure class="diagram" id="fig-b6_approval_decision"><div class="diagram-card"><button type="button" class="diagram-zoom" aria-label="Zoom diagram: Two panels. Panel 1: three step cards in sequence. A pre-execute listener returns a decision of kind ask. The pipeline calls ctx.approval.request(), which appends an approval/asked audit event, decides an outcome, and appends an approval/decided event. The outcome then maps back to an allow or a deny for the tool call. Panel 2: two lanes. The left lane, policy never, resolves rejected and no answerer runs. The right lane, policy ask, runs a waterfall of composed answerers, such as the browser UI, the ACP bridge, and the SDK bridge. The first answerer that returns an outcome decides."><svg role="img" aria-label="Two panels. Panel 1: three step cards in sequence. A pre-execute listener returns a decision of kind ask. The pipeline calls ctx.approval.request(), which appends an approval/asked audit event, decides an outcome, and appends an approval/decided event. The outcome then maps back to an allow or a deny for the tool call. Panel 2: two lanes. The left lane, policy never, resolves rejected and no answerer runs. The right lane, policy ask, runs a waterfall of composed answerers, such as the browser UI, the ACP bridge, and the SDK bridge. The first answerer that returns an outcome decides." xmlns="http://www.w3.org/2000/svg" width="1100" height="622" viewBox="0 0 1100 622">
+<defs><marker id="dg-b6_approval_decision-m0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/></marker><marker id="dg-b6_approval_decision-m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d97706"/></marker></defs>
+<rect width="1100" height="622" fill="#ffffff"/>
+<text x="30.0" y="42.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">How is one approval question decided?</text>
+<text x="30.0" y="68.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">ctx.approval audits the ask and the outcome; the session&#x27;s policy decides who, if anyone, is asked</text>
+<text x="30.0" y="88.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">1 audit pair  ·  2 policies  ·  canvas 1100</text>
+<rect x="20.0" y="112.0" width="1060.0" height="170.0" rx="14" fill="#fafafa" fill-opacity="1.0" stroke="#e5e7eb" stroke-width="1"/>
+<circle cx="46.0" cy="138.0" r="13" fill="#111827"/>
+<text x="46.0" y="142.9" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">1</text>
+<text x="68.0" y="143.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="17" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">What happens when a tool call needs a yes?</text>
+<text x="68.0" y="162.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">pipeline.ts:449-471 calls ctx.approval.request(); the outcome maps back to allow or deny.</text>
+<rect x="46.0" y="162.0" width="326.0" height="108.0" rx="8" fill="#eff6ff" fill-opacity="1.0" stroke="#2563eb" stroke-width="1.4"/>
+<rect x="46.0" y="162.0" width="6.0" height="108.0" rx="3" fill="#2563eb" fill-opacity="1.0" stroke="none"/>
+<circle cx="68.0" cy="179.0" r="10" fill="#2563eb"/>
+<text x="68.0" y="183.2" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">1</text>
+<text x="84.0" y="184.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">pre-execute listener: kind &#x27;ask&#x27;</text>
+<text x="84.0" y="204.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#6b7280" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">from</text>
+<text x="118.0" y="204.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#111827" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">contracts.ts:357-361</text>
+<rect x="392.0" y="162.0" width="326.0" height="108.0" rx="8" fill="#fffbeb" fill-opacity="1.0" stroke="#d97706" stroke-width="1.4"/>
+<rect x="392.0" y="162.0" width="6.0" height="108.0" rx="3" fill="#d97706" fill-opacity="1.0" stroke="none"/>
+<circle cx="414.0" cy="179.0" r="10" fill="#d97706"/>
+<text x="414.0" y="183.2" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">2</text>
+<text x="430.0" y="184.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">approval/asked -&gt; decide() -&gt; approval/decided</text>
+<text x="430.0" y="204.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#6b7280" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">audit</text>
+<text x="464.0" y="204.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#111827" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">index.ts:242-261</text>
+<rect x="738.0" y="162.0" width="326.0" height="108.0" rx="8" fill="#f5f3ff" fill-opacity="1.0" stroke="#7c3aed" stroke-width="1.4"/>
+<rect x="738.0" y="162.0" width="6.0" height="108.0" rx="3" fill="#7c3aed" fill-opacity="1.0" stroke="none"/>
+<circle cx="760.0" cy="179.0" r="10" fill="#7c3aed"/>
+<text x="760.0" y="183.2" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">3</text>
+<text x="776.0" y="184.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">outcome maps back to allow / deny</text>
+<text x="776.0" y="204.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#6b7280" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">only</text>
+<text x="810.0" y="204.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#111827" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">allowed-once proceeds</text>
+<line x1="372.0" y1="216.0" x2="392.0" y2="216.0" stroke="#2563eb" stroke-width="1.6" marker-end="url(#dg-b6_approval_decision-m0)"/>
+<line x1="718.0" y1="216.0" x2="738.0" y2="216.0" stroke="#d97706" stroke-width="1.6" marker-end="url(#dg-b6_approval_decision-m1)"/>
+<rect x="20.0" y="306.0" width="1060.0" height="212.0" rx="14" fill="#fafafa" fill-opacity="1.0" stroke="#e5e7eb" stroke-width="1"/>
+<circle cx="46.0" cy="332.0" r="13" fill="#111827"/>
+<text x="46.0" y="336.9" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">2</text>
+<text x="68.0" y="337.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="17" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">Who gets asked, and when does nobody?</text>
+<text x="68.0" y="356.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">&#x27;never&#x27; decides before dispatch; &#x27;ask&#x27; runs a waterfall of composed answerers.</text>
+<rect x="46.0" y="350.0" width="300.0" height="156.0" rx="12" fill="#fffdf6" fill-opacity="1.0" stroke="#d97706" stroke-width="1.2" stroke-opacity="0.35" stroke-dasharray="4 4"/>
+<rect x="46.0" y="350.0" width="300.0" height="64.0" rx="12" fill="#d97706" fill-opacity="1.0" stroke="none"/>
+<rect x="46.0" y="390.0" width="300.0" height="24.0" rx="0" fill="#d97706" fill-opacity="1.0" stroke="none"/>
+<text x="60.0" y="373.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" fill="#fff" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">policy: &quot;never&quot;</text>
+<text x="60.0" y="391.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="11.5" fill="#fff" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">index.ts:301</text>
+<rect x="66.0" y="428.0" width="260.0" height="70.0" rx="8" fill="#fffbeb" fill-opacity="1.0" stroke="#d97706" stroke-width="1.5"/>
+<text x="196.0" y="448.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#d97706" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">rejected</text>
+<text x="196.0" y="466.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">deterministic, no answerer runs</text>
+<text x="196.0" y="481.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">(CI / unattended stance)</text>
+<rect x="366.0" y="350.0" width="694.0" height="156.0" rx="12" fill="#f6fdf9" fill-opacity="1.0" stroke="#059669" stroke-width="1.2" stroke-opacity="0.35" stroke-dasharray="4 4"/>
+<rect x="366.0" y="350.0" width="694.0" height="64.0" rx="12" fill="#059669" fill-opacity="1.0" stroke="none"/>
+<rect x="366.0" y="390.0" width="694.0" height="24.0" rx="0" fill="#059669" fill-opacity="1.0" stroke="none"/>
+<text x="380.0" y="373.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" fill="#fff" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">policy: &quot;ask&quot; -&gt; waterfall</text>
+<text x="380.0" y="391.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="11.5" fill="#fff" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">first composed answerer to return an outcome decides (cordis-primer.md:22)</text>
+<rect x="386.0" y="428.0" width="210.0" height="70.0" rx="8" fill="#ecfdf5" fill-opacity="1.0" stroke="#059669" stroke-width="1.5"/>
+<text x="491.0" y="448.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#059669" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">browser UI</text>
+<text x="491.0" y="466.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">ui-approval</text>
+<rect x="611.0" y="428.0" width="210.0" height="70.0" rx="8" fill="#ecfdf5" fill-opacity="1.0" stroke="#059669" stroke-width="1.5"/>
+<text x="716.0" y="448.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#059669" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">ACP bridge</text>
+<text x="716.0" y="466.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">session/request_permission</text>
+<rect x="836.0" y="428.0" width="210.0" height="70.0" rx="8" fill="#ecfdf5" fill-opacity="1.0" stroke="#059669" stroke-width="1.5"/>
+<text x="941.0" y="448.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#059669" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">SDK bridge</text>
+<text x="941.0" y="466.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">approval/request (opt-in)</text>
+<text x="30.0" y="553.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">Legend</text>
+<rect x="97.3" y="542.0" width="14.0" height="14.0" rx="3" fill="#fffbeb" fill-opacity="1.0" stroke="#d97706" stroke-width="1.4"/>
+<text x="118.3" y="553.5" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#111827" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">fail-closed: no answerer ever runs</text>
+<rect x="342.3" y="542.0" width="14.0" height="14.0" rx="3" fill="#ecfdf5" fill-opacity="1.0" stroke="#059669" stroke-width="1.4"/>
+<text x="363.3" y="553.5" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#111827" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">exactly one answerer&#x27;s outcome wins</text>
+<text x="30.0" y="572.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">No claiming answerer, a throwing answerer or an unknown value gives &#x27;unavailable&#x27;. Callers deny it (index.ts:306-318).</text>
+<text x="30.0" y="590.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">Simplified: cancellation races, scope-filtered dispatch, and the sandbox-escalation retry are left out of this picture.</text>
+</svg></button></div><div class="diagram-meta"><figcaption>Figure: one request() call makes the audit pair (panel 1). The session's policy decides if an answerer is asked (panel 2).</figcaption><a class="diagram-open" href="../diagrams/b6_approval_decision.svg" target="_blank">Open full size ↗</a></div></figure>
+<p>Read panel 1 from left to right. In the tool pipeline, a decision of kind <code>ask</code> is the trigger. The audit and the decision occur inside <code>ctx.approval</code>. Read panel 2 as two policies. "never" decides before an answerer runs. "ask" gives the request to the composed answerers in registration order.</p>
+
+<h2 id="in-the-code">In the code<a class="h-anchor" href="#in-the-code" aria-label="Link to this section">#</a></h2>
+
+<h3 id="step-1-a-kind-ask-decision-reaches-ctx-approval-request">Step 1: a kind-ask decision reaches ctx.approval.request()<a class="h-anchor" href="#step-1-a-kind-ask-decision-reaches-ctx-approval-request" aria-label="Link to this section">#</a></h3>
+<p>A <code>tools/pre-execute</code> listener, such as a hook, can return <code>{ kind: 'ask' }</code> instead of an allow or a deny (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/tools/src/events.ts#L18" target="_blank" rel="noopener" title="packages/core/tools/src/events.ts:18 at ce7073d"><code>packages/core/tools/src/events.ts:18</code></a>, <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/tools/src/contracts.ts#L357-L361" target="_blank" rel="noopener" title="packages/core/tools/src/contracts.ts:357-361 at ce7073d"><code>packages/core/tools/src/contracts.ts:357-361</code></a>). The tool pipeline then calls <code>ctx.approval.request()</code> and maps the outcome back. Only <code>allowed-once</code> proceeds. The other three outcomes each deny with their own reason (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/tools/src/pipeline.ts#L449-L471" target="_blank" rel="noopener" title="packages/core/tools/src/pipeline.ts:449-471 at ce7073d"><code>packages/core/tools/src/pipeline.ts:449-471</code></a>). When the deployment has no approval service, or the call has no agent, the pipeline denies the call (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/tools/src/pipeline.ts#L436-L448" target="_blank" rel="noopener" title="packages/core/tools/src/pipeline.ts:436-448 at ce7073d"><code>packages/core/tools/src/pipeline.ts:436-448</code></a>).</p>
+<figure class="code-excerpt" data-lang="typescript"><div class="code-head"><a class="code-path" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/tools/src/pipeline.ts#L449-L471" target="_blank" rel="noopener" title="Open on GitHub at commit ce7073d">packages/core/tools/src/pipeline.ts:449-471</a><span class="code-actions"><a class="code-gh" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/tools/src/pipeline.ts#L449-L471" target="_blank" rel="noopener">GitHub ↗</a><button type="button" class="code-copy" aria-label="Copy code">Copy</button></span></div><div class="code-body"><div class="code-gutter" aria-hidden="true"><span class="ln">449</span><span class="ln">450</span><span class="ln">451</span><span class="ln">452</span><span class="ln">453</span><span class="ln">454</span><span class="ln">455</span><span class="ln">456</span><span class="ln">457</span><span class="ln hl">458</span><span class="ln">459</span><span class="ln">460</span><span class="ln">461</span><span class="ln">462</span><span class="ln">463</span><span class="ln">464</span><span class="ln">465</span><span class="ln">466</span><span class="ln">467</span><span class="ln">468</span><span class="ln">469</span><span class="ln">470</span><span class="ln">471</span></div><div class="code-scroll"><div class="code-inner"><span class="hl-bar" style="top:calc(9 * var(--code-lh))"></span><pre><code class="language-typescript">    const outcome = await approval.request({
+      agent: exec.agent,
+      toolName: exec.name,
+      callId: exec.callId,
+      ...ask.reason !== undefined ? { reason: ask.reason } : {},
+      ...ask.displayReason !== undefined ? { displayReason: ask.displayReason } : {},
+      signal: exec.signal,
+    })
+    switch (outcome) {
+      case &#x27;allowed-once&#x27;: return { decision: { kind: &#x27;allow&#x27; }, approvalCancelled: false }
+      case &#x27;rejected&#x27;: return {
+        decision: { kind: &#x27;deny&#x27;, reason: `the user rejected tool &quot;${exec.name}&quot;` },
+        approvalCancelled: false,
+      }
+      case &#x27;cancelled&#x27;: return {
+        decision: { kind: &#x27;deny&#x27;, reason: `approval for tool &quot;${exec.name}&quot; was cancelled` },
+        approvalCancelled: true,
+      }
+      case &#x27;unavailable&#x27;: return {
+        decision: { kind: &#x27;deny&#x27;, reason: `tool &quot;${exec.name}&quot; requires approval, but no approval channel is available` },
+        approvalCancelled: false,
+      }
+      default: return assertNever(outcome, &#x27;ApprovalOutcome&#x27;)</code></pre></div></div></div><figcaption class="code-caption">allowed-once proceeds; rejected, cancelled and unavailable all deny, each with a distinct reason.</figcaption></figure>
+
+<h3 id="step-2-the-session-s-policy-decides-before-any-answerer-runs">Step 2: the session's policy decides before any answerer runs<a class="h-anchor" href="#step-2-the-session-s-policy-decides-before-any-answerer-runs" aria-label="Link to this section">#</a></h3>
+<p>Inside <code>request()</code>, <code>decide()</code> checks the session's effective policy first. A <code>'never'</code> policy returns <code>rejected</code> before the answerer waterfall starts (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L293-L318" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:293-318 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:293-318</code></a>). The service itself does this check. Thus an answerer added later with <code>prepend</code> cannot bypass it (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L296-L301" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:296-301 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:296-301</code></a>).</p>
+<figure class="code-excerpt" data-lang="typescript"><div class="code-head"><a class="code-path" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L293-L318" target="_blank" rel="noopener" title="Open on GitHub at commit ce7073d">packages/interaction/user-approval/src/index.ts:293-318</a><span class="code-actions"><a class="code-gh" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L293-L318" target="_blank" rel="noopener">GitHub ↗</a><button type="button" class="code-copy" aria-label="Copy code">Copy</button></span></div><div class="code-body"><div class="code-gutter" aria-hidden="true"><span class="ln">293</span><span class="ln">294</span><span class="ln">295</span><span class="ln">296</span><span class="ln">297</span><span class="ln">298</span><span class="ln">299</span><span class="ln">300</span><span class="ln hl">301</span><span class="ln">302</span><span class="ln">303</span><span class="ln">304</span><span class="ln">305</span><span class="ln">306</span><span class="ln">307</span><span class="ln">308</span><span class="ln">309</span><span class="ln">310</span><span class="ln">311</span><span class="ln">312</span><span class="ln">313</span><span class="ln">314</span><span class="ln">315</span><span class="ln">316</span><span class="ln hl">317</span><span class="ln">318</span></div><div class="code-scroll"><div class="code-inner"><span class="hl-bar" style="top:calc(8 * var(--code-lh))"></span><span class="hl-bar" style="top:calc(24 * var(--code-lh))"></span><pre><code class="language-typescript">  private async decide(req: ApprovalRequest, session: Session): Promise&lt;ApprovalOutcome&gt; {
+    const signal = req.signal
+    if (signal?.aborted) return &#x27;cancelled&#x27;
+    // The &#x27;never&#x27; policy is decided HERE, before any dispatch: a listener
+    // registered with `prepend: true` after this service mounts would sit
+    // ahead of any gate LISTENER, so a listener-shaped gate cannot keep the
+    // documented promise that &#x27;never&#x27; rejects deterministically regardless
+    // of registration order — only the service&#x27;s own request path can.
+    if (this.effectivePolicy(session) === &#x27;never&#x27;) return &#x27;rejected&#x27;
+    // Enter the promise chain BEFORE dispatching: a listener that throws
+    // SYNCHRONOUSLY (before its first await) must land in the same rejection
+    // path as an async one — `Promise.resolve(call())` would let it escape
+    // the containment into the caller.
+    const answer: Promise&lt;ApprovalOutcome&gt; = Promise.resolve().then(
+      () =&gt; this.ctx.waterfall(
+        scopeTarget(req.agent, req.agent), &#x27;approval/request&#x27;, req,
+        () =&gt; Promise.resolve&lt;ApprovalOutcome&gt;(&#x27;unavailable&#x27;),
+      ),
+    ).then(
+      // Normalize a rogue (non-vocabulary) answerer return to the fail-closed
+      // outcome instead of leaking it into callers&#x27; closed-union switches.
+      outcome =&gt; OUTCOMES.includes(outcome) ? outcome : &#x27;unavailable&#x27;,
+      // A throwing answerer must fail the QUESTION closed, not the caller&#x27;s
+      // tool call open — the seam contains its callbacks.
+      () =&gt; &#x27;unavailable&#x27;,
+    )</code></pre></div></div></div><figcaption class="code-caption">'never' short-circuits before dispatch; a throwing or rogue answerer still normalizes to 'unavailable'.</figcaption></figure>
+
+<h3 id="step-3-one-answerer-claims-the-request-or-passes-it-on">Step 3: one answerer claims the request, or passes it on<a class="h-anchor" href="#step-3-one-answerer-claims-the-request-or-passes-it-on" aria-label="Link to this section">#</a></h3>
+<p>An <code>'ask'</code> policy runs a <a class="term" href="../reference/glossary.html#term-typed-event" data-term="typed event" data-def="A named extension point a service declares, dispatched as emit, waterfall, parallel, serial or bail, depending on how its listeners must run.">waterfall</a> of composed answerers for the agent, in registration order (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L306-L310" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:306-310 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:306-310</code></a>, <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/docs/cordis-primer.md#L22" target="_blank" rel="noopener" title="docs/cordis-primer.md:22 at ce7073d"><code>docs/cordis-primer.md:22</code></a>). An answerer that does not own the agent calls <code>next()</code>. When no answerer claims the ask, the result is <code>unavailable</code> (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L309" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:309 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:309</code></a>). The ACP automation bridge is one example. It sends a <code>session/request_permission</code> call to its connected client (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/acp/acp/src/index.ts#L158-L176" target="_blank" rel="noopener" title="packages/acp/acp/src/index.ts:158-176 at ce7073d"><code>packages/acp/acp/src/index.ts:158-176</code></a>).</p>
+<figure class="code-excerpt" data-lang="typescript"><div class="code-head"><a class="code-path" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/acp/acp/src/index.ts#L158-L176" target="_blank" rel="noopener" title="Open on GitHub at commit ce7073d">packages/acp/acp/src/index.ts:158-176</a><span class="code-actions"><a class="code-gh" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/acp/acp/src/index.ts#L158-L176" target="_blank" rel="noopener">GitHub ↗</a><button type="button" class="code-copy" aria-label="Copy code">Copy</button></span></div><div class="code-body"><div class="code-gutter" aria-hidden="true"><span class="ln">158</span><span class="ln">159</span><span class="ln">160</span><span class="ln">161</span><span class="ln">162</span><span class="ln">163</span><span class="ln">164</span><span class="ln">165</span><span class="ln">166</span><span class="ln">167</span><span class="ln">168</span><span class="ln">169</span><span class="ln">170</span><span class="ln">171</span><span class="ln hl">172</span><span class="ln hl">173</span><span class="ln hl">174</span><span class="ln">175</span><span class="ln">176</span></div><div class="code-scroll"><div class="code-inner"><span class="hl-bar" style="top:calc(14 * var(--code-lh))"></span><span class="hl-bar" style="top:calc(15 * var(--code-lh))"></span><span class="hl-bar" style="top:calc(16 * var(--code-lh))"></span><pre><code class="language-typescript">  ctx.on(&#x27;approval/request&#x27;, (request, next) =&gt; {
+    const record = ownedRecord(request.agent)
+    if (record === undefined || request.callId === undefined) return next()
+    const callId = request.callId
+    return record.drainUpdates().then(() =&gt; {
+      const params: RequestPermissionRequest = {
+        sessionId: record.agent.session.id,
+        toolCall: { toolCallId: callId },
+        options: [
+          { optionId: &#x27;allow-once&#x27;, name: &#x27;Allow once&#x27;, kind: &#x27;allow_once&#x27; },
+          { optionId: &#x27;reject-once&#x27;, name: &#x27;Reject&#x27;, kind: &#x27;reject_once&#x27; },
+        ],
+      }
+      return conn.request(methods.client.session.requestPermission, params)
+    }).then(({ outcome }) =&gt; {
+      if (outcome.outcome === &#x27;cancelled&#x27;) return &#x27;cancelled&#x27;
+      return outcome.optionId === &#x27;allow-once&#x27; ? &#x27;allowed-once&#x27; : &#x27;rejected&#x27;
+    })
+  })</code></pre></div></div></div><figcaption class="code-caption">One answerer of several. ACP maps the client's choice to allowed-once, rejected or cancelled.</figcaption></figure>
+
+<h2 id="more-detail">More detail<a class="h-anchor" href="#more-detail" aria-label="Link to this section">#</a></h2>
+<p>The default policy is <code>'ask'</code>. A deployment can set <code>'never'</code> for unattended or CI use (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L153-L159" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:153-159 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:153-159</code></a>, <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L170-L172" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:170-172 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:170-172</code></a>). A session can override the policy at runtime. <code>setPolicy()</code> appends the new <code>approval/policy</code> event. Then it injects a user message that tells the model about the switch (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L211-L222" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:211-222 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:211-222</code></a>). <code>allowed-once</code> is a one-shot grant for one ask (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/types.ts#L28-L32" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/types.ts:28-32 at ce7073d"><code>packages/interaction/user-approval/src/types.ts:28-32</code></a>). The service keeps no grant for later calls (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L242-L261" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:242-261 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:242-261</code></a>).</p>
+<p>The same seam decides a <a class="term" href="../reference/glossary.html#term-sandbox-escalation" data-term="sandbox escalation" data-def="A one-shot retry of a denied call at a strictly wider sandbox mode. It runs only after an approval answerer allows it.">sandbox escalation</a>, the retry that <a href="../concepts/sandbox-and-execution.html">the sandbox page</a> describes. After a sandbox denial, a tool can ask for one retry under a strictly wider mode. The tool sends that ask through <code>ctx.approval.request()</code> (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/sandbox/sandbox/src/escalation.ts#L1-L14" target="_blank" rel="noopener" title="packages/sandbox/sandbox/src/escalation.ts:1-14 at ce7073d"><code>packages/sandbox/sandbox/src/escalation.ts:1-14</code></a>). This page covers the general approval decision. The sandbox page tells what "strictly wider" means.</p>
+<p>For the full generated service and event reference, see the repository's own <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/docs/subsystems/approval.md" target="_blank" rel="noopener"><code>docs/subsystems/approval.md</code></a>.</p>
+
+<details class="deepdive"><summary><span class="dd-label">Deep dive</span><h3 id="what-each-closed-outcome-means-to-the-caller" class="dd-title">What each closed outcome means to the caller</h3></summary><div class="dd-body"><p>A tool call does not see the raw return value of an answerer. It sees one of four normalized outcomes (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/types.ts#L28-L32" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/types.ts:28-32 at ce7073d"><code>packages/interaction/user-approval/src/types.ts:28-32</code></a>, <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L311-L318" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:311-318 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:311-318</code></a>):</p>
+<table>
+<thead><tr><th>Outcome</th><th>Where it comes from</th><th>What the tool pipeline does</th></tr></thead>
+<tbody>
+<tr><td><code>allowed-once</code></td><td>an answerer grants this one action</td><td>proceeds (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/tools/src/pipeline.ts#L458" target="_blank" rel="noopener" title="packages/core/tools/src/pipeline.ts:458 at ce7073d"><code>packages/core/tools/src/pipeline.ts:458</code></a>)</td></tr>
+<tr><td><code>rejected</code></td><td>an answerer declines, or the policy is <code>'never'</code></td><td>denies, "the user rejected ..." (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/tools/src/pipeline.ts#L459-L462" target="_blank" rel="noopener" title="packages/core/tools/src/pipeline.ts:459-462 at ce7073d"><code>packages/core/tools/src/pipeline.ts:459-462</code></a>)</td></tr>
+<tr><td><code>cancelled</code></td><td>the request's own signal aborts before or during the ask (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L295" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:295 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:295</code></a>, <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L319-L324" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:319-324 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:319-324</code></a>)</td><td>denies, marked cancelled (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/tools/src/pipeline.ts#L463-L466" target="_blank" rel="noopener" title="packages/core/tools/src/pipeline.ts:463-466 at ce7073d"><code>packages/core/tools/src/pipeline.ts:463-466</code></a>)</td></tr>
+<tr><td><code>unavailable</code></td><td>no answerer claims the ask, an answerer throws, or an answerer returns an unknown value</td><td>denies, "no approval channel is available" (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/tools/src/pipeline.ts#L467-L470" target="_blank" rel="noopener" title="packages/core/tools/src/pipeline.ts:467-470 at ce7073d"><code>packages/core/tools/src/pipeline.ts:467-470</code></a>)</td></tr>
+</tbody>
+</table></div></details>
+
+<h2 id="what-can-go-wrong">What can go wrong<a class="h-anchor" href="#what-can-go-wrong" aria-label="Link to this section">#</a></h2>
+<aside class="callout callout-warning"><p class="callout-title">approval.request() throws outside an open turn</p><div class="callout-body"><p>Call <code>ctx.approval.request()</code> only inside an open turn of the requesting session. Outside a turn, it throws an <code>Error</code> and returns no decision. The audit pair must stay inside the turn boundary of the durable log (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L242-L250" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:242-250 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:242-250</code></a>).</p></div></aside>
+<aside class="callout callout-simplified"><p class="callout-title">Simplified</p><div class="callout-body"><p>This page leaves out cancellation races against a live signal, scope-filtered dispatch to the right agent, and the SDK's own opt-in <code>approval/request</code> bridge.</p></div></aside>
+<p><strong>Why it matters.</strong> A missing or throwing answerer does not grant an action. The service changes the result to <code>unavailable</code> (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L306-L318" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:306-318 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:306-318</code></a>). The tool pipeline and the sandbox escalation deny on each outcome except <code>allowed-once</code> (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/tools/src/pipeline.ts#L457-L471" target="_blank" rel="noopener" title="packages/core/tools/src/pipeline.ts:457-471 at ce7073d"><code>packages/core/tools/src/pipeline.ts:457-471</code></a>, <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/docs/subsystems/approval.md#L5" target="_blank" rel="noopener" title="docs/subsystems/approval.md:5 at ce7073d"><code>docs/subsystems/approval.md:5</code></a>). The service fails closed, so a caller cannot forget this check.</p>
+
+<section class="quiz"><h2 id="check-yourself">Check yourself<a class="h-anchor" href="#check-yourself" aria-label="Link to this section">#</a></h2><ol class="q-list"><li class="q"><div class="q-text"><span class="q-num">1</span><div>What are the four closed outcomes ctx.approval.request() can return?</div><span class="q-level q-easy">easy</span></div><details class="q-answer"><summary>Show answer</summary><div class="q-answer-body"><p><code>allowed-once</code>, <code>rejected</code>, <code>cancelled</code>, and <code>unavailable</code> (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/types.ts#L28-L32" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/types.ts:28-32 at ce7073d"><code>packages/interaction/user-approval/src/types.ts:28-32</code></a>). Only <code>allowed-once</code> is a grant.</p></div></details></li><li class="q"><div class="q-text"><span class="q-num">2</span><div>A session's approval policy is 'never'. Does any composed answerer see the request?</div><span class="q-level q-medium">medium</span></div><details class="q-answer"><summary>Show answer</summary><div class="q-answer-body"><p>No. <code>decide()</code> returns <code>rejected</code> before the answerer waterfall starts, so no answerer gets the ask (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L301" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:301 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:301</code></a>).</p></div></details></li><li class="q"><div class="q-text"><span class="q-num">3</span><div>How does approval differ from sandbox mode?</div><span class="q-level q-medium">medium</span></div><details class="q-answer"><summary>Show answer</summary><div class="q-answer-body"><p>Sandbox mode sets the file effects of all calls under a mode before the calls run (<a href="../concepts/sandbox-and-execution.html">Sandbox and execution</a>). Approval decides one specific action, once, at the time of the ask (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/docs/subsystems/approval.md#L5" target="_blank" rel="noopener" title="docs/subsystems/approval.md:5 at ce7073d"><code>docs/subsystems/approval.md:5</code></a>).</p></div></details></li><li class="q"><div class="q-text"><span class="q-num">4</span><div>A composed answerer throws an exception while deciding. What outcome does request() return, and what does the tool pipeline do with it?</div><span class="q-level q-hard">hard</span></div><details class="q-answer"><summary>Show answer</summary><div class="q-answer-body"><p><code>unavailable</code>. The service changes a throw to the fail-closed outcome (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L315-L317" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:315-317 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:315-317</code></a>). The tool pipeline then denies the call with "no approval channel is available" (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/tools/src/pipeline.ts#L467-L470" target="_blank" rel="noopener" title="packages/core/tools/src/pipeline.ts:467-470 at ce7073d"><code>packages/core/tools/src/pipeline.ts:467-470</code></a>).</p></div></details></li></ol><p class="quiz-tools"><button type="button" class="quiz-toggle">Show all answers</button></p></section>
+
+<section class="related"><h2 id="related-pages">Related pages</h2><ul><li><a href="../concepts/tools-and-mcp.html">Tools and MCP servers</a><span class="rel-sum">A first-party plugin and an MCP client both register tools into ctx.tools. Each call then goes through the same three-stage pipeline, between durable tool/call and tool/result session events.</span></li><li><a href="../concepts/acp-sdk-and-clients.html">ACP, SDKs and clients</a><span class="rel-sum">A client reaches dsh through the ACP server, the SDK wire protocol, or the Web and Desktop connection layer. Each shipped profile mounts the seam for its surface.</span></li></ul></section>
+<nav class="prevnext" aria-label="Previous and next page"><a class="pn pn-prev" href="../concepts/sandbox-and-execution.html"><span class="pn-dir">← Previous</span><span class="pn-title">Sandbox and execution</span></a><a class="pn pn-next" href="../concepts/acp-sdk-and-clients.html"><span class="pn-dir">Next →</span><span class="pn-title">ACP, SDKs and clients</span></a></nav>
+<footer class="page-foot"><p class="foot-commit">Code version: <a href="https://github.com/deepseek-ai/deepseek-harness/tree/ce7073d51254c26cd63b22a60835b8f948deb447" target="_blank" rel="noopener"><code class="foot-sha">ce7073d51254c26cd63b22a60835b8f948deb447</code></a> · 2026-10-30 00:13:15 +0800 · “Merge pull request #7552 from deepseek-harness/fix/webworker-live-import-bindings” · <a href="../index.html#code-version">How to study this version</a></p><p>Source: <a href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noopener">deepseek-ai/deepseek-harness</a> · Built 2026-11-02 · Code excerpts are copied from the repo at this commit by the build.</p></footer>
+</article>
+<nav class="toc" aria-label="On this page"><p class="toc-title">On this page</p><ul><li class="toc-l2"><a href="#the-idea">The idea</a></li><li class="toc-l2"><a href="#the-picture">The picture</a></li><li class="toc-l2"><a href="#in-the-code">In the code</a></li><li class="toc-l3"><a href="#step-1-a-kind-ask-decision-reaches-ctx-approval-request">Step 1: a kind-ask decision reaches ctx.approval.request()</a></li><li class="toc-l3"><a href="#step-2-the-session-s-policy-decides-before-any-answerer-runs">Step 2: the session&#x27;s policy decides before any answerer runs</a></li><li class="toc-l3"><a href="#step-3-one-answerer-claims-the-request-or-passes-it-on">Step 3: one answerer claims the request, or passes it on</a></li><li class="toc-l2"><a href="#more-detail">More detail</a></li><li class="toc-l3"><a href="#what-each-closed-outcome-means-to-the-caller">What each closed outcome means to the caller</a></li><li class="toc-l2"><a href="#what-can-go-wrong">What can go wrong</a></li><li class="toc-l2"><a href="#check-yourself">Check yourself</a></li><li class="toc-l2"><a href="#related-pages">Related pages</a></li></ul></nav>
+</main>
+</div>
+<div class="lightbox" hidden><div class="lightbox-bar"><span class="lightbox-hint">Scroll to pan. Press Esc to close.</span><button type="button" class="lightbox-close">Close ✕</button></div><div class="lightbox-body"></div></div>
+<div class="tooltip" role="tooltip" id="term-tooltip" hidden></div>
+<script src="../assets/search-index.js" defer></script>
+<script src="../assets/site.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js" defer></script>
+</body>
+</html>

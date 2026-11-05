@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="650" viewBox="0 0 1100 650">
+<defs><marker id="m0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d97706"/></marker><marker id="m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/></marker><marker id="m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9ca3af"/></marker></defs>
+<rect width="1100" height="650" fill="#ffffff"/>
+<text x="30.0" y="42.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">What decides one call&#x27;s file-effect policy, and who enforces it?</text>
+<text x="30.0" y="68.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">ctx.sandboxPolicy resolves one mode per call; three capability families enforce it two different ways</text>
+<text x="30.0" y="88.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">1 policy resolver  ·  3 capability families  ·  canvas 1100</text>
+<rect x="20.0" y="112.0" width="1060.0" height="214.0" rx="14" fill="#fafafa" fill-opacity="1.0" stroke="#e5e7eb" stroke-width="1"/>
+<circle cx="46.0" cy="138.0" r="13" fill="#111827"/>
+<text x="46.0" y="142.9" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">1</text>
+<text x="68.0" y="143.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="17" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">Which mode wins for one call?</text>
+<text x="68.0" y="162.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">Precedence, highest first (sandbox-policy/src/index.ts:200).</text>
+<rect x="46.0" y="168.0" width="320.0" height="64.0" rx="8" fill="#fffbeb" fill-opacity="1.0" stroke="#d97706" stroke-width="1.5"/>
+<text x="206.0" y="188.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#d97706" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">explicit approved mode</text>
+<text x="206.0" y="206.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">an approved escalation retry</text>
+<line x1="206.0" y1="232.0" x2="550.0" y2="278.0" stroke="#d97706" stroke-width="1.6" marker-end="url(#m0)"/>
+<rect x="396.0" y="168.0" width="320.0" height="64.0" rx="8" fill="#eff6ff" fill-opacity="1.0" stroke="#2563eb" stroke-width="1.5"/>
+<text x="556.0" y="188.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#2563eb" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">session&#x27;s sandbox/mode event</text>
+<text x="556.0" y="206.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">the last logged override</text>
+<line x1="556.0" y1="232.0" x2="550.0" y2="278.0" stroke="#2563eb" stroke-width="1.6" marker-end="url(#m1)"/>
+<rect x="746.0" y="168.0" width="320.0" height="64.0" rx="8" fill="#e5e7eb" fill-opacity="1.0" stroke="#9ca3af" stroke-width="1.5"/>
+<text x="906.0" y="188.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#9ca3af" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">deployment default</text>
+<text x="906.0" y="206.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">config &quot;mode&quot; (base: workspace-write)</text>
+<line x1="906.0" y1="232.0" x2="550.0" y2="278.0" stroke="#9ca3af" stroke-width="1.6" marker-end="url(#m2)"/>
+<rect x="390.0" y="278.0" width="320.0" height="36.0" rx="8" fill="#f5f3ff" fill-opacity="1.0" stroke="#7c3aed" stroke-width="1.5"/>
+<text x="550.0" y="298.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#7c3aed" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">ctx.sandboxPolicy.resolve()</text>
+<text x="550.0" y="322.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="11.5" fill="#374151" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">{ mode, workspaceRoot }  -&gt;  one SandboxExecutionPolicy for this call</text>
+<rect x="20.0" y="350.0" width="1060.0" height="196.0" rx="14" fill="#fafafa" fill-opacity="1.0" stroke="#e5e7eb" stroke-width="1"/>
+<circle cx="46.0" cy="376.0" r="13" fill="#111827"/>
+<text x="46.0" y="380.9" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">2</text>
+<text x="68.0" y="381.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="17" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">How does each family enforce that policy?</text>
+<text x="68.0" y="400.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">Shell and terminal wrap a subprocess; fs checks the path itself.</text>
+<rect x="46.0" y="394.0" width="620.0" height="140.0" rx="12" fill="#f8fbff" fill-opacity="1.0" stroke="#2563eb" stroke-width="1.2" stroke-opacity="0.35" stroke-dasharray="4 4"/>
+<rect x="46.0" y="394.0" width="620.0" height="64.0" rx="12" fill="#2563eb" fill-opacity="1.0" stroke="none"/>
+<rect x="46.0" y="434.0" width="620.0" height="24.0" rx="0" fill="#2563eb" fill-opacity="1.0" stroke="none"/>
+<text x="60.0" y="417.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" fill="#fff" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">shell + terminal: wrap the subprocess</text>
+<text x="60.0" y="435.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="11.5" fill="#fff" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">bash-sandbox:187-189, terminal-bash:97-106</text>
+<rect x="66.0" y="472.0" width="270.0" height="56.0" rx="8" fill="#eff6ff" fill-opacity="1.0" stroke="#2563eb" stroke-width="1.5"/>
+<text x="201.0" y="492.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#2563eb" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">ctx.sandbox.confine(argv, policy)</text>
+<text x="201.0" y="510.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">kernel backend: bwrap / Landlock / Seatbelt / ACL</text>
+<rect x="356.0" y="472.0" width="280.0" height="56.0" rx="8" fill="#eff6ff" fill-opacity="1.0" stroke="#2563eb" stroke-width="1.5"/>
+<text x="496.0" y="492.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#2563eb" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">returns a replacement argv</text>
+<text x="496.0" y="510.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">caller spawns THAT argv instead</text>
+<line x1="336.0" y1="500.0" x2="356.0" y2="500.0" stroke="#2563eb" stroke-width="1.6" marker-end="url(#m1)"/>
+<rect x="686.0" y="394.0" width="374.0" height="140.0" rx="12" fill="#f6fdf9" fill-opacity="1.0" stroke="#059669" stroke-width="1.2" stroke-opacity="0.35" stroke-dasharray="4 4"/>
+<rect x="686.0" y="394.0" width="374.0" height="64.0" rx="12" fill="#059669" fill-opacity="1.0" stroke="none"/>
+<rect x="686.0" y="434.0" width="374.0" height="24.0" rx="0" fill="#059669" fill-opacity="1.0" stroke="none"/>
+<text x="700.0" y="417.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" fill="#fff" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">fs: checks the path itself</text>
+<text x="700.0" y="435.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="11.5" fill="#fff" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">fs-sandbox/src/index.ts:156-178</text>
+<rect x="706.0" y="472.0" width="334.0" height="56.0" rx="8" fill="#ecfdf5" fill-opacity="1.0" stroke="#059669" stroke-width="1.5"/>
+<text x="873.0" y="492.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#059669" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">canonicalize + containment check</text>
+<text x="873.0" y="510.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">no ctx.sandbox call; trusted-code fence</text>
+<text x="30.0" y="581.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">Legend</text>
+<rect x="97.3" y="570.0" width="14.0" height="14.0" rx="3" fill="#eff6ff" fill-opacity="1.0" stroke="#2563eb" stroke-width="1.4"/>
+<text x="118.3" y="581.5" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#111827" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">wraps a subprocess (kernel boundary)</text>
+<rect x="357.8" y="570.0" width="14.0" height="14.0" rx="3" fill="#ecfdf5" fill-opacity="1.0" stroke="#059669" stroke-width="1.4"/>
+<text x="378.8" y="581.5" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#111827" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">checks a path (trusted-code fence, not a kernel boundary)</text>
+<text x="30.0" y="600.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">danger-full-access skips this entirely: a consumer spawns its original argv and never calls ctx.sandbox (docs/subsystems/sandbox.md:23).</text>
+<text x="30.0" y="618.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">Simplified: enforcement completeness (full/partial) and the approval-gated escalation retry are left out of this picture.</text>
+</svg>

@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="586" viewBox="0 0 1100 586">
+<defs><marker id="m0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/></marker><marker id="m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d97706"/></marker></defs>
+<rect width="1100" height="586" fill="#ffffff"/>
+<text x="30.0" y="42.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">Job states, and what starts a workflow&#x27;s children</text>
+<text x="30.0" y="68.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">Two independent, optional capabilities beside the agent loop</text>
+<text x="30.0" y="88.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">5 job states  ·  1 sandboxed script  ·  canvas 1100</text>
+<rect x="20.0" y="112.0" width="1060.0" height="150.0" rx="14" fill="#fafafa" fill-opacity="1.0" stroke="#e5e7eb" stroke-width="1"/>
+<circle cx="46.0" cy="138.0" r="13" fill="#111827"/>
+<text x="46.0" y="142.9" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">1</text>
+<text x="68.0" y="143.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="17" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">What are the job states?</text>
+<text x="68.0" y="162.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">ctx.jobs tracks one producer-owned execution per id (jobs/src/view.ts:19).</text>
+<rect x="46.0" y="182.0" width="170.0" height="34.0" rx="6" fill="#ffffff" fill-opacity="1.0" stroke="#2563eb" stroke-width="1.4"/>
+<text x="131.0" y="203.2" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#2563eb" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">running</text>
+<line x1="218.0" y1="199.0" x2="250.0" y2="199.0" stroke="#2563eb" stroke-width="1.6" marker-end="url(#m0)"/>
+<rect x="252.0" y="182.0" width="170.0" height="34.0" rx="6" fill="#ffffff" fill-opacity="1.0" stroke="#d97706" stroke-width="1.4"/>
+<text x="337.0" y="203.2" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#d97706" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">stopping</text>
+<rect x="458.0" y="182.0" width="170.0" height="34.0" rx="6" fill="#ffffff" fill-opacity="1.0" stroke="#059669" stroke-width="1.4"/>
+<text x="543.0" y="203.2" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#059669" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">completed</text>
+<rect x="664.0" y="182.0" width="170.0" height="34.0" rx="6" fill="#ffffff" fill-opacity="1.0" stroke="#9ca3af" stroke-width="1.4"/>
+<text x="749.0" y="203.2" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#9ca3af" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">killed</text>
+<rect x="870.0" y="182.0" width="170.0" height="34.0" rx="6" fill="#ffffff" fill-opacity="1.0" stroke="#7c3aed" stroke-width="1.4"/>
+<text x="955.0" y="203.2" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12" fill="#7c3aed" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">failed</text>
+<text x="46.0" y="234.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="11.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre" font-style="italic">running -&gt; stopping after a kill() request or a teardown (jobs-local/src/index.ts:484-493, 694-707).</text>
+<text x="46.0" y="251.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="11.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre" font-style="italic">running or stopping -&gt; exactly one terminal state: completed, killed or failed (view.ts:15-19).</text>
+<rect x="20.0" y="286.0" width="1060.0" height="196.0" rx="14" fill="#fafafa" fill-opacity="1.0" stroke="#e5e7eb" stroke-width="1"/>
+<circle cx="46.0" cy="312.0" r="13" fill="#111827"/>
+<text x="46.0" y="316.9" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">2</text>
+<text x="68.0" y="317.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="17" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">How does a workflow script start children?</text>
+<text x="68.0" y="336.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">Every agent() call in the script runs through the same subagent seam.</text>
+<rect x="46.0" y="346.0" width="260.0" height="76.0" rx="8" fill="#eff6ff" fill-opacity="1.0" stroke="#2563eb" stroke-width="1.5"/>
+<text x="176.0" y="366.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#2563eb" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">Model-written script</text>
+<text x="176.0" y="384.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">{ script, meta, args }</text>
+<text x="176.0" y="399.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">workflow/src/index.ts:168</text>
+<line x1="306.0" y1="384.0" x2="404.0" y2="384.0" stroke="#2563eb" stroke-width="1.6" marker-end="url(#m0)"/>
+<rect x="406.0" y="346.0" width="300.0" height="76.0" rx="8" fill="#fffbeb" fill-opacity="1.0" stroke="#d97706" stroke-width="1.5"/>
+<text x="556.0" y="366.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#d97706" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">sandboxed Node process</text>
+<text x="556.0" y="384.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">workflow-ptc/index.ts:3,167</text>
+<text x="556.0" y="399.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">one agent() call = 1 child</text>
+<line x1="706.0" y1="384.0" x2="804.0" y2="384.0" stroke="#d97706" stroke-width="1.6" marker-end="url(#m1)"/>
+<rect x="806.0" y="346.0" width="220.0" height="76.0" rx="8" fill="#ecfdf5" fill-opacity="1.0" stroke="#059669" stroke-width="1.5"/>
+<text x="916.0" y="366.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#059669" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">ctx.subagents</text>
+<text x="916.0" y="384.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">host.ts:200-220</text>
+<text x="916.0" y="399.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">delivery: &quot;caller&quot;</text>
+<text x="46.0" y="468.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="11.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">The delegation tool uses the same seam. The script is one more caller.</text>
+<text x="30.0" y="517.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">Legend</text>
+<rect x="97.3" y="506.0" width="14.0" height="14.0" rx="3" fill="#eff6ff" fill-opacity="1.0" stroke="#2563eb" stroke-width="1.4"/>
+<text x="118.3" y="517.5" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#111827" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">running / caller-written</text>
+<rect x="284.3" y="506.0" width="14.0" height="14.0" rx="3" fill="#fffbeb" fill-opacity="1.0" stroke="#d97706" stroke-width="1.4"/>
+<text x="305.3" y="517.5" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#111827" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">in-flight / sandbox boundary</text>
+<rect x="492.8" y="506.0" width="14.0" height="14.0" rx="3" fill="#ecfdf5" fill-opacity="1.0" stroke="#059669" stroke-width="1.4"/>
+<text x="513.8" y="517.5" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#111827" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">terminal (completed) / subagent seam</text>
+<text x="30.0" y="536.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">Simplified: goals and plan mode add no new process boundary, so they are not drawn here (see the text below).</text>
+<text x="30.0" y="554.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">The job ring, the workflow&#x27;s phase/log events, and capacity caps are left out of this picture.</text>
+</svg>

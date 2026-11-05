@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code map: the central files · DeepSeek Harness Explained</title>
+<meta name="description" content="The repository has about 20,000 tracked files. This page lists the small set of files that do most of the work, each with its line count and a link to the page that explains it.">
+<script>try{var t=localStorage.getItem("explainer-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&amp;display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body data-root="../" data-page="code/central-files">
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <button type="button" class="menu-btn" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+  <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">DH</span><span class="brand-name">DeepSeek Harness Explained</span></a>
+  <div class="search" role="search">
+    <input type="search" id="search-input" placeholder="Search  ( / )" aria-label="Search the site" autocomplete="off" spellcheck="false">
+    <div class="search-results" id="search-results" role="listbox" hidden></div>
+  </div>
+  <button type="button" class="theme-btn" aria-label="Switch between light and dark mode" title="Light / dark mode">
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
+  </button>
+</header>
+<div class="layout">
+<aside class="sidebar" id="sidebar" aria-label="Site navigation">
+<nav>
+<a class="nav-home" href="../index.html">Home</a>
+<details class="nav-sec"><summary><span class="nav-sec-title">Learn the basics</span><span class="nav-count" title="3 of 3 pages written">3/3</span></summary>
+<ul>
+<li><a href="../learn/plugins-and-cordis.html">Plugins and Cordis</a></li>
+<li><a href="../learn/profiles-and-bundles.html">Profiles and bundles</a></li>
+<li><a href="../learn/session-and-loop-vocabulary.html">Turn, step, round</a></li>
+</ul>
+</details>
+<details class="nav-sec"><summary><span class="nav-sec-title">DeepSeek Harness concepts</span><span class="nav-count" title="9 of 9 pages written">9/9</span></summary>
+<p class="nav-group">Core runtime</p>
+<ul>
+<li><a href="../concepts/agent-loop-and-session.html">Agent loop and session log</a></li>
+<li><a href="../concepts/llm-and-system-prompt.html">LLM seam &amp; system prompt</a></li>
+</ul>
+<p class="nav-group">Tools and extensibility</p>
+<ul>
+<li><a href="../concepts/tools-and-mcp.html">Tools and MCP servers</a></li>
+<li><a href="../concepts/skills.html">Skills</a></li>
+</ul>
+<p class="nav-group">Delegation and background work</p>
+<ul>
+<li><a href="../concepts/subagents-and-delegation.html">Subagents and delegation</a></li>
+<li><a href="../concepts/jobs-workflow-goal-plan.html">Jobs, workflows, goals and plan mode</a></li>
+</ul>
+<p class="nav-group">Execution and safety</p>
+<ul>
+<li><a href="../concepts/sandbox-and-execution.html">Sandbox and execution</a></li>
+<li><a href="../concepts/approval-and-interaction.html">Approval and interaction</a></li>
+</ul>
+<p class="nav-group">Protocols and clients</p>
+<ul>
+<li><a href="../concepts/acp-sdk-and-clients.html">ACP, SDKs and clients</a></li>
+</ul>
+</details>
+<details class="nav-sec"><summary><span class="nav-sec-title">Guided tour</span><span class="nav-count" title="1 of 1 pages written">1/1</span></summary>
+<ul>
+<li><a href="../tours/life-of-a-headless-task.html">Life of a headless task</a></li>
+</ul>
+</details>
+<details class="nav-sec" open><summary><span class="nav-sec-title">Code map</span><span class="nav-count" title="2 of 2 pages written">2/2</span></summary>
+<ul>
+<li><a href="../code/index.html">Folder tree</a></li>
+<li><a class="current" aria-current="page" href="../code/central-files.html">The central files</a></li>
+</ul>
+</details>
+<details class="nav-sec"><summary><span class="nav-sec-title">Reference</span><span class="nav-count" title="2 of 2 pages written">2/2</span></summary>
+<ul>
+<li><a href="../reference/config-and-env.html">Config and environment</a></li>
+<li><a href="../reference/glossary.html">Glossary</a></li>
+</ul>
+</details>
+</nav>
+</aside>
+<div class="scrim" hidden></div>
+<main id="main" class="main">
+<article class="article">
+<nav class="breadcrumbs" aria-label="Breadcrumbs"><a href="../index.html">Home</a><span class="sep">›</span><span>Code map</span><span class="sep">›</span><span aria-current="page">The central files</span></nav>
+<h1 class="page-title">Code map: the central files</h1>
+<div class="page-meta"><span class="meta-sec">Code map</span><span class="meta-time">about 5 min read</span></div>
+<p class="code-version">Code version: DeepSeek Harness @ <a href="https://github.com/deepseek-ai/deepseek-harness/tree/ce7073d51254c26cd63b22a60835b8f948deb447" target="_blank" rel="noopener" title="ce7073d51254c26cd63b22a60835b8f948deb447"><code>ce7073d</code></a> · 2026-10-30</p>
+
+<h2 id="purpose">Purpose<a class="h-anchor" href="#purpose" aria-label="Link to this section">#</a></h2>
+<p><a href="../code/index.html">The folder tree</a> shows every folder of the repository. The tree also holds tests, docs, snapshots, and vendored code. This page lists the main source files that the concept pages and the tour of this site cite. Many of these files hold a <a class="term" href="../reference/glossary.html#term-plugin" data-term="plugin" data-def="An object that implements Service: a function with optional inject and apply(ctx) fields, or a Service subclass Cordis mounts into a context.">plugin</a>. Each row names the file, its line count, its main <a class="term" href="../reference/glossary.html#term-service" data-term="service" data-def="What a plugin claims from a context: a stable ctx.&lt;key&gt; such as ctx.tools or ctx.llm, found by key instead of by import.">service</a> or class, and the page that explains it.</p>
+<p>The list is not complete. It is the set of files that the writers of this site opened and cited for each capability family. The final section below says how the list was made. See the repository's own <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/docs/module-graph.md" target="_blank" rel="noopener"><code>docs/module-graph.md</code></a> for the full, generated package dependency graph.</p>
+
+<h2 id="the-central-files">The central files<a class="h-anchor" href="#the-central-files" aria-label="Link to this section">#</a></h2>
+
+<h3 id="boot-and-the-headless-tour">Boot and the headless tour<a class="h-anchor" href="#boot-and-the-headless-tour" aria-label="Link to this section">#</a></h3>
+<p><a href="../tours/life-of-a-headless-task.html">Life of a headless task</a> follows a <code>dsh --profile headless "task"</code> run through these two files. The small entry point <code>apps/cli/src/bin.ts</code> calls the first one (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/apps/cli/src/bin.ts#L33-L35" target="_blank" rel="noopener" title="apps/cli/src/bin.ts:33-35 at ce7073d"><code>apps/cli/src/bin.ts:33-35</code></a>).</p>
+<table>
+<thead><tr><th>File</th><th>Lines</th><th>Main thing</th><th>Role</th><th>Explained in</th></tr></thead>
+<tbody>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/apps/cli/src/profile-boot.ts" target="_blank" rel="noopener"><code>apps/cli/src/profile-boot.ts</code></a></td><td>353</td><td><code>runProfile()</code></td><td>Installs the proxy policy, composes the patch stack of the profile, then mounts the plugin tree (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/apps/cli/src/profile-boot.ts#L276-L294" target="_blank" rel="noopener" title="apps/cli/src/profile-boot.ts:276-294 at ce7073d"><code>apps/cli/src/profile-boot.ts:276-294</code></a>, <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/apps/cli/src/profile-boot.ts#L323" target="_blank" rel="noopener" title="apps/cli/src/profile-boot.ts:323 at ce7073d"><code>apps/cli/src/profile-boot.ts:323</code></a>).</td><td><a href="../tours/life-of-a-headless-task.html">Life of a headless task</a></td></tr>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/bundle/headless/src/index.ts" target="_blank" rel="noopener"><code>packages/bundle/headless/src/index.ts</code></a></td><td>465</td><td><code>apply()</code></td><td>The <code>headless-runner</code> plugin: mounts the one-shot driver that runs one task and requests exit (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/bundle/headless/src/index.ts#L451-L465" target="_blank" rel="noopener" title="packages/bundle/headless/src/index.ts:451-465 at ce7073d"><code>packages/bundle/headless/src/index.ts:451-465</code></a>).</td><td><a href="../tours/life-of-a-headless-task.html">Life of a headless task</a></td></tr>
+</tbody>
+</table>
+
+<h3 id="core-runtime">Core runtime<a class="h-anchor" href="#core-runtime" aria-label="Link to this section">#</a></h3>
+<table>
+<thead><tr><th>File</th><th>Lines</th><th>Main thing</th><th>Role</th><th>Explained in</th></tr></thead>
+<tbody>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/agent-loop/src/agent.ts" target="_blank" rel="noopener"><code>packages/core/agent-loop/src/agent.ts</code></a></td><td>745</td><td><code>ReactLoopAgent</code></td><td>Drives one <a class="term" href="../reference/glossary.html#term-session" data-term="session" data-def="The durable conversation object: one Session holds one append-only event log and is the identity an agent runs on.">session</a> through its <a class="term" href="../reference/glossary.html#term-turn" data-term="turn" data-def="One drain of admitted input in a session. It opens before its first input is claimed and closes once nothing is owed.">turn</a> and <a class="term" href="../reference/glossary.html#term-step" data-term="step" data-def="One model request plus the tool executions caused by its response. A turn contains zero or more steps.">step</a> boundaries (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/agent-loop/src/agent.ts#L111-L112" target="_blank" rel="noopener" title="packages/core/agent-loop/src/agent.ts:111-112 at ce7073d"><code>packages/core/agent-loop/src/agent.ts:111-112</code></a>).</td><td><a href="../concepts/agent-loop-and-session.html">The agent loop and the session log</a></td></tr>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/agent/src/index.ts" target="_blank" rel="noopener"><code>packages/core/agent/src/index.ts</code></a></td><td>714</td><td><code>AgentRegistry</code></td><td>The service that creates and resumes <a class="term" href="../reference/glossary.html#term-agent" data-term="Agent" data-def="The live object that drives one session: it owns the turn/step loop and the inbox of pending input.">agents</a> (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/agent/src/index.ts#L252" target="_blank" rel="noopener" title="packages/core/agent/src/index.ts:252 at ce7073d"><code>packages/core/agent/src/index.ts:252</code></a>).</td><td><a href="../concepts/agent-loop-and-session.html">The agent loop and the session log</a></td></tr>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/session/src/index.ts" target="_blank" rel="noopener"><code>packages/core/session/src/index.ts</code></a></td><td>1,475</td><td><code>Session</code>, <code>SessionStore</code></td><td><code>Session</code> holds the append-only <a class="term" href="../reference/glossary.html#term-session-log" data-term="session log" data-def="The append-only log of SessionEvent records. It is the source of the context the model sees.">session log</a> (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/session/src/index.ts#L525-L526" target="_blank" rel="noopener" title="packages/core/session/src/index.ts:525-526 at ce7073d"><code>packages/core/session/src/index.ts:525-526</code></a>). <code>SessionStore</code> is the <code>ctx.sessions</code> service (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/session/src/index.ts#L1058" target="_blank" rel="noopener" title="packages/core/session/src/index.ts:1058 at ce7073d"><code>packages/core/session/src/index.ts:1058</code></a>, <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/session/src/index.ts#L1064" target="_blank" rel="noopener" title="packages/core/session/src/index.ts:1064 at ce7073d"><code>packages/core/session/src/index.ts:1064</code></a>).</td><td><a href="../concepts/agent-loop-and-session.html">The agent loop and the session log</a></td></tr>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/llm/llm/src/index.ts" target="_blank" rel="noopener"><code>packages/llm/llm/src/index.ts</code></a></td><td>1,222</td><td><code>LlmRuntime</code></td><td>The <code>ctx.llm</code> service: an adapter registry and the streaming model-call API (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/llm/llm/src/index.ts#L350-L354" target="_blank" rel="noopener" title="packages/llm/llm/src/index.ts:350-354 at ce7073d"><code>packages/llm/llm/src/index.ts:350-354</code></a>).</td><td><a href="../concepts/llm-and-system-prompt.html">The LLM seam and the system prompt</a></td></tr>
+</tbody>
+</table>
+
+<h3 id="tools-and-extensibility">Tools and extensibility<a class="h-anchor" href="#tools-and-extensibility" aria-label="Link to this section">#</a></h3>
+<table>
+<thead><tr><th>File</th><th>Lines</th><th>Main thing</th><th>Role</th><th>Explained in</th></tr></thead>
+<tbody>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/tools/src/pipeline.ts" target="_blank" rel="noopener"><code>packages/core/tools/src/pipeline.ts</code></a></td><td>771</td><td><code>ToolExecutionPipeline</code></td><td>The shared prepare, dispatch, and complete stages for the batch and program schedulers (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/tools/src/pipeline.ts#L57-L62" target="_blank" rel="noopener" title="packages/core/tools/src/pipeline.ts:57-62 at ce7073d"><code>packages/core/tools/src/pipeline.ts:57-62</code></a>).</td><td><a href="../concepts/tools-and-mcp.html">Tools and MCP servers</a></td></tr>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/tools/src/batch.ts" target="_blank" rel="noopener"><code>packages/core/tools/src/batch.ts</code></a></td><td>285</td><td><code>executeToolBatch()</code></td><td>Schedules the tool calls of one assistant step and returns the results in model order (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/tools/src/batch.ts#L1-L5" target="_blank" rel="noopener" title="packages/core/tools/src/batch.ts:1-5 at ce7073d"><code>packages/core/tools/src/batch.ts:1-5</code></a>, <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/core/tools/src/batch.ts#L50" target="_blank" rel="noopener" title="packages/core/tools/src/batch.ts:50 at ce7073d"><code>packages/core/tools/src/batch.ts:50</code></a>).</td><td><a href="../concepts/tools-and-mcp.html">Tools and MCP servers</a></td></tr>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/mcp/mcp-client/src/tools.ts" target="_blank" rel="noopener"><code>packages/mcp/mcp-client/src/tools.ts</code></a></td><td>511</td><td><code>syncTools()</code></td><td>Registers one <a class="term" href="../reference/glossary.html#term-mcp" data-term="MCP" data-def="Model Context Protocol. It connects the model to tools and resources supplied by external servers.">MCP</a> server's tools into the tool registry, and unregisters the previous generation (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/mcp/mcp-client/src/tools.ts#L113" target="_blank" rel="noopener" title="packages/mcp/mcp-client/src/tools.ts:113 at ce7073d"><code>packages/mcp/mcp-client/src/tools.ts:113</code></a>).</td><td><a href="../concepts/tools-and-mcp.html">Tools and MCP servers</a></td></tr>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/skill/tool-skill/src/index.ts" target="_blank" rel="noopener"><code>packages/skill/tool-skill/src/index.ts</code></a></td><td>451</td><td><code>apply()</code></td><td>The <code>tool-skill</code> plugin: the session catalog of <a class="term" href="../reference/glossary.html#term-skill" data-term="skill" data-def="An optional, loadable instruction set, discovered through a provider registry under ctx.skills. Not a session event.">skills</a> and the model-facing <code>skill</code> loader tool (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/skill/tool-skill/src/index.ts#L1-L2" target="_blank" rel="noopener" title="packages/skill/tool-skill/src/index.ts:1-2 at ce7073d"><code>packages/skill/tool-skill/src/index.ts:1-2</code></a>, <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/skill/tool-skill/src/index.ts#L25" target="_blank" rel="noopener" title="packages/skill/tool-skill/src/index.ts:25 at ce7073d"><code>packages/skill/tool-skill/src/index.ts:25</code></a>).</td><td><a href="../concepts/skills.html">Skills</a></td></tr>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/skill/skill-filesystem/src/index.ts" target="_blank" rel="noopener"><code>packages/skill/skill-filesystem/src/index.ts</code></a></td><td>1,063</td><td><code>FileSystemSkillProvider</code></td><td>Maps the local project and user skill roots into <code>ctx.skills</code> (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/skill/skill-filesystem/src/index.ts#L148-L149" target="_blank" rel="noopener" title="packages/skill/skill-filesystem/src/index.ts:148-149 at ce7073d"><code>packages/skill/skill-filesystem/src/index.ts:148-149</code></a>).</td><td><a href="../concepts/skills.html">Skills</a></td></tr>
+</tbody>
+</table>
+
+<h3 id="delegation-and-background-work">Delegation and background work<a class="h-anchor" href="#delegation-and-background-work" aria-label="Link to this section">#</a></h3>
+<table>
+<thead><tr><th>File</th><th>Lines</th><th>Main thing</th><th>Role</th><th>Explained in</th></tr></thead>
+<tbody>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/subagent/subagent/src/index.ts" target="_blank" rel="noopener"><code>packages/subagent/subagent/src/index.ts</code></a></td><td>657</td><td><code>SubagentRuntime</code></td><td>The named-provider registry for <a class="term" href="../reference/glossary.html#term-subagent" data-term="subagent" data-def="A child agent a parent delegates work to through a named provider. A local child keeps a durable session; others execute once.">subagents</a>: managed activations, durable discovery, and local child messages (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/subagent/subagent/src/index.ts#L193-L194" target="_blank" rel="noopener" title="packages/subagent/subagent/src/index.ts:193-194 at ce7073d"><code>packages/subagent/subagent/src/index.ts:193-194</code></a>).</td><td><a href="../concepts/subagents-and-delegation.html">Subagents and delegation</a></td></tr>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/subagent/subagent-claude-code/src/index.ts" target="_blank" rel="noopener"><code>packages/subagent/subagent-claude-code/src/index.ts</code></a></td><td>147</td><td><code>apply()</code></td><td>The <code>subagent-claude-code</code> plugin: a one-shot subagent provider that runs the Claude Code Agent SDK in the workspace of the delegating session (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/subagent/subagent-claude-code/src/index.ts#L1-L4" target="_blank" rel="noopener" title="packages/subagent/subagent-claude-code/src/index.ts:1-4 at ce7073d"><code>packages/subagent/subagent-claude-code/src/index.ts:1-4</code></a>, <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/subagent/subagent-claude-code/src/index.ts#L30" target="_blank" rel="noopener" title="packages/subagent/subagent-claude-code/src/index.ts:30 at ce7073d"><code>packages/subagent/subagent-claude-code/src/index.ts:30</code></a>).</td><td><a href="../concepts/subagents-and-delegation.html">Subagents and delegation</a></td></tr>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/goal/goal-round-driver/src/index.ts" target="_blank" rel="noopener"><code>packages/goal/goal-round-driver/src/index.ts</code></a></td><td>477</td><td><code>apply()</code></td><td>The <code>goal-round-driver</code> plugin: installs automatic same-session continuation for <a class="term" href="../reference/glossary.html#term-goal" data-term="goal" data-def="One durable completion objective attached to a session, with an active/paused/blocked/complete phase and a goal-round cap.">goal</a> rounds (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/goal/goal-round-driver/src/index.ts#L1-L2" target="_blank" rel="noopener" title="packages/goal/goal-round-driver/src/index.ts:1-2 at ce7073d"><code>packages/goal/goal-round-driver/src/index.ts:1-2</code></a>, <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/goal/goal-round-driver/src/index.ts#L76-L77" target="_blank" rel="noopener" title="packages/goal/goal-round-driver/src/index.ts:76-77 at ce7073d"><code>packages/goal/goal-round-driver/src/index.ts:76-77</code></a>).</td><td><a href="../concepts/jobs-workflow-goal-plan.html">Jobs, workflows, goals and plan mode</a></td></tr>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/workflow/workflow-ptc/src/host.ts" target="_blank" rel="noopener"><code>packages/workflow/workflow-ptc/src/host.ts</code></a></td><td>324</td><td><code>PtcWorkflowRun</code></td><td>One <a class="term" href="../reference/glossary.html#term-workflow" data-term="workflow" data-def="An optional capability that lets an agent run a model-written script that starts subagents. It is not part of the agent loop.">workflow</a> run that a holder owns. Its settlement waits for the managed process and for the child startups and disposals (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/workflow/workflow-ptc/src/host.ts#L108-L113" target="_blank" rel="noopener" title="packages/workflow/workflow-ptc/src/host.ts:108-113 at ce7073d"><code>packages/workflow/workflow-ptc/src/host.ts:108-113</code></a>).</td><td><a href="../concepts/jobs-workflow-goal-plan.html">Jobs, workflows, goals and plan mode</a></td></tr>
+</tbody>
+</table>
+
+<h3 id="execution-and-safety">Execution and safety<a class="h-anchor" href="#execution-and-safety" aria-label="Link to this section">#</a></h3>
+<table>
+<thead><tr><th>File</th><th>Lines</th><th>Main thing</th><th>Role</th><th>Explained in</th></tr></thead>
+<tbody>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/sandbox/sandbox-policy/src/index.ts" target="_blank" rel="noopener"><code>packages/sandbox/sandbox-policy/src/index.ts</code></a></td><td>217</td><td><code>SandboxPolicyService</code></td><td>Holds the default <a class="term" href="../reference/glossary.html#term-sandbox" data-term="sandbox" data-def="The process-sandbox seam. It wraps a subprocess in a file-effect policy: read-only, workspace-write, or danger-full-access.">sandbox</a> mode of the deployment and resolves the active policy for each tool execution (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/sandbox/sandbox-policy/src/index.ts#L128-L134" target="_blank" rel="noopener" title="packages/sandbox/sandbox-policy/src/index.ts:128-134 at ce7073d"><code>packages/sandbox/sandbox-policy/src/index.ts:128-134</code></a>).</td><td><a href="../concepts/sandbox-and-execution.html">Sandbox and execution</a></td></tr>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts" target="_blank" rel="noopener"><code>packages/interaction/user-approval/src/index.ts</code></a></td><td>336</td><td><code>ApprovalService</code></td><td>Applies the <a class="term" href="../reference/glossary.html#term-approval-policy" data-term="approval policy" data-def="The human-in-the-loop decision for one action: may this specific action proceed?">approval policy</a> of the session and logs each ask/outcome pair to the session (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/interaction/user-approval/src/index.ts#L162-L167" target="_blank" rel="noopener" title="packages/interaction/user-approval/src/index.ts:162-167 at ce7073d"><code>packages/interaction/user-approval/src/index.ts:162-167</code></a>).</td><td><a href="../concepts/approval-and-interaction.html">Approval and human interaction</a></td></tr>
+</tbody>
+</table>
+
+<h3 id="protocols-and-clients">Protocols and clients<a class="h-anchor" href="#protocols-and-clients" aria-label="Link to this section">#</a></h3>
+<table>
+<thead><tr><th>File</th><th>Lines</th><th>Main thing</th><th>Role</th><th>Explained in</th></tr></thead>
+<tbody>
+<tr><td><a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/acp/acp/src/index.ts" target="_blank" rel="noopener"><code>packages/acp/acp/src/index.ts</code></a></td><td>529</td><td><code>apply()</code></td><td>The <code>acp</code> plugin: mounts the automation-only <a class="term" href="../reference/glossary.html#term-acp" data-term="ACP" data-def="Agent Client Protocol. The automation-only JSON-RPC-over-stdio protocol the dsh-acp server implements.">ACP</a> server (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/acp/acp/src/index.ts#L91-L96" target="_blank" rel="noopener" title="packages/acp/acp/src/index.ts:91-96 at ce7073d"><code>packages/acp/acp/src/index.ts:91-96</code></a>).</td><td><a href="../concepts/acp-sdk-and-clients.html">ACP, SDKs and clients</a></td></tr>
+</tbody>
+</table>
+
+<h2 id="how-this-list-was-made">How this list was made<a class="h-anchor" href="#how-this-list-was-made" aria-label="Link to this section">#</a></h2>
+<p>A concept page, a learn page, or the tour of this site cites each file above. Most of these files also appear in an <code>&lt;x-code&gt;</code> excerpt. The line counts come from <code>wc -l</code> at the pinned commit.</p>
+<p>This page leaves out the parts of the repository this site treats as out of scope. That includes <code>vendor/</code> (Cordis and its foundation libraries), <code>native/</code> (the Landlock/flock launcher), <code>packages/experimental/*</code>, and the Swift/C++ experimental macOS helper. The Python SDK (<code>python/</code>) drives DeepSeek Harness as a subprocess. It uses newline-delimited JSON-RPC on stdio with the bundled <code>dsh</code> executable (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/python/README.md#L5" target="_blank" rel="noopener" title="python/README.md:5 at ce7073d"><code>python/README.md:5</code></a>, <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/python/README.md#L12" target="_blank" rel="noopener" title="python/README.md:12 at ce7073d"><code>python/README.md:12</code></a>).</p>
+
+<section class="related"><h2 id="related-pages">Related pages</h2><ul><li><a href="../code/index.html">Code map: the folder tree</a><span class="rel-sum">The top two levels of folders of the repository at the pinned commit, with file and line counts.</span></li><li><a href="../concepts/agent-loop-and-session.html">The agent loop and the session log</a><span class="rel-sum">AgentRegistry hands agent creation to the agent-loop factory, which makes one live Agent per session. The Agent runs the turn/step loop and appends each turn and step boundary to the session&#x27;s append-only event log.</span></li><li><a href="../concepts/tools-and-mcp.html">Tools and MCP servers</a><span class="rel-sum">A first-party plugin and an MCP client both register tools into ctx.tools. Each call then goes through the same three-stage pipeline, between durable tool/call and tool/result session events.</span></li><li><a href="../tours/life-of-a-headless-task.html">Life of a headless task</a><span class="rel-sum">Follow one dsh --profile headless &quot;task&quot; run from the command line to the printed answer, stop by stop.</span></li></ul></section>
+<nav class="prevnext" aria-label="Previous and next page"><a class="pn pn-prev" href="../code/index.html"><span class="pn-dir">← Previous</span><span class="pn-title">Code map: the folder tree</span></a><a class="pn pn-next" href="../reference/config-and-env.html"><span class="pn-dir">Next →</span><span class="pn-title">&quot;Reference: config and environment variables&quot;</span></a></nav>
+<footer class="page-foot"><p class="foot-commit">Code version: <a href="https://github.com/deepseek-ai/deepseek-harness/tree/ce7073d51254c26cd63b22a60835b8f948deb447" target="_blank" rel="noopener"><code class="foot-sha">ce7073d51254c26cd63b22a60835b8f948deb447</code></a> · 2026-10-30 00:13:15 +0800 · “Merge pull request #7552 from deepseek-harness/fix/webworker-live-import-bindings” · <a href="../index.html#code-version">How to study this version</a></p><p>Source: <a href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noopener">deepseek-ai/deepseek-harness</a> · Built 2026-11-02 · Code excerpts are copied from the repo at this commit by the build.</p></footer>
+</article>
+<nav class="toc" aria-label="On this page"><p class="toc-title">On this page</p><ul><li class="toc-l2"><a href="#purpose">Purpose</a></li><li class="toc-l2"><a href="#the-central-files">The central files</a></li><li class="toc-l3"><a href="#boot-and-the-headless-tour">Boot and the headless tour</a></li><li class="toc-l3"><a href="#core-runtime">Core runtime</a></li><li class="toc-l3"><a href="#tools-and-extensibility">Tools and extensibility</a></li><li class="toc-l3"><a href="#delegation-and-background-work">Delegation and background work</a></li><li class="toc-l3"><a href="#execution-and-safety">Execution and safety</a></li><li class="toc-l3"><a href="#protocols-and-clients">Protocols and clients</a></li><li class="toc-l2"><a href="#how-this-list-was-made">How this list was made</a></li><li class="toc-l2"><a href="#related-pages">Related pages</a></li></ul></nav>
+</main>
+</div>
+<div class="lightbox" hidden><div class="lightbox-bar"><span class="lightbox-hint">Scroll to pan. Press Esc to close.</span><button type="button" class="lightbox-close">Close ✕</button></div><div class="lightbox-body"></div></div>
+<div class="tooltip" role="tooltip" id="term-tooltip" hidden></div>
+<script src="../assets/search-index.js" defer></script>
+<script src="../assets/site.js" defer></script>
+
+</body>
+</html>

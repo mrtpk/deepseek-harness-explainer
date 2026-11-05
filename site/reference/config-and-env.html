@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>&quot;Reference: config and environment variables&quot; · DeepSeek Harness Explained</title>
+<meta name="description" content="The environment variables a reader meets most often, how config files layer, and the main dsh command-line flags, with pointers to the repository&#x27;s own generated catalogs.">
+<script>try{var t=localStorage.getItem("explainer-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&amp;display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body data-root="../" data-page="reference/config-and-env">
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <button type="button" class="menu-btn" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+  <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">DH</span><span class="brand-name">DeepSeek Harness Explained</span></a>
+  <div class="search" role="search">
+    <input type="search" id="search-input" placeholder="Search  ( / )" aria-label="Search the site" autocomplete="off" spellcheck="false">
+    <div class="search-results" id="search-results" role="listbox" hidden></div>
+  </div>
+  <button type="button" class="theme-btn" aria-label="Switch between light and dark mode" title="Light / dark mode">
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
+  </button>
+</header>
+<div class="layout">
+<aside class="sidebar" id="sidebar" aria-label="Site navigation">
+<nav>
+<a class="nav-home" href="../index.html">Home</a>
+<details class="nav-sec"><summary><span class="nav-sec-title">Learn the basics</span><span class="nav-count" title="3 of 3 pages written">3/3</span></summary>
+<ul>
+<li><a href="../learn/plugins-and-cordis.html">Plugins and Cordis</a></li>
+<li><a href="../learn/profiles-and-bundles.html">Profiles and bundles</a></li>
+<li><a href="../learn/session-and-loop-vocabulary.html">Turn, step, round</a></li>
+</ul>
+</details>
+<details class="nav-sec"><summary><span class="nav-sec-title">DeepSeek Harness concepts</span><span class="nav-count" title="9 of 9 pages written">9/9</span></summary>
+<p class="nav-group">Core runtime</p>
+<ul>
+<li><a href="../concepts/agent-loop-and-session.html">Agent loop and session log</a></li>
+<li><a href="../concepts/llm-and-system-prompt.html">LLM seam &amp; system prompt</a></li>
+</ul>
+<p class="nav-group">Tools and extensibility</p>
+<ul>
+<li><a href="../concepts/tools-and-mcp.html">Tools and MCP servers</a></li>
+<li><a href="../concepts/skills.html">Skills</a></li>
+</ul>
+<p class="nav-group">Delegation and background work</p>
+<ul>
+<li><a href="../concepts/subagents-and-delegation.html">Subagents and delegation</a></li>
+<li><a href="../concepts/jobs-workflow-goal-plan.html">Jobs, workflows, goals and plan mode</a></li>
+</ul>
+<p class="nav-group">Execution and safety</p>
+<ul>
+<li><a href="../concepts/sandbox-and-execution.html">Sandbox and execution</a></li>
+<li><a href="../concepts/approval-and-interaction.html">Approval and interaction</a></li>
+</ul>
+<p class="nav-group">Protocols and clients</p>
+<ul>
+<li><a href="../concepts/acp-sdk-and-clients.html">ACP, SDKs and clients</a></li>
+</ul>
+</details>
+<details class="nav-sec"><summary><span class="nav-sec-title">Guided tour</span><span class="nav-count" title="1 of 1 pages written">1/1</span></summary>
+<ul>
+<li><a href="../tours/life-of-a-headless-task.html">Life of a headless task</a></li>
+</ul>
+</details>
+<details class="nav-sec"><summary><span class="nav-sec-title">Code map</span><span class="nav-count" title="2 of 2 pages written">2/2</span></summary>
+<ul>
+<li><a href="../code/index.html">Folder tree</a></li>
+<li><a href="../code/central-files.html">The central files</a></li>
+</ul>
+</details>
+<details class="nav-sec" open><summary><span class="nav-sec-title">Reference</span><span class="nav-count" title="2 of 2 pages written">2/2</span></summary>
+<ul>
+<li><a class="current" aria-current="page" href="../reference/config-and-env.html">Config and environment</a></li>
+<li><a href="../reference/glossary.html">Glossary</a></li>
+</ul>
+</details>
+</nav>
+</aside>
+<div class="scrim" hidden></div>
+<main id="main" class="main">
+<article class="article">
+<nav class="breadcrumbs" aria-label="Breadcrumbs"><a href="../index.html">Home</a><span class="sep">›</span><span>Reference</span><span class="sep">›</span><span aria-current="page">Config and environment</span></nav>
+<h1 class="page-title">&quot;Reference: config and environment variables&quot;</h1>
+<div class="page-meta"><span class="meta-sec">Reference</span><span class="meta-time">about 4 min read</span></div>
+<p class="code-version">Code version: DeepSeek Harness @ <a href="https://github.com/deepseek-ai/deepseek-harness/tree/ce7073d51254c26cd63b22a60835b8f948deb447" target="_blank" rel="noopener" title="ce7073d51254c26cd63b22a60835b8f948deb447"><code>ce7073d</code></a> · 2026-10-30</p>
+
+<h2 id="purpose">Purpose<a class="h-anchor" href="#purpose" aria-label="Link to this section">#</a></h2>
+<p>This page is a short lookup, not a full catalog. It lists the environment variables, config layers, and command-line flags a reader meets first. For the complete, generated tables, see the repository's own <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/docs/config-catalog.md" target="_blank" rel="noopener"><code>docs/config-catalog.md</code></a> and <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/docs/tool-catalog.md" target="_blank" rel="noopener"><code>docs/tool-catalog.md</code></a>.</p>
+
+<h2 id="main-environment-variables">Main environment variables<a class="h-anchor" href="#main-environment-variables" aria-label="Link to this section">#</a></h2>
+<table>
+<thead><tr><th>Variable</th><th>Default when unset</th><th>What it controls</th></tr></thead>
+<tbody>
+<tr>
+<td><code>DSH_HOME</code></td>
+<td><code>~/.dsh</code> (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/util/home-paths/src/index.ts#L70-L72" target="_blank" rel="noopener" title="packages/util/home-paths/src/index.ts:70-72 at ce7073d"><code>packages/util/home-paths/src/index.ts:70-72</code></a>)</td>
+<td>The home directory for <a href="../learn/profiles-and-bundles.html">profiles, profile patch files, and user data</a>. <code>resolveDshHome()</code> reads it (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/util/home-paths/src/index.ts#L135-L137" target="_blank" rel="noopener" title="packages/util/home-paths/src/index.ts:135-137 at ce7073d"><code>packages/util/home-paths/src/index.ts:135-137</code></a>). An explicit configured path has priority. An empty value is the same as unset (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/util/home-paths/src/index.ts#L107-L108" target="_blank" rel="noopener" title="packages/util/home-paths/src/index.ts:107-108 at ce7073d"><code>packages/util/home-paths/src/index.ts:107-108</code></a>).</td>
+</tr>
+<tr>
+<td><code>DSH_AGENTS_HOME</code></td>
+<td><code>~/.agents</code> (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/util/home-paths/src/index.ts#L78-L80" target="_blank" rel="noopener" title="packages/util/home-paths/src/index.ts:78-80 at ce7073d"><code>packages/util/home-paths/src/index.ts:78-80</code></a>)</td>
+<td>The shared agent configuration root (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/util/home-paths/src/index.ts#L139-L153" target="_blank" rel="noopener" title="packages/util/home-paths/src/index.ts:139-153 at ce7073d"><code>packages/util/home-paths/src/index.ts:139-153</code></a>). When its config has no <code>agentsHome</code>, the filesystem <a class="term" href="../reference/glossary.html#term-skill" data-term="skill" data-def="An optional, loadable instruction set, discovered through a provider registry under ctx.skills. Not a session event.">skill</a> provider uses this root. It scans <code>&lt;root&gt;/skills</code> as one user skill root (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/skill/skill-filesystem/src/index.ts#L167" target="_blank" rel="noopener" title="packages/skill/skill-filesystem/src/index.ts:167 at ce7073d"><code>packages/skill/skill-filesystem/src/index.ts:167</code></a>, <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/skill/skill-filesystem/src/index.ts#L264" target="_blank" rel="noopener" title="packages/skill/skill-filesystem/src/index.ts:264 at ce7073d"><code>packages/skill/skill-filesystem/src/index.ts:264</code></a>).</td>
+</tr>
+<tr>
+<td><code>DEEPSEEK_API_KEY</code></td>
+<td>(none; a model request fails with <code>MISSING_CREDENTIAL</code>) (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/llm/llm-deepseek-api-key/src/index.ts#L46-L50" target="_blank" rel="noopener" title="packages/llm/llm-deepseek-api-key/src/index.ts:46-50 at ce7073d"><code>packages/llm/llm-deepseek-api-key/src/index.ts:46-50</code></a>)</td>
+<td>The default credential name for the API key of the DeepSeek LLM adapter (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/llm/llm-deepseek-api-key/src/config.ts#L25" target="_blank" rel="noopener" title="packages/llm/llm-deepseek-api-key/src/config.ts:25 at ce7073d"><code>packages/llm/llm-deepseek-api-key/src/config.ts:25</code></a>). The <code>apiKeyEnv</code> field of the <a class="term" href="../reference/glossary.html#term-plugin" data-term="plugin" data-def="An object that implements Service: a function with optional inject and apply(ctx) fields, or a Service subclass Cordis mounts into a context.">plugin</a> config can name a different credential. When a <code>credentials</code> service is mounted, the adapter asks it for the key. Without that service, the adapter reads the launch environment (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/llm/llm-deepseek-api-key/src/index.ts#L38-L45" target="_blank" rel="noopener" title="packages/llm/llm-deepseek-api-key/src/index.ts:38-45 at ce7073d"><code>packages/llm/llm-deepseek-api-key/src/index.ts:38-45</code></a>).</td>
+</tr>
+<tr>
+<td><code>DEEPSEEK_BASE_URL</code></td>
+<td><code>https://api.deepseek.com/anthropic</code> (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/llm/llm-deepseek/src/config.ts#L116" target="_blank" rel="noopener" title="packages/llm/llm-deepseek/src/config.ts:116 at ce7073d"><code>packages/llm/llm-deepseek/src/config.ts:116</code></a>)</td>
+<td>Overrides the DeepSeek Messages endpoint. It applies only when the plugin config does not set <code>baseURL</code> (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/llm/llm-deepseek/src/config.ts#L311" target="_blank" rel="noopener" title="packages/llm/llm-deepseek/src/config.ts:311 at ce7073d"><code>packages/llm/llm-deepseek/src/config.ts:311</code></a>). The adapter reads it from the launch environment snapshot, not from <code>process.env</code>. A code comment says that only trusted layers can set it (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/llm/llm-deepseek/src/config.ts#L118-L119" target="_blank" rel="noopener" title="packages/llm/llm-deepseek/src/config.ts:118-119 at ce7073d"><code>packages/llm/llm-deepseek/src/config.ts:118-119</code></a>).</td>
+</tr>
+<tr>
+<td><code>HTTP_PROXY</code> / <code>HTTPS_PROXY</code> / <code>NO_PROXY</code> (and the lower-case and <code>ALL_PROXY</code> forms)</td>
+<td>unset (direct connections)</td>
+<td>The launcher makes one proxy policy from these variables and installs it before the first plugin mounts (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/util/http-proxy/src/policy.ts#L39-L54" target="_blank" rel="noopener" title="packages/util/http-proxy/src/policy.ts:39-54 at ce7073d"><code>packages/util/http-proxy/src/policy.ts:39-54</code></a>, <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/apps/cli/src/profile-boot.ts#L272-L279" target="_blank" rel="noopener" title="apps/cli/src/profile-boot.ts:272-279 at ce7073d"><code>apps/cli/src/profile-boot.ts:272-279</code></a>). Node <code>fetch</code> does not read the proxy environment itself. Loopback addresses never go through the proxy (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/packages/util/http-proxy/src/policy.ts#L25-L33" target="_blank" rel="noopener" title="packages/util/http-proxy/src/policy.ts:25-33 at ce7073d"><code>packages/util/http-proxy/src/policy.ts:25-33</code></a>).</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="config-file-layering">Config-file layering<a class="h-anchor" href="#config-file-layering" aria-label="Link to this section">#</a></h2>
+<p>A running <code>dsh</code> tree is a <a class="term" href="../reference/glossary.html#term-profile" data-term="profile" data-def="A named plugin-tree composition stored in the Harness home. It lists the bundles it stacks and the user&#x27;s own patch file.">profile</a> that stacks named <a class="term" href="../reference/glossary.html#term-bundle" data-term="bundle" data-def="A distribution format for Cordis config rows and the code they mount, so whatever it inserts stays patchable by the layers above it.">bundles</a>. Patch files then change the result: the bundle patches, the <code>cordis.patch.yml</code> of the profile, the home-level <code>$DSH_HOME/cordis.patch.yml</code>, and any <code>--patch</code> overlays (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/apps/cli/src/profile-boot.ts#L211-L217" target="_blank" rel="noopener" title="apps/cli/src/profile-boot.ts:211-217 at ce7073d"><code>apps/cli/src/profile-boot.ts:211-217</code></a>). <a href="../learn/profiles-and-bundles.html">Profiles and bundles: how a running dsh tree is assembled</a> explains the full, fixed layer order, with a diagram and a worked example. This page does not repeat it.</p>
+
+<h2 id="main-cli-flags">Main CLI flags<a class="h-anchor" href="#main-cli-flags" aria-label="Link to this section">#</a></h2>
+<p>These flags belong to the <code>dsh</code> launcher. <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/apps/cli/src/args.ts" target="_blank" rel="noopener"><code>apps/cli/src/args.ts</code></a> parses them. The launcher stops at the first token that it does not recognize. It gives all tokens after that, without change, to the app of the booted profile (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/apps/cli/src/args.ts#L4-L9" target="_blank" rel="noopener" title="apps/cli/src/args.ts:4-9 at ce7073d"><code>apps/cli/src/args.ts:4-9</code></a>).</p>
+<table>
+<thead><tr><th>Flag</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>--profile &lt;name&gt;</code></td><td>The profile under <code>$DSH_HOME/profiles</code> to boot (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/apps/cli/src/args.ts#L168" target="_blank" rel="noopener" title="apps/cli/src/args.ts:168 at ce7073d"><code>apps/cli/src/args.ts:168</code></a>). <code>dsh &lt;name&gt;</code> is a shorthand for <code>dsh --profile &lt;name&gt;</code> when the first argument is not a flag and not <code>plugin</code> (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/apps/cli/src/args.ts#L206-L208" target="_blank" rel="noopener" title="apps/cli/src/args.ts:206-208 at ce7073d"><code>apps/cli/src/args.ts:206-208</code></a>).</td></tr>
+<tr><td><code>--from-default-profile &lt;name&gt;</code></td><td>Replaces a custom profile with a fresh copy of a shipped profile template before boot (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/apps/cli/src/args.ts#L169" target="_blank" rel="noopener" title="apps/cli/src/args.ts:169 at ce7073d"><code>apps/cli/src/args.ts:169</code></a>).</td></tr>
+<tr><td><code>--patch &lt;path&gt;</code></td><td>Adds one extra patch-overlay file, applied after the profile's own layer. Repeatable; each use adds one more file, in argv order (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/apps/cli/src/args.ts#L170" target="_blank" rel="noopener" title="apps/cli/src/args.ts:170 at ce7073d"><code>apps/cli/src/args.ts:170</code></a>).</td></tr>
+<tr><td><code>--dump-config</code> / <code>--dump-default-config</code> / <code>--dump-config-schema</code></td><td>Print the composed profile tree, the tree without the user layer and <code>--patch</code> overlays, or the JSON Schema for profile entries and patches. Then exit. A dump does not boot the tree, and it accepts no app arguments (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/apps/cli/src/args.ts#L171-L173" target="_blank" rel="noopener" title="apps/cli/src/args.ts:171-173 at ce7073d"><code>apps/cli/src/args.ts:171-173</code></a>, <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/apps/cli/src/args.ts#L122-L127" target="_blank" rel="noopener" title="apps/cli/src/args.ts:122-127 at ce7073d"><code>apps/cli/src/args.ts:122-127</code></a>).</td></tr>
+<tr><td><code>plugin --profile &lt;name&gt; &lt;pnpm-args...&gt;</code></td><td>Forwards pnpm arguments to pnpm in the directory of one profile, to add, remove, or query a plugin dependency (<a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/apps/cli/src/args.ts#L187-L202" target="_blank" rel="noopener" title="apps/cli/src/args.ts:187-202 at ce7073d"><code>apps/cli/src/args.ts:187-202</code></a>).</td></tr>
+</tbody>
+</table>
+
+<p>For the full, generated catalog of every plugin's config fields, see <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/docs/config-catalog.md" target="_blank" rel="noopener"><code>docs/config-catalog.md</code></a>. For the full, generated catalog of every model-facing tool schema, see <a class="cite" href="https://github.com/deepseek-ai/deepseek-harness/blob/ce7073d51254c26cd63b22a60835b8f948deb447/docs/tool-catalog.md" target="_blank" rel="noopener"><code>docs/tool-catalog.md</code></a>.</p>
+
+<section class="related"><h2 id="related-pages">Related pages</h2><ul><li><a href="../learn/profiles-and-bundles.html">Profiles and bundles: how a running dsh tree is assembled</a><span class="rel-sum">A dsh profile stacks named bundles, then patch files overlay the result. This page shows the layers, in order, with two named profiles as examples.</span></li><li><a href="../code/central-files.html">Code map: the central files</a><span class="rel-sum">The repository has about 20,000 tracked files. This page lists the small set of files that do most of the work, each with its line count and a link to the page that explains it.</span></li></ul></section>
+<nav class="prevnext" aria-label="Previous and next page"><a class="pn pn-prev" href="../code/central-files.html"><span class="pn-dir">← Previous</span><span class="pn-title">Code map: the central files</span></a><a class="pn pn-next" href="../reference/glossary.html"><span class="pn-dir">Next →</span><span class="pn-title">Glossary</span></a></nav>
+<footer class="page-foot"><p class="foot-commit">Code version: <a href="https://github.com/deepseek-ai/deepseek-harness/tree/ce7073d51254c26cd63b22a60835b8f948deb447" target="_blank" rel="noopener"><code class="foot-sha">ce7073d51254c26cd63b22a60835b8f948deb447</code></a> · 2026-10-30 00:13:15 +0800 · “Merge pull request #7552 from deepseek-harness/fix/webworker-live-import-bindings” · <a href="../index.html#code-version">How to study this version</a></p><p>Source: <a href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noopener">deepseek-ai/deepseek-harness</a> · Built 2026-11-02 · Code excerpts are copied from the repo at this commit by the build.</p></footer>
+</article>
+<nav class="toc" aria-label="On this page"><p class="toc-title">On this page</p><ul><li class="toc-l2"><a href="#purpose">Purpose</a></li><li class="toc-l2"><a href="#main-environment-variables">Main environment variables</a></li><li class="toc-l2"><a href="#config-file-layering">Config-file layering</a></li><li class="toc-l2"><a href="#main-cli-flags">Main CLI flags</a></li><li class="toc-l2"><a href="#related-pages">Related pages</a></li></ul></nav>
+</main>
+</div>
+<div class="lightbox" hidden><div class="lightbox-bar"><span class="lightbox-hint">Scroll to pan. Press Esc to close.</span><button type="button" class="lightbox-close">Close ✕</button></div><div class="lightbox-body"></div></div>
+<div class="tooltip" role="tooltip" id="term-tooltip" hidden></div>
+<script src="../assets/search-index.js" defer></script>
+<script src="../assets/site.js" defer></script>
+
+</body>
+</html>

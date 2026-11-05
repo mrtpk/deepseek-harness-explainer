@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="640" viewBox="0 0 1100 640">
+<defs><marker id="m0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/></marker><marker id="m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d97706"/></marker></defs>
+<rect width="1100" height="640" fill="#ffffff"/>
+<text x="30.0" y="42.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">How does a parent delegate to a child, by name?</text>
+<text x="30.0" y="68.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">ctx.subagents is a named-provider registry; providers differ in whether the child keeps a session</text>
+<text x="30.0" y="88.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">1 registry  ·  2 provider families  ·  canvas 1100</text>
+<rect x="20.0" y="112.0" width="1060.0" height="150.0" rx="14" fill="#fafafa" fill-opacity="1.0" stroke="#e5e7eb" stroke-width="1"/>
+<circle cx="46.0" cy="138.0" r="13" fill="#111827"/>
+<text x="46.0" y="142.9" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">1</text>
+<text x="68.0" y="143.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="17" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">How does startActivation() pick a backend?</text>
+<text x="68.0" y="162.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">The caller names a provider; the registry looks it up by that name.</text>
+<rect x="46.0" y="172.0" width="260.0" height="68.0" rx="8" fill="#eff6ff" fill-opacity="1.0" stroke="#2563eb" stroke-width="1.5"/>
+<text x="176.0" y="192.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#2563eb" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">Delegation tool (parent)</text>
+<text x="176.0" y="210.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">subagents.startActivation(</text>
+<text x="176.0" y="225.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">{ provider: &quot;spawn&quot; })</text>
+<line x1="306.0" y1="206.0" x2="404.0" y2="206.0" stroke="#2563eb" stroke-width="1.6" marker-end="url(#m0)"/>
+<rect x="406.0" y="172.0" width="260.0" height="68.0" rx="8" fill="#fffbeb" fill-opacity="1.0" stroke="#d97706" stroke-width="1.5"/>
+<text x="536.0" y="192.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#d97706" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">ctx.subagents</text>
+<text x="536.0" y="210.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">index.ts:271-286</text>
+<text x="536.0" y="225.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">registry by name</text>
+<line x1="666.0" y1="206.0" x2="764.0" y2="206.0" stroke="#d97706" stroke-width="1.6" marker-end="url(#m1)"/>
+<rect x="766.0" y="172.0" width="260.0" height="68.0" rx="8" fill="#f5f3ff" fill-opacity="1.0" stroke="#7c3aed" stroke-width="1.5"/>
+<text x="896.0" y="192.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#7c3aed" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">named provider</text>
+<text x="896.0" y="210.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">index.ts:600-607</text>
+<text x="896.0" y="225.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">e.g. &quot;spawn&quot;, &quot;claude-code&quot;</text>
+<rect x="20.0" y="286.0" width="1060.0" height="232.0" rx="14" fill="#fafafa" fill-opacity="1.0" stroke="#e5e7eb" stroke-width="1"/>
+<circle cx="46.0" cy="312.0" r="13" fill="#111827"/>
+<text x="46.0" y="316.9" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">2</text>
+<text x="68.0" y="317.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="17" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">Does the child keep a session, or run once?</text>
+<text x="68.0" y="336.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12.5" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">Method presence on the provider decides it (types.ts:340,355).</text>
+<rect x="46.0" y="330.0" width="500.0" height="176.0" rx="12" fill="#f6fdf9" fill-opacity="1.0" stroke="#059669" stroke-width="1.2" stroke-opacity="0.35" stroke-dasharray="4 4"/>
+<rect x="46.0" y="330.0" width="500.0" height="64.0" rx="12" fill="#059669" fill-opacity="1.0" stroke="none"/>
+<rect x="46.0" y="370.0" width="500.0" height="24.0" rx="0" fill="#059669" fill-opacity="1.0" stroke="none"/>
+<text x="60.0" y="353.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" fill="#fff" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">Local: prepareContinuable()</text>
+<text x="60.0" y="371.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="11.5" fill="#fff" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">spawn-in-process:50, fork-in-process:72</text>
+<rect x="66.0" y="408.0" width="220.0" height="60.0" rx="8" fill="#ecfdf5" fill-opacity="1.0" stroke="#059669" stroke-width="1.5"/>
+<text x="176.0" y="428.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#059669" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">spawn</text>
+<text x="176.0" y="446.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">in-process, fresh</text>
+<rect x="306.0" y="408.0" width="220.0" height="60.0" rx="8" fill="#ecfdf5" fill-opacity="1.0" stroke="#059669" stroke-width="1.5"/>
+<text x="416.0" y="428.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#059669" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">fork</text>
+<text x="416.0" y="446.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">in-process, seeded</text>
+<text x="66.0" y="492.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="11.5" fill="#059669" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">-&gt; durable, resumable child session (can accept later messages)</text>
+<rect x="566.0" y="330.0" width="494.0" height="176.0" rx="12" fill="#faf8ff" fill-opacity="1.0" stroke="#7c3aed" stroke-width="1.2" stroke-opacity="0.35" stroke-dasharray="4 4"/>
+<rect x="566.0" y="330.0" width="494.0" height="64.0" rx="12" fill="#7c3aed" fill-opacity="1.0" stroke="none"/>
+<rect x="566.0" y="370.0" width="494.0" height="24.0" rx="0" fill="#7c3aed" fill-opacity="1.0" stroke="none"/>
+<text x="580.0" y="353.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" fill="#fff" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">External: start() only</text>
+<text x="580.0" y="371.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="11.5" fill="#fff" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">claude-code:73-116, codex, acp, dsh-sdk</text>
+<rect x="586.0" y="408.0" width="220.0" height="60.0" rx="8" fill="#f5f3ff" fill-opacity="1.0" stroke="#7c3aed" stroke-width="1.5"/>
+<text x="696.0" y="428.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#7c3aed" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">claude-code</text>
+<text x="696.0" y="446.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">official Claude Agent SDK</text>
+<rect x="826.0" y="408.0" width="220.0" height="60.0" rx="8" fill="#f5f3ff" fill-opacity="1.0" stroke="#7c3aed" stroke-width="1.5"/>
+<text x="936.0" y="428.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13.5" fill="#7c3aed" font-weight="bold" text-anchor="middle" xml:space="preserve" style="white-space:pre">codex / acp / dsh-sdk</text>
+<text x="936.0" y="446.0" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="10.5" fill="#111827" font-weight="normal" text-anchor="middle" xml:space="preserve" style="white-space:pre">each its own transport</text>
+<text x="586.0" y="492.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="11.5" fill="#7c3aed" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">-&gt; one execution; no follow-up input, no resume</text>
+<text x="30.0" y="553.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#111827" font-weight="bold" text-anchor="start" xml:space="preserve" style="white-space:pre">Legend</text>
+<rect x="97.3" y="542.0" width="14.0" height="14.0" rx="3" fill="#ecfdf5" fill-opacity="1.0" stroke="#059669" stroke-width="1.4"/>
+<text x="118.3" y="553.5" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#111827" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">local provider: durable child</text>
+<rect x="301.2" y="542.0" width="14.0" height="14.0" rx="3" fill="#f5f3ff" fill-opacity="1.0" stroke="#7c3aed" stroke-width="1.4"/>
+<text x="322.2" y="553.5" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#111827" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">external provider: one-shot child</text>
+<text x="30.0" y="572.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">The Claude Code provider spawns the SDK&#x27;s own platform-pinned CLI, under dsh&#x27;s subprocess owner —</text>
+<text x="30.0" y="590.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">never the host&#x27;s installed &quot;claude&quot; executable (subagent-claude-code/src/run.ts:370-375, README.md:12).</text>
+<text x="30.0" y="608.0" font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#6b7280" font-weight="normal" text-anchor="start" xml:space="preserve" style="white-space:pre">Simplified: capacity limits, depth caps, and tool-restriction policy are left out of this picture.</text>
+</svg>
